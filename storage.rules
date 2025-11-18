@@ -1,0 +1,22 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Static pages - public read, admin write only
+    match /static-pages/{allPaths=**} {
+      allow read: if true;
+      allow write: if false; // Only admins/functions can write
+    }
+    
+    // Theme assets - public read, admin write only
+    match /themes/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    // User uploads (if needed later)
+    match /user-content/{userId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if false; // Will be restricted with auth later
+    }
+  }
+}
