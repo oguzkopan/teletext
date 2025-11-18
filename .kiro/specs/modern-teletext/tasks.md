@@ -8,7 +8,7 @@
   - Create basic folder structure: components/, lib/, functions/, types/
   - _Requirements: All requirements depend on this foundation_
 
-- [ ] 2. Implement core teletext data models and utilities
+- [x] 2. Implement core teletext data models and utilities
   - Define TypeScript interfaces for TeletextPage, PageLink, PageMeta, ThemeConfig
   - Create Firestore data model interfaces (PageCacheDocument, ConversationDocument, UserPreferencesDocument)
   - Implement text wrapping function that respects 40-character width with word boundary detection
@@ -24,7 +24,7 @@
   - **Property 1: Page dimension invariant**
   - **Validates: Requirements 2.1, 2.2, 11.5**
 
-- [ ] 3. Build frontend teletext rendering components
+- [x] 3. Build frontend teletext rendering components
   - Create TeletextScreen component that renders 40×24 character grid
   - Implement color code parsing for seven teletext colors plus black
   - Create CRTFrame component with scanline, curvature, and noise effects
@@ -37,7 +37,7 @@
   - **Property 6: Color code support**
   - **Validates: Requirements 2.4**
 
-- [ ] 4. Implement page routing and navigation system
+- [x] 4. Implement page routing and navigation system
   - Create PageRouter component to manage navigation state
   - Implement navigation history stack with back/forward functionality
   - Add page number input buffer (3 digits) with display
@@ -58,7 +58,7 @@
   - **Property 24: Input method equivalence**
   - **Validates: Requirements 12.4**
 
-- [ ] 5. Set up Firebase Cloud Functions infrastructure
+- [x] 5. Set up Firebase Cloud Functions infrastructure
   - Create Cloud Functions project structure in functions/ directory
   - Implement GET /api/page/:id endpoint with Firestore caching
   - Implement POST /api/ai endpoint for AI interactions
