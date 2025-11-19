@@ -50,32 +50,56 @@ export default function CRTFrame({ children, effects }: CRTFrameProps) {
           display: flex;
           justify-content: center;
           align-items: center;
-          padding: 40px;
+          width: 100vw;
+          height: 100vh;
           background: #1a1a1a;
+          padding: 0;
+          margin: 0;
+          box-sizing: border-box;
         }
 
         .crt-frame {
           position: relative;
           background: #2a2a2a;
-          padding: 40px;
+          padding: 1.5vh 1.5vw;
           border-radius: 20px;
           box-shadow: 
             0 0 50px rgba(0, 0, 0, 0.8),
             inset 0 0 20px rgba(0, 0, 0, 0.5);
+          max-width: 98vw;
+          max-height: 98vh;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-sizing: border-box;
         }
 
         .crt-bezel {
           position: relative;
           background: #000;
-          padding: 20px;
+          padding: 1vh 1vw;
           border-radius: 10px;
           box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.9);
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-sizing: border-box;
         }
 
         .crt-screen {
           position: relative;
           overflow: hidden;
           background: #000;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-sizing: border-box;
         }
 
         .crt-screen.curved {

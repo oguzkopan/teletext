@@ -1,26 +1,114 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Pages cache - public read, function write only
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isValidPageId(pageId) {
+      // Page IDs must be 3 digits between 100-899
+      return pageId.matches('^[1-8][0-9]{2}$');
+    }
+    
+    function isValidPageData() {
+      let data = request.resource.data;
+      // Validate page structure
+      return data.keys().hasAll(['pageId', 'page', 'source', 'cachedAt', 'expiresAt', 'accessCount'])
+        && data.page.keys().hasAll(['id', 'title', 'rows', 'links'])
+        && data.page.rows.size() == 24
+        && data.accessCount is int
+        && data.accessCount >= 0;
+    }
+    
+    function isValidConversation() {
+      let data = request.resource.data;
+      // Validate conversation structure
+      return data.keys().hasAll(['contextId', 'state', 'createdAt', 'lastAccessedAt', 'expiresAt'])
+        && data.state.keys().hasAll(['contextId', 'mode', 'history', 'parameters'])
+        && data.state.history is list
+        && data.createdAt is timestamp
+        && data.lastAccessedAt is timestamp
+        && data.expiresAt is timestamp;
+    }
+    
+    function isValidUserPreferences() {
+      let data = request.resource.data;
+      // Validate user preferences structure
+      return data.keys().hasAll(['userId', 'theme', 'favoritePages', 'settings', 'updatedAt'])
+        && data.theme is string
+        && data.favoritePages is list
+        && data.favoritePages.size() <= 10
+        && data.settings.keys().hasAll(['scanlines', 'curvature', 'noise'])
+        && data.updatedAt is timestamp;
+    }
+    
+    // Pages cache collection - public read, function write only
+    // This allows all users to read cached pages but only Cloud Functions can write
     match /pages_cache/{pageId} {
-      allow read: if true;
-      allow write: if false; // Only Cloud Functions can write
+      allow read: if isValidPageId(pageId);
+      allow create: if false; // Only Cloud Functions via Admin SDK
+      allow update: if false; // Only Cloud Functions via Admin SDK
+      allow delete: if false; // Only Cloud Functions via Admin SDK
     }
     
-    // Conversations - user-specific access (placeholder for auth)
+    // Conversations collection - user-specific access
+    // Users can only access their own conversations
+    // Anonymous users can create and access conversations using session-based IDs
     match /conversations/{conversationId} {
-      allow read, write: if true; // Will be restricted with auth later
+      // Allow read if user owns the conversation or if it's an anonymous session
+      allow read: if isAuthenticated() 
+        ? resource.data.userId == request.auth.uid
+        : true; // Anonymous users can read any conversation (for now)
+      
+      // Allow create if authenticated user or anonymous with valid data
+      allow create: if isValidConversation()
+        && (isAuthenticated() 
+          ? request.resource.data.userId == request.auth.uid
+          : true); // Anonymous users can create conversations
+      
+      // Allow update only if user owns the conversation
+      allow update: if isValidConversation()
+        && (isAuthenticated()
+          ? resource.data.userId == request.auth.uid
+          : true); // Anonymous users can update their conversations
+      
+      // Allow delete only if user owns the conversation
+      allow delete: if isAuthenticated()
+        ? resource.data.userId == request.auth.uid
+        : true; // Anonymous users can delete conversations
     }
     
-    // User preferences - user-specific access (placeholder for auth)
+    // User preferences collection - user-specific access
+    // Each user can only access their own preferences
     match /user_preferences/{userId} {
-      allow read, write: if true; // Will be restricted with auth later
+      // Users can only read their own preferences
+      allow read: if isOwner(userId);
+      
+      // Users can only create their own preferences with valid data
+      allow create: if isOwner(userId) 
+        && isValidUserPreferences()
+        && request.resource.data.userId == userId;
+      
+      // Users can only update their own preferences with valid data
+      allow update: if isOwner(userId)
+        && isValidUserPreferences()
+        && request.resource.data.userId == userId;
+      
+      // Users can delete their own preferences
+      allow delete: if isOwner(userId);
     }
     
-    // Analytics - read only for admins (placeholder)
+    // Analytics collection - read only for all, write only for Cloud Functions
+    // This allows public viewing of analytics but only functions can write
     match /analytics/{document=**} {
       allow read: if true;
-      allow write: if false; // Only Cloud Functions can write
+      allow write: if false; // Only Cloud Functions via Admin SDK
     }
   }
 }

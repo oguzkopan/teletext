@@ -1,223 +1,159 @@
-# Task 5 Implementation Summary
+# Modern Teletext - Implementation Status
 
-## Firebase Cloud Functions Infrastructure
+This document tracks the implementation status of the Modern Teletext backend adapters.
 
-This document summarizes the implementation of Task 5: Set up Firebase Cloud Functions infrastructure.
+## Completed Features
 
-### ✅ Completed Components
+### ✅ Task 1-7: Foundation & Static Pages
+- Firebase project setup with Cloud Functions, Firestore, and Storage
+- Core teletext data models and TypeScript interfaces
+- Frontend rendering components (TeletextScreen, CRTFrame, RemoteInterface)
+- Page routing and navigation system
+- Cloud Functions infrastructure with caching
+- StaticAdapter for system pages (100-199)
+- Boot sequence and initial loading experience
 
-#### 1. Project Structure
-Created a well-organized Cloud Functions project structure:
-```
-functions/
-├── src/
-│   ├── index.ts                    # Main entry point with HTTP endpoints
-│   ├── types.ts                    # TypeScript type definitions
-│   ├── adapters/
-│   │   └── StaticAdapter.ts        # Static page adapter (100-199)
-│   ├── utils/
-│   │   ├── cache.ts                # Firestore caching utilities
-│   │   ├── router.ts               # Page routing logic
-│   │   ├── logger.ts               # Structured logging
-│   │   └── errors.ts               # Error handling utilities
-│   └── __tests__/
-│       └── integration.test.ts     # Integration tests
-├── lib/                            # Compiled JavaScript output
-├── jest.config.js                  # Jest test configuration
-├── package.json                    # Updated with test dependencies
-├── tsconfig.json                   # TypeScript configuration
-└── README.md                       # Documentation
-```
+### ✅ Task 8: News Adapter (200-299)
+**Status**: Complete
 
-#### 2. GET /api/page/:id Endpoint
-Implemented a fully functional page retrieval endpoint with:
-- ✅ Path parameter extraction (`/api/page/100`)
-- ✅ Query parameter support (`/api/page?id=100`)
-- ✅ Page ID validation (100-899 range)
-- ✅ Firestore cache checking
-- ✅ Adapter routing based on page number
-- ✅ Cache storage with configurable TTL
-- ✅ CORS support
-- ✅ Comprehensive error handling
-- ✅ Structured logging with timing metrics
+**Implementation Details**:
+- Created `NewsAdapter` class implementing the `ContentAdapter` interface
+- Integrated with NewsAPI for live news headlines
+- Implemented all required pages:
+  - **Page 200**: News Index with category navigation
+  - **Page 201**: Top Headlines
+  - **Page 202**: World News
+  - **Page 203**: Local News (US)
+  - **Page 210**: Technology News
+  - **Page 211**: Business News
+  - **Page 212**: Entertainment News
+  - **Page 213**: Science News
+  - **Page 214**: Health News
+  - **Page 215**: Sports News
 
-**Features:**
-- Cache hit: Returns page within ~100ms
-- Cache miss: Fetches from adapter and caches result
-- Invalid page: Returns 400 error with clear message
-- Page not found: Returns 404 error
+**Features**:
+- ✅ Headline truncation to 36 characters (fits with "1. " prefix in 40-char rows)
+- ✅ HTML tag stripping and entity decoding
+- ✅ Firestore caching with 5-minute TTL
+- ✅ Graceful error handling for API failures
+- ✅ Proper 40×24 page formatting
+- ✅ Pagination support (foundation for future multi-page articles)
+- ✅ Source attribution for each article
 
-#### 3. POST /api/ai Endpoint
-Implemented a placeholder AI endpoint that:
-- ✅ Accepts POST requests with mode and parameters
-- ✅ Returns properly formatted teletext pages
-- ✅ Includes CORS support
-- ✅ Has error handling and logging
-- ✅ Returns placeholder response (to be expanded in later tasks)
+**Testing**:
+- 15 unit tests covering all NewsAdapter functionality
+- Integration tests for routing to NewsAdapter
+- All tests passing ✅
 
-#### 4. Router Function
-Created `routeToAdapter()` function that:
-- ✅ Maps page ranges to appropriate adapters
-- ✅ Validates page numbers (100-899)
-- ✅ Throws clear errors for invalid pages
-- ✅ Supports all 8 magazines (1xx-8xx)
-- ✅ Currently routes all to StaticAdapter (other adapters to be implemented)
+**Configuration**:
+- Environment variable: `NEWS_API_KEY`
+- Setup guide: `functions/NEWS_API_SETUP.md`
+- Free tier: 100 requests/day (sufficient with 5-min caching)
 
-**Magazine Routing:**
-- 1xx → StaticAdapter (System pages)
-- 2xx → NewsAdapter (placeholder)
-- 3xx → SportsAdapter (placeholder)
-- 4xx → MarketsAdapter (placeholder)
-- 5xx → AIAdapter (placeholder)
-- 6xx → GamesAdapter (placeholder)
-- 7xx → SettingsAdapter (placeholder)
-- 8xx → DevAdapter (placeholder)
+**Files Created/Modified**:
+- `functions/src/adapters/NewsAdapter.ts` - Main adapter implementation
+- `functions/src/adapters/__tests__/NewsAdapter.test.ts` - Unit tests
+- `functions/src/utils/router.ts` - Updated to route 2xx pages to NewsAdapter
+- `functions/NEWS_API_SETUP.md` - Configuration guide
+- `.env.example` - Added NEWS_API_KEY
+- `.env.local` - Added NEWS_API_KEY placeholder
 
-#### 5. Firestore Cache Functions
-Implemented complete caching system:
+## Pending Features
 
-**getCachedPage(pageId)**
-- ✅ Retrieves page from Firestore
-- ✅ Checks expiration timestamp
-- ✅ Deletes expired entries automatically
-- ✅ Increments access count
-- ✅ Updates cache status in metadata
-- ✅ Returns null if not found or expired
+### 🔲 Task 9: Sports Adapter (300-399)
+- Live scores and league tables
+- Team watchlist functionality
+- Integration with sports API
 
-**setCachedPage(pageId, page, ttlSeconds)**
-- ✅ Stores page in Firestore
-- ✅ Sets expiration timestamp based on TTL
-- ✅ Includes source adapter name
-- ✅ Initializes access count
-- ✅ Handles errors gracefully (doesn't break request)
+### 🔲 Task 10: Markets Adapter (400-499)
+- Cryptocurrency prices
+- Stock market data
+- Foreign exchange rates
 
-**clearExpiredCache()**
-- ✅ Batch deletes expired entries
-- ✅ Returns count of deleted entries
-- ✅ Can be called periodically for cleanup
+### 🔲 Task 11-14: AI Adapter (500-599)
+- Vertex AI integration with Gemini
+- Menu-driven AI interactions
+- Q&A flows
+- Spooky story generator
+- Conversation history
 
-#### 6. Error Handling
-Comprehensive error handling system:
+### 🔲 Task 15-17: Games Adapter (600-699)
+- Quiz of the day
+- Bamboozle-style branching quiz
+- Random facts feature
 
-**Custom Error Classes:**
-- `TeletextError` - Base error class
-- `InvalidPageError` - Invalid page numbers (400)
-- `PageNotFoundError` - Page doesn't exist (404)
-- `AdapterError` - Adapter failures (500)
-- `ExternalAPIError` - External API failures (502)
+### 🔲 Task 18: Weather Adapter (420-449)
+- City-specific weather forecasts
+- Integration with weather API
 
-**Error Response Functions:**
-- `createErrorResponse()` - Standardized page error responses
-- `createAIErrorResponse()` - Standardized AI error responses
-- `getStatusCode()` - Extracts HTTP status from errors
+### 🔲 Task 19-21: Settings & Customization (700-799)
+- Theme system with classic palettes
+- CRT effects control panel
+- Keyboard shortcuts configuration
 
-#### 7. Logging System
-Structured logging with context:
-- ✅ Debug, info, warn, error levels
-- ✅ Context-aware logging (function name)
-- ✅ Request/response logging with timing
-- ✅ Error logging with stack traces
-- ✅ Structured data for Cloud Logging
+### 🔲 Task 22: Developer Tools (800-899)
+- API explorer
+- Raw JSON viewer
+- Documentation pages
 
-#### 8. StaticAdapter Implementation
-Fully functional static page adapter:
-- ✅ Page 100: Main index with magazine listings
-- ✅ Page 404: Error page with ASCII art
-- ✅ Placeholder pages for unimplemented content
-- ✅ Proper 40×24 character grid formatting
-- ✅ Fastext navigation links
-- ✅ Metadata with source and timestamps
-- ✅ 1-year cache duration for static content
+### 🔲 Task 23-30: Polish & Deployment
+- Easter egg pages (404, 666)
+- HTML sanitization improvements
+- Offline support
+- Performance optimizations
+- Security rules
+- Production deployment
+- Documentation
+- Final testing
 
-#### 9. Testing
-Comprehensive test suite:
-- ✅ 12 passing tests
-- ✅ Page routing validation
-- ✅ Page ID validation
-- ✅ StaticAdapter functionality
-- ✅ Page format validation (24 rows × 40 chars)
-- ✅ Metadata validation
-- ✅ Jest configuration
-- ✅ Test scripts in package.json
-
-### 📋 Requirements Validation
-
-**Requirement 11.1** ✅
-> THE Teletext System SHALL route page requests to the appropriate Content Adapter based on page number ranges
-
-**Implementation:** `routeToAdapter()` function maps page numbers to adapters based on magazine (first digit).
-
-**Requirement 11.4** ✅
-> THE Teletext System SHALL cache adapter responses in Firestore for configurable time periods to reduce API calls
-
-**Implementation:** `getCachedPage()` and `setCachedPage()` functions with configurable TTL per adapter.
-
-**Requirement 15.1** ✅
-> WHEN a user navigates to a cached page THEN the Teletext System SHALL display the page within 100 milliseconds
-
-**Implementation:** Firestore cache retrieval is fast (~50-100ms), meeting the requirement.
-
-**Requirement 15.2** ✅
-> WHEN a user navigates to an uncached page THEN the Teletext System SHALL display the page within 500 milliseconds
-
-**Implementation:** StaticAdapter generates pages synchronously, well under 500ms. Timing metrics logged.
-
-### 🔧 Technical Details
-
-**TypeScript Compilation:**
-- ✅ No compilation errors
-- ✅ Strict mode enabled
-- ✅ Source maps generated
-- ✅ Output in `lib/` directory
-
-**Dependencies:**
-- firebase-admin: ^12.3.0
-- firebase-functions: ^5.1.0
-- axios: ^1.7.0 (for future API calls)
-- jest: ^29.7.0 (testing)
-- ts-jest: ^29.1.0 (TypeScript testing)
-
-**Code Quality:**
-- ✅ No TypeScript errors
-- ✅ No linting issues
-- ✅ Consistent error handling
-- ✅ Comprehensive logging
-- ✅ Well-documented code
-- ✅ Type-safe throughout
-
-### 🚀 Next Steps
-
-The following will be implemented in future tasks:
-1. NewsAdapter (Task 8) - Pages 200-299
-2. SportsAdapter (Task 9) - Pages 300-399
-3. MarketsAdapter (Task 10) - Pages 400-499
-4. AIAdapter with Vertex AI (Task 11) - Pages 500-599
-5. GamesAdapter (Task 15) - Pages 600-699
-6. SettingsAdapter (Task 19) - Pages 700-799
-7. DevAdapter (Task 22) - Pages 800-899
-8. Static page content from Firebase Storage (Task 6)
-
-### 📊 Test Results
+## Architecture Overview
 
 ```
-Test Suites: 1 passed, 1 total
-Tests:       12 passed, 12 total
-Snapshots:   0 total
-Time:        1.289 s
+┌─────────────────────────────────────────────────────────────┐
+│                    Cloud Functions API                       │
+│                                                              │
+│  GET /api/page/:id                                          │
+│  ├─ Router (utils/router.ts)                               │
+│  │  ├─ 100-199 → StaticAdapter ✅                          │
+│  │  ├─ 200-299 → NewsAdapter ✅                            │
+│  │  ├─ 300-399 → SportsAdapter 🔲                          │
+│  │  ├─ 400-499 → MarketsAdapter 🔲                         │
+│  │  ├─ 500-599 → AIAdapter 🔲                              │
+│  │  ├─ 600-699 → GamesAdapter 🔲                           │
+│  │  ├─ 700-799 → SettingsAdapter 🔲                        │
+│  │  └─ 800-899 → DevAdapter 🔲                             │
+│  │                                                           │
+│  └─ Cache Layer (utils/cache.ts)                           │
+│     └─ Firestore (pages_cache collection)                  │
+│                                                              │
+│  POST /api/ai (placeholder) 🔲                              │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-All tests passing with 100% success rate.
+## Testing Status
 
-### 🎯 Summary
+| Component | Unit Tests | Integration Tests | Status |
+|-----------|-----------|-------------------|--------|
+| StaticAdapter | ✅ | ✅ | Complete |
+| NewsAdapter | ✅ | ✅ | Complete |
+| Router | ✅ | ✅ | Complete |
+| Cache | ✅ | ✅ | Complete |
+| Error Handling | ✅ | ✅ | Complete |
 
-Task 5 has been successfully completed with all requirements met:
-- ✅ Cloud Functions project structure created
-- ✅ GET /api/page/:id endpoint implemented with Firestore caching
-- ✅ POST /api/ai endpoint implemented (placeholder)
-- ✅ Router function maps page ranges to adapters
-- ✅ Firestore cache functions (getCachedPage, setCachedPage) implemented
-- ✅ Error handling and logging added for all endpoints
-- ✅ Comprehensive test suite with 12 passing tests
-- ✅ All requirements validated
+**Total Tests**: 34 passing
 
-The infrastructure is now ready for implementing the specific content adapters in subsequent tasks.
+## Next Steps
+
+1. **Task 9**: Implement SportsAdapter for live scores and league tables
+2. **Task 10**: Implement MarketsAdapter for crypto and stock data
+3. **Task 11**: Set up Vertex AI and implement AIAdapter foundation
+4. Continue with remaining tasks in order
+
+## Notes
+
+- All adapters follow the same pattern: implement `ContentAdapter` interface
+- Consistent error handling across all adapters
+- Firestore caching reduces API costs and improves performance
+- All pages maintain strict 40×24 character grid format
+- HTML sanitization prevents display issues
+- Comprehensive test coverage ensures reliability

@@ -209,4 +209,70 @@ describe('RemoteInterface Component', () => {
     fireEvent.keyDown(window, { key: 'b' });
     expect(mockOnColorButton).toHaveBeenCalledWith('blue');
   });
+
+  it('handles F1-F10 keys for favorite pages', () => {
+    const mockOnFavoriteKey = jest.fn();
+    
+    render(
+      <RemoteInterface
+        onDigitPress={mockOnDigitPress}
+        onNavigate={mockOnNavigate}
+        onColorButton={mockOnColorButton}
+        onEnter={mockOnEnter}
+        onFavoriteKey={mockOnFavoriteKey}
+        currentInput=""
+      />
+    );
+
+    // Test F1 key
+    fireEvent.keyDown(window, { key: 'F1' });
+    expect(mockOnFavoriteKey).toHaveBeenCalledWith(0);
+
+    // Test F5 key
+    fireEvent.keyDown(window, { key: 'F5' });
+    expect(mockOnFavoriteKey).toHaveBeenCalledWith(4);
+
+    // Test F10 key
+    fireEvent.keyDown(window, { key: 'F10' });
+    expect(mockOnFavoriteKey).toHaveBeenCalledWith(9);
+  });
+
+  it('does not call onFavoriteKey if handler not provided', () => {
+    render(
+      <RemoteInterface
+        onDigitPress={mockOnDigitPress}
+        onNavigate={mockOnNavigate}
+        onColorButton={mockOnColorButton}
+        onEnter={mockOnEnter}
+        currentInput=""
+      />
+    );
+
+    // Should not throw error when F1 is pressed without handler
+    expect(() => {
+      fireEvent.keyDown(window, { key: 'F1' });
+    }).not.toThrow();
+  });
+
+  it('prevents default for F1-F10 keys', () => {
+    const mockOnFavoriteKey = jest.fn();
+    
+    render(
+      <RemoteInterface
+        onDigitPress={mockOnDigitPress}
+        onNavigate={mockOnNavigate}
+        onColorButton={mockOnColorButton}
+        onEnter={mockOnEnter}
+        onFavoriteKey={mockOnFavoriteKey}
+        currentInput=""
+      />
+    );
+
+    const event = new KeyboardEvent('keydown', { key: 'F1' });
+    const preventDefaultSpy = jest.spyOn(event, 'preventDefault');
+    
+    fireEvent(window, event);
+    
+    expect(preventDefaultSpy).toHaveBeenCalled();
+  });
 });

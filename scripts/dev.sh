@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Development startup script
+# This script helps you start both required services for local development
+
+echo "🚀 Modern Teletext Development Setup"
+echo "===================================="
+echo ""
+echo "This app requires TWO services to run:"
+echo "  1. Firebase Emulators (Functions, Firestore, Storage)"
+echo "  2. Next.js Development Server"
+echo ""
+echo "You need to run these in SEPARATE terminal windows."
+echo ""
+echo "📋 Instructions:"
+echo ""
+echo "Terminal 1 (Firebase Emulators):"
+echo "  cd $(pwd)"
+echo "  npm run emulators:start"
+echo ""
+echo "Terminal 2 (Next.js Dev Server):"
+echo "  cd $(pwd)"
+echo "  npm run dev"
+echo ""
+echo "⚠️  IMPORTANT:"
+echo "  - Wait for emulators to show 'All emulators ready!' before starting Next.js"
+echo "  - Keep both terminals running while developing"
+echo "  - If you see 500 errors, check that emulators are still running"
+echo ""
+echo "🌐 Once both are running, open:"
+echo "  - App: http://localhost:3000"
+echo "  - Emulator UI: http://localhost:4000"
+echo ""

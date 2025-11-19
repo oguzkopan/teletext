@@ -38,8 +38,33 @@ describe('PageRouter', () => {
       
       return Promise.resolve({
         ok: true,
+        headers: {
+          get: () => null
+        },
         json: () => Promise.resolve({ page: pages[pageId as string] })
       });
+    });
+    
+    // Mock sessionStorage
+    Object.defineProperty(window, 'sessionStorage', {
+      value: {
+        getItem: jest.fn(),
+        setItem: jest.fn(),
+        removeItem: jest.fn(),
+        clear: jest.fn(),
+      },
+      writable: true
+    });
+    
+    // Mock localStorage for browser cache
+    Object.defineProperty(window, 'localStorage', {
+      value: {
+        getItem: jest.fn(),
+        setItem: jest.fn(),
+        removeItem: jest.fn(),
+        clear: jest.fn(),
+      },
+      writable: true
     });
   });
 
@@ -270,6 +295,85 @@ describe('PageRouter', () => {
     
     await waitFor(() => {
       expect(screen.getByTestId('loading')).toHaveTextContent('false');
+    });
+  });
+
+  it('should provide default favorite pages', () => {
+    render(
+      <PageRouter initialPage={mockPage100}>
+        {(state) => (
+          <div>
+            <div data-testid="favorites">{JSON.stringify(state.favoritePages)}</div>
+          </div>
+        )}
+      </PageRouter>
+    );
+
+    const favorites = JSON.parse(screen.getByTestId('favorites').textContent || '[]');
+    expect(favorites).toHaveLength(10);
+    expect(favorites[0]).toBe('100'); // Index
+    expect(favorites[1]).toBe('200'); // News
+    expect(favorites[2]).toBe('300'); // Sport
+    expect(favorites[3]).toBe('400'); // Markets
+    expect(favorites[4]).toBe('500'); // AI Oracle
+  });
+
+  it('should navigate to favorite page when handleFavoriteKey is called', async () => {
+    render(
+      <PageRouter initialPage={mockPage100}>
+        {(state) => (
+          <div>
+            <div data-testid="page-id">{state.currentPage?.id}</div>
+            <button onClick={() => state.handleFavoriteKey(1)}>F2 (News)</button>
+          </div>
+        )}
+      </PageRouter>
+    );
+
+    fireEvent.click(screen.getByText('F2 (News)'));
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('page-id')).toHaveTextContent('200');
+    });
+  });
+
+  it('should not navigate if favorite page is not set', async () => {
+    render(
+      <PageRouter initialPage={mockPage100}>
+        {(state) => (
+          <div>
+            <div data-testid="page-id">{state.currentPage?.id}</div>
+            <button onClick={() => state.handleFavoriteKey(5)}>F6 (Not set)</button>
+          </div>
+        )}
+      </PageRouter>
+    );
+
+    fireEvent.click(screen.getByText('F6 (Not set)'));
+    
+    // Should remain on page 100
+    await waitFor(() => {
+      expect(screen.getByTestId('page-id')).toHaveTextContent('100');
+    });
+  });
+
+  it('should handle out of range favorite key index', async () => {
+    render(
+      <PageRouter initialPage={mockPage100}>
+        {(state) => (
+          <div>
+            <div data-testid="page-id">{state.currentPage?.id}</div>
+            <button onClick={() => state.handleFavoriteKey(15)}>Invalid Index</button>
+          </div>
+        )}
+      </PageRouter>
+    );
+
+    fireEvent.click(screen.getByText('Invalid Index'));
+    
+    // Should remain on page 100
+    await waitFor(() => {
+      expect(screen.getByTestId('page-id')).toHaveTextContent('100');
     });
   });
 });

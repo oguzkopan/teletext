@@ -1,7 +1,11 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
-import { TeletextPage } from '@/types/teletext';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import { TeletextPage, createOfflinePage } from '@/types/teletext';
+import { useOfflineSupport, useBrowserCache } from '@/hooks/useOfflineSupport';
+import { usePagePreload } from '@/hooks/usePagePreload';
+import { useRequestCancellation } from '@/hooks/useRequestCancellation';
+import { performanceMonitor } from '@/lib/performance-monitor';
 
 interface PageRouterProps {
   initialPage?: TeletextPage;
@@ -18,8 +22,12 @@ export interface PageRouterState {
   handleEnter: () => void;
   handleNavigate: (direction: 'back' | 'forward' | 'up' | 'down') => void;
   handleColorButton: (color: 'red' | 'green' | 'yellow' | 'blue') => void;
+  handleFavoriteKey: (index: number) => void;
+  favoritePages: string[];
   canGoBack: boolean;
   canGoForward: boolean;
+  isOnline: boolean;
+  isCached: boolean;
 }
 
 /**
@@ -27,8 +35,9 @@ export interface PageRouterState {
  * 
  * Manages navigation state, history stack, and page transitions.
  * Implements page number validation and input buffering.
+ * Includes performance optimizations: preloading, request cancellation, and debouncing.
  * 
- * Requirements: 1.1, 1.2, 1.4, 1.5, 3.4, 12.3, 12.5
+ * Requirements: 1.1, 1.2, 1.4, 1.5, 3.4, 12.3, 12.5, 15.4, 15.5
  */
 export default function PageRouter({ 
   initialPage, 
@@ -40,6 +49,34 @@ export default function PageRouter({
   const [inputBuffer, setInputBuffer] = useState('');
   const [history, setHistory] = useState<string[]>(initialPage ? [initialPage.id] : []);
   const [historyIndex, setHistoryIndex] = useState(initialPage ? 0 : -1);
+  const [isCached, setIsCached] = useState(false);
+  
+  // Offline support hooks
+  // Requirements: 13.4, 15.3
+  const { isOnline, serviceWorkerReady, cachePage: cachePageInSW } = useOfflineSupport();
+  const { savePage, loadPage } = useBrowserCache();
+  
+  // Performance optimization hooks
+  // Requirement: 15.4 - Page preloading
+  usePagePreload();
+  
+  // Requirement: 15.5 - Request cancellation
+  const { createCancellableRequest, clearRequest, isRequestActive } = useRequestCancellation();
+  
+  // Favorite pages state - default favorites
+  // Requirement: 23.4 - Support up to 10 favorite pages
+  const [favoritePages, setFavoritePages] = useState<string[]>([
+    '100', // Index
+    '200', // News
+    '300', // Sport
+    '400', // Markets
+    '500', // AI Oracle
+    '',    // Not set
+    '',    // Not set
+    '',    // Not set
+    '',    // Not set
+    ''     // Not set
+  ]);
 
   /**
    * Validates page number is in valid range (100-899)
@@ -51,30 +88,101 @@ export default function PageRouter({
   };
 
   /**
-   * Fetches a page by ID
-   * Requirement: 1.1 - Display page within 500ms
+   * Fetches a page by ID with offline support and request cancellation
+   * Requirements: 1.1 - Display page within 500ms
+   * Requirements: 13.4 - Display cached content when offline
+   * Requirements: 15.3 - Remain responsive during loading
+   * Requirements: 15.5 - Cancel pending requests for rapid navigation
    */
-  const fetchPage = async (pageId: string): Promise<TeletextPage | null> => {
+  const fetchPage = useCallback(async (
+    pageId: string, 
+    abortSignal?: AbortSignal
+  ): Promise<{ page: TeletextPage | null; fromCache: boolean }> => {
+    // First, try to load from browser cache if offline
+    if (!isOnline) {
+      console.log(`Offline: Attempting to load page ${pageId} from cache`);
+      const cachedPage = loadPage(pageId);
+      if (cachedPage) {
+        // Mark as cached
+        const pageWithCacheStatus = {
+          ...cachedPage,
+          meta: {
+            ...cachedPage.meta,
+            cacheStatus: 'cached' as const
+          }
+        };
+        return { page: pageWithCacheStatus, fromCache: true };
+      }
+      // No cache available
+      return { page: null, fromCache: false };
+    }
+
     try {
-      // TODO: Replace with actual API call when backend is implemented
-      // For now, return a mock page
-      const response = await fetch(`/api/page/${pageId}`);
+      // Try network request with abort signal for cancellation
+      const response = await fetch(`/api/page/${pageId}`, {
+        signal: abortSignal,
+      });
       
       if (!response.ok) {
         throw new Error(`Failed to fetch page ${pageId}`);
       }
       
+      // Check if response came from service worker cache
+      const cacheStatus = response.headers.get('X-Cache-Status');
+      const fromCache = cacheStatus === 'cached';
+      
       const data = await response.json();
-      return data.page || null;
+      const page = data.page || null;
+      
+      if (page) {
+        // Update cache status in metadata
+        if (fromCache) {
+          page.meta = {
+            ...page.meta,
+            cacheStatus: 'cached' as const
+          };
+        }
+        
+        // Save to browser cache for offline access
+        savePage(pageId, page);
+        
+        // Also cache in service worker if available
+        if (serviceWorkerReady && !fromCache) {
+          cachePageInSW(pageId, data);
+        }
+      }
+      
+      return { page, fromCache };
     } catch (error) {
+      // Check if request was aborted
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log(`Request for page ${pageId} was cancelled`);
+        throw error; // Re-throw to handle in navigateToPage
+      }
+      
       console.error('Error fetching page:', error);
-      return null;
+      
+      // Network error - try browser cache as fallback
+      console.log(`Network error: Attempting to load page ${pageId} from browser cache`);
+      const cachedPage = loadPage(pageId);
+      if (cachedPage) {
+        const pageWithCacheStatus = {
+          ...cachedPage,
+          meta: {
+            ...cachedPage.meta,
+            cacheStatus: 'cached' as const
+          }
+        };
+        return { page: pageWithCacheStatus, fromCache: true };
+      }
+      
+      return { page: null, fromCache: false };
     }
-  };
+  }, [isOnline, loadPage, savePage, serviceWorkerReady, cachePageInSW]);
 
   /**
-   * Navigates to a specific page
-   * Requirement: 1.1, 1.2
+   * Navigates to a specific page with offline support and request cancellation
+   * Requirements: 1.1, 1.2, 13.4, 15.3, 15.5
    */
   const navigateToPage = useCallback(async (pageId: string) => {
     // Validate page number
@@ -84,13 +192,31 @@ export default function PageRouter({
       return;
     }
 
+    // Create cancellable request
+    const abortController = createCancellableRequest(pageId);
+    
+    // Start performance measurement
+    const startTime = performance.now();
+    
     setLoading(true);
+    setIsCached(false);
     
     try {
-      const page = await fetchPage(pageId);
+      const { page, fromCache } = await fetchPage(pageId, abortController.signal);
+      
+      // Check if this request is still active (not cancelled by a newer request)
+      if (!isRequestActive(pageId)) {
+        console.log(`Ignoring response for cancelled request: ${pageId}`);
+        return;
+      }
+      
+      // Record performance metrics
+      const loadTime = performance.now() - startTime;
+      performanceMonitor.recordPageLoad(pageId, loadTime, fromCache);
       
       if (page) {
         setCurrentPage(page);
+        setIsCached(fromCache);
         
         // Update history - remove any forward history and add new page
         const newHistory = history.slice(0, historyIndex + 1);
@@ -101,22 +227,39 @@ export default function PageRouter({
         if (onPageChange) {
           onPageChange(page);
         }
+      } else {
+        // No page available (offline and no cache)
+        // Requirement 13.4: Display offline error page
+        console.error(`Page ${pageId} not available offline`);
+        const offlinePage = createOfflinePage(pageId);
+        setCurrentPage(offlinePage);
+        setIsCached(false);
       }
-    } finally {
+      
+      clearRequest();
+      setLoading(false);
+    } catch (error) {
+      // Handle abort errors silently (request was cancelled)
+      if (error instanceof Error && error.name === 'AbortError') {
+        setLoading(false);
+        return;
+      }
+      console.error('Navigation error:', error);
       setLoading(false);
     }
-  }, [history, historyIndex, onPageChange]);
+  }, [history, historyIndex, onPageChange, createCancellableRequest, clearRequest, isRequestActive, fetchPage]);
 
   /**
-   * Handles digit press for page number input
+   * Handles digit press for page number input with debouncing
    * Requirement: 12.3, 12.5 - Input buffer with 3 digits
+   * Requirement: Performance - Debouncing for keyboard input (100ms)
    */
   const handleDigitPress = useCallback((digit: number) => {
     if (inputBuffer.length < 3) {
       const newBuffer = inputBuffer + digit.toString();
       setInputBuffer(newBuffer);
       
-      // Auto-navigate when 3 digits are entered
+      // Auto-navigate when 3 digits are entered (with 100ms debounce)
       if (newBuffer.length === 3) {
         setTimeout(() => {
           navigateToPage(newBuffer);
@@ -141,8 +284,8 @@ export default function PageRouter({
   }, [inputBuffer, navigateToPage]);
 
   /**
-   * Handles navigation controls
-   * Requirement: 1.4, 1.5
+   * Handles navigation controls with request cancellation
+   * Requirement: 1.4, 1.5, 15.5
    */
   const handleNavigate = useCallback((direction: 'back' | 'forward' | 'up' | 'down') => {
     switch (direction) {
@@ -153,13 +296,22 @@ export default function PageRouter({
           const pageId = history[newIndex];
           setHistoryIndex(newIndex);
           
+          const abortController = createCancellableRequest(pageId);
           setLoading(true);
-          fetchPage(pageId).then(page => {
-            if (page) {
+          setIsCached(false);
+          
+          fetchPage(pageId, abortController.signal).then(({ page, fromCache }) => {
+            if (isRequestActive(pageId) && page) {
               setCurrentPage(page);
+              setIsCached(fromCache);
               if (onPageChange) {
                 onPageChange(page);
               }
+            }
+            setLoading(false);
+          }).catch(error => {
+            if (error.name !== 'AbortError') {
+              console.error('Navigation error:', error);
             }
             setLoading(false);
           });
@@ -173,13 +325,22 @@ export default function PageRouter({
           const pageId = history[newIndex];
           setHistoryIndex(newIndex);
           
+          const abortController = createCancellableRequest(pageId);
           setLoading(true);
-          fetchPage(pageId).then(page => {
-            if (page) {
+          setIsCached(false);
+          
+          fetchPage(pageId, abortController.signal).then(({ page, fromCache }) => {
+            if (isRequestActive(pageId) && page) {
               setCurrentPage(page);
+              setIsCached(fromCache);
               if (onPageChange) {
                 onPageChange(page);
               }
+            }
+            setLoading(false);
+          }).catch(error => {
+            if (error.name !== 'AbortError') {
+              console.error('Navigation error:', error);
             }
             setLoading(false);
           });
@@ -208,7 +369,7 @@ export default function PageRouter({
         }
         break;
     }
-  }, [currentPage, history, historyIndex, navigateToPage, onPageChange]);
+  }, [currentPage, history, historyIndex, navigateToPage, onPageChange, createCancellableRequest, isRequestActive, fetchPage]);
 
   /**
    * Handles colored Fastext button navigation
@@ -225,6 +386,19 @@ export default function PageRouter({
     }
   }, [currentPage, navigateToPage]);
 
+  /**
+   * Handles F1-F10 favorite page shortcuts
+   * Requirement: 23.5 - Single-key access to favorite pages
+   */
+  const handleFavoriteKey = useCallback((index: number) => {
+    if (index >= 0 && index < favoritePages.length) {
+      const pageId = favoritePages[index];
+      if (pageId && pageId.trim() !== '') {
+        navigateToPage(pageId);
+      }
+    }
+  }, [favoritePages, navigateToPage]);
+
   const canGoBack = historyIndex > 0;
   const canGoForward = historyIndex < history.length - 1;
 
@@ -239,8 +413,12 @@ export default function PageRouter({
         handleEnter,
         handleNavigate,
         handleColorButton,
+        handleFavoriteKey,
+        favoritePages,
         canGoBack,
-        canGoForward
+        canGoForward,
+        isOnline,
+        isCached
       })}
     </>
   );

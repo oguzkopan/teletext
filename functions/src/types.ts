@@ -21,6 +21,14 @@ export interface PageMeta {
   lastUpdated?: string;
   aiContextId?: string;
   cacheStatus?: 'fresh' | 'cached' | 'stale';
+  haunting?: boolean;      // Enable maximum glitch effects for horror pages
+  aiGenerated?: boolean;   // Indicates AI-generated content
+  effectsData?: {
+    scanlinesIntensity?: number;
+    curvature?: number;
+    noiseLevel?: number;
+  };
+  favoritePages?: string[];
 }
 
 export interface PageCacheDocument {
@@ -58,4 +66,25 @@ export interface AIResponse {
   pages?: TeletextPage[];
   contextId?: string;
   error?: string;
+}
+
+export interface ThemeConfig {
+  name: string;
+  colors: {
+    background: string;
+    text: string;
+    red: string;
+    green: string;
+    yellow: string;
+    blue: string;
+    magenta: string;
+    cyan: string;
+    white: string;
+  };
+  effects: {
+    scanlines: boolean;
+    curvature: boolean;
+    noise: boolean;
+    glitch: boolean;
+  };
 }

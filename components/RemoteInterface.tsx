@@ -7,6 +7,7 @@ interface RemoteInterfaceProps {
   onNavigate: (direction: 'back' | 'forward' | 'up' | 'down') => void;
   onColorButton: (color: 'red' | 'green' | 'yellow' | 'blue') => void;
   onEnter: () => void;
+  onFavoriteKey?: (index: number) => void;
   currentInput: string;
 }
 
@@ -23,6 +24,7 @@ export default function RemoteInterface({
   onNavigate,
   onColorButton,
   onEnter,
+  onFavoriteKey,
   currentInput
 }: RemoteInterfaceProps) {
   
@@ -31,10 +33,23 @@ export default function RemoteInterface({
     // Prevent default for keys we handle
     const handledKeys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 
                          'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
-                         'Backspace'];
+                         'Backspace', 'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10'];
     
     if (handledKeys.includes(event.key)) {
       event.preventDefault();
+    }
+
+    // Handle F1-F10 keys for favorite pages
+    // Requirement: 23.4, 23.5 - Single-key access to favorite pages
+    if (event.key.startsWith('F') && onFavoriteKey) {
+      const fKeyMatch = event.key.match(/^F(\d+)$/);
+      if (fKeyMatch) {
+        const fKeyNumber = parseInt(fKeyMatch[1], 10);
+        if (fKeyNumber >= 1 && fKeyNumber <= 10) {
+          onFavoriteKey(fKeyNumber - 1); // 0-indexed
+          return;
+        }
+      }
     }
 
     // Handle digit keys
@@ -68,6 +83,7 @@ export default function RemoteInterface({
     }
 
     // Handle colored buttons (using letters as shortcuts)
+    // Requirement: 23.2 - Document colored button shortcuts
     if (event.key.toLowerCase() === 'r') {
       onColorButton('red');
       return;
@@ -84,7 +100,7 @@ export default function RemoteInterface({
       onColorButton('blue');
       return;
     }
-  }, [onDigitPress, onNavigate, onColorButton, onEnter]);
+  }, [onDigitPress, onNavigate, onColorButton, onEnter, onFavoriteKey]);
 
   // Set up keyboard listeners
   useEffect(() => {

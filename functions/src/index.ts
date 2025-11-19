@@ -1,4 +1,5 @@
 import * as functions from 'firebase-functions';
+import { setGlobalOptions } from 'firebase-functions/v2';
 import * as admin from 'firebase-admin';
 import { getCachedPage, setCachedPage } from './utils/cache';
 import { routeToAdapter, isValidPageId } from './utils/router';
@@ -11,6 +12,16 @@ import {
   getStatusCode
 } from './utils/errors';
 import { PageResponse, AIResponse } from './types';
+
+// Set global options for all Cloud Functions (v2)
+// These settings optimize for production performance and cost
+setGlobalOptions({
+  region: 'us-central1',           // Primary region for low latency
+  maxInstances: 100,                // Scale up to 100 instances under load
+  timeoutSeconds: 60,               // 60 second timeout for most functions
+  memory: '512MiB',                 // 512MB memory allocation
+  concurrency: 80,                  // Handle up to 80 concurrent requests per instance
+});
 
 // Initialize Firebase Admin
 admin.initializeApp();
@@ -29,6 +40,10 @@ export const getPage = functions.https.onRequest(async (req, res) => {
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.set('Access-Control-Allow-Headers', 'Content-Type');
+  
+  // Set CDN caching headers for production
+  // Cache at CDN for 5 minutes, allow stale content for 10 minutes
+  res.set('Cache-Control', 'public, max-age=300, s-maxage=600, stale-while-revalidate=600');
 
   if (req.method === 'OPTIONS') {
     res.status(204).send('');
@@ -103,7 +118,6 @@ export const getPage = functions.https.onRequest(async (req, res) => {
 /**
  * POST /api/ai
  * Processes AI requests and returns formatted teletext pages
- * This is a placeholder implementation that will be expanded in later tasks
  */
 export const processAI = functions.https.onRequest(async (req, res) => {
   const startTime = Date.now();
@@ -127,14 +141,41 @@ export const processAI = functions.https.onRequest(async (req, res) => {
       return;
     }
 
-    const { mode } = req.body;
+    const { mode, parameters } = req.body;
 
-    aiLogger.logRequest('POST', '/api/ai', { mode });
+    aiLogger.logRequest('POST', '/api/ai', { mode, parameters });
 
-    // Placeholder response - actual AI integration will be implemented in later tasks
-    const response: AIResponse = {
-      success: true,
-      pages: [
+    // Get AI adapter
+    const adapter = routeToAdapter('500'); // AI adapter handles 500-599
+    
+    // Type guard to check if adapter has processQARequest method
+    if (!('processQARequest' in adapter)) {
+      throw new Error('AI adapter not properly configured');
+    }
+
+    let pages;
+    let contextId = parameters?.contextId;
+
+    // Route based on mode
+    if (mode === 'qa') {
+      // Process Q&A request
+      pages = await (adapter as any).processQARequest(parameters);
+      
+      // Extract contextId from the first page's metadata
+      if (pages && pages.length > 0 && pages[0].meta?.aiContextId) {
+        contextId = pages[0].meta.aiContextId;
+      }
+    } else if (mode === 'spooky_story') {
+      // Process spooky story request
+      pages = await (adapter as any).processSpookyStoryRequest(parameters);
+      
+      // Extract contextId from the first page's metadata
+      if (pages && pages.length > 0 && pages[0].meta?.aiContextId) {
+        contextId = pages[0].meta.aiContextId;
+      }
+    } else {
+      // Placeholder for other modes
+      pages = [
         {
           id: '500',
           title: 'AI Oracle',
@@ -142,15 +183,14 @@ export const processAI = functions.https.onRequest(async (req, res) => {
             'AI ORACLE                    P500',
             '════════════════════════════════════',
             '',
-            'AI service is being configured.',
-            '',
-            'This endpoint will be fully',
-            'implemented in a future task.',
+            `Mode "${mode}" is not yet implemented.`,
             '',
             'Available modes:',
-            '• Q&A',
-            '• Summarization',
-            '• Story generation',
+            '• qa - Q&A Assistant',
+            '• spooky_story - Horror Stories',
+            '',
+            'More modes coming soon!',
+            '',
             '',
             '',
             '',
@@ -173,12 +213,17 @@ export const processAI = functions.https.onRequest(async (req, res) => {
             cacheStatus: 'fresh'
           }
         }
-      ],
-      contextId: 'placeholder-context-id'
+      ];
+    }
+
+    const response: AIResponse = {
+      success: true,
+      pages,
+      contextId
     };
 
     const duration = Date.now() - startTime;
-    aiLogger.logResponse(200, duration, { mode });
+    aiLogger.logResponse(200, duration, { mode, pageCount: pages.length });
 
     res.status(200).json(response);
   } catch (error: any) {
@@ -189,5 +234,77 @@ export const processAI = functions.https.onRequest(async (req, res) => {
     
     const response = createAIErrorResponse(error);
     res.status(statusCode).json(response);
+  }
+});
+
+/**
+ * DELETE /api/conversation/:contextId
+ * Deletes a conversation from Firestore
+ */
+export const deleteConversation = functions.https.onRequest(async (req, res) => {
+  const startTime = Date.now();
+  const deleteLogger = createLogger('deleteConversation');
+
+  // Enable CORS
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'DELETE, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    res.status(204).send('');
+    return;
+  }
+
+  try {
+    if (req.method !== 'DELETE') {
+      res.status(405).json({
+        success: false,
+        error: 'Method not allowed. Use DELETE.'
+      });
+      return;
+    }
+
+    // Extract contextId from path
+    const pathParts = req.path.split('/');
+    const contextId = pathParts[pathParts.length - 1] || req.query.contextId as string;
+
+    if (!contextId) {
+      res.status(400).json({
+        success: false,
+        error: 'No context ID provided'
+      });
+      return;
+    }
+
+    deleteLogger.logRequest('DELETE', `/api/conversation/${contextId}`);
+
+    // Get AI adapter
+    const adapter = routeToAdapter('500'); // AI adapter handles 500-599
+    
+    // Type guard to check if adapter has deleteConversation method
+    if (!('deleteConversation' in adapter)) {
+      throw new Error('AI adapter not properly configured');
+    }
+
+    // Delete the conversation
+    await (adapter as any).deleteConversation(contextId);
+
+    const duration = Date.now() - startTime;
+    deleteLogger.logResponse(200, duration, { contextId });
+
+    res.status(200).json({
+      success: true,
+      message: 'Conversation deleted successfully'
+    });
+  } catch (error: any) {
+    const duration = Date.now() - startTime;
+    const statusCode = getStatusCode(error);
+    
+    deleteLogger.error('Delete conversation failed', error, { duration });
+    
+    res.status(statusCode).json({
+      success: false,
+      error: error.message || 'Failed to delete conversation'
+    });
   }
 });

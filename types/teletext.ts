@@ -1,5 +1,37 @@
 // Core Teletext Types
 
+/**
+ * Creates an offline error page when content is unavailable
+ * Requirement: 13.4
+ */
+export function createOfflinePage(pageId: string): TeletextPage {
+  const rows = Array(24).fill('').map((_, i) => {
+    if (i === 0) return `OFFLINE                         ${pageId}`.padEnd(40);
+    if (i === 1) return '════════════════════════════════════════';
+    if (i === 3) return 'NO NETWORK CONNECTION'.padEnd(40);
+    if (i === 5) return 'This page is not available offline.'.padEnd(40);
+    if (i === 7) return 'The page has not been cached or the'.padEnd(40);
+    if (i === 8) return 'cache has expired.'.padEnd(40);
+    if (i === 10) return 'Please check your connection and'.padEnd(40);
+    if (i === 11) return 'try again.'.padEnd(40);
+    if (i === 20) return 'Press 100 to return to index'.padEnd(40);
+    return ''.padEnd(40);
+  });
+
+  return {
+    id: pageId,
+    title: 'OFFLINE',
+    rows,
+    links: [
+      { label: 'INDEX', targetPage: '100', color: 'red' }
+    ],
+    meta: {
+      source: 'System',
+      cacheStatus: 'stale'
+    }
+  };
+}
+
 export interface TeletextPage {
   id: string;              // "201"
   title: string;           // Page title
@@ -20,6 +52,14 @@ export interface PageMeta {
   lastUpdated?: string;    // ISO timestamp
   aiContextId?: string;    // For AI conversation continuity
   cacheStatus?: 'fresh' | 'cached' | 'stale';
+  haunting?: boolean;      // Enable maximum glitch effects for horror pages
+  aiGenerated?: boolean;   // Indicates AI-generated content
+  effectsData?: {
+    scanlinesIntensity?: number;
+    curvature?: number;
+    noiseLevel?: number;
+  };
+  favoritePages?: string[]; // For keyboard shortcuts config page
 }
 
 export interface ThemeConfig {
@@ -84,6 +124,11 @@ export interface UserPreferencesDocument {
     scanlines: boolean;
     curvature: boolean;
     noise: boolean;
+  };
+  effects: {
+    scanlinesIntensity: number;  // 0-100
+    curvature: number;            // 0-10 (px)
+    noiseLevel: number;           // 0-100
   };
   updatedAt: Date;
 }

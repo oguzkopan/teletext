@@ -75,7 +75,7 @@
   - **Property 22: Cache behavior**
   - **Validates: Requirements 11.4**
 
-- [ ] 6. Create static pages adapter and initial pages
+- [x] 6. Create static pages adapter and initial pages
   - Implement StaticAdapter for pages 100-199
   - Create page 100 (main index) with magazine listings and Fastext links
   - Create page 101 (how it works) explaining teletext concept
@@ -85,7 +85,7 @@
   - Store static pages in Firebase Storage as JSON files
   - _Requirements: 3.1, 3.2, 3.3, 3.5, 17.1, 18.1, 18.2, 18.3_
 
-- [ ] 7. Implement boot sequence and initial loading experience
+- [x] 7. Implement boot sequence and initial loading experience
   - Create CRT warm-up animation with static noise
   - Implement transition from boot sequence to page 100
   - Add skip functionality for boot sequence (any key press)
@@ -93,7 +93,7 @@
   - Display welcome message on page 100 after boot
   - _Requirements: 19.1, 19.2, 19.3, 19.4, 19.5_
 
-- [ ] 8. Build news adapter with external API integration
+- [x] 8. Build news adapter with external API integration
   - Implement NewsAdapter for pages 200-299
   - Integrate with NewsAPI or similar service
   - Create page 200 (news index) with category links
@@ -113,7 +113,7 @@
   - **Property 10: API failure graceful degradation**
   - **Validates: Requirements 4.5, 11.3**
 
-- [ ] 9. Build sports adapter with live scores and tables
+- [x] 9. Build sports adapter with live scores and tables
   - Implement SportsAdapter for pages 300-399
   - Integrate with sports API (API-Football or ESPN)
   - Create page 300 (sports index)
@@ -133,7 +133,7 @@
   - **Property 26: Tabular data alignment**
   - **Validates: Requirements 14.3**
 
-- [ ] 10. Build markets adapter for crypto and stocks
+- [x] 10. Build markets adapter for crypto and stocks
   - Implement MarketsAdapter for pages 400-499
   - Integrate with CoinGecko API for cryptocurrency data
   - Integrate with Alpha Vantage or similar for stock data
@@ -145,7 +145,7 @@
   - Cache market pages with 1-minute TTL
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 29.1, 29.2, 29.3, 29.4, 29.5_
 
-- [ ] 11. Implement AI adapter with Vertex AI integration
+- [x] 11. Implement AI adapter with Vertex AI integration
   - Implement AIAdapter for pages 500-599
   - Set up Vertex AI client with Gemini Pro model
   - Create page 500 (AI Oracle index) with service options
@@ -163,7 +163,7 @@
   - **Property 14: Conversation context preservation**
   - **Validates: Requirements 7.5**
 
-- [ ] 12. Build AI Q&A flow with topic selection
+- [x] 12. Build AI Q&A flow with topic selection
   - Create page 510 (topic selection: news, tech, career, health, free)
   - Implement multi-step parameter collection using numeric menus
   - Create country/region selection pages with numeric options
@@ -177,7 +177,7 @@
   - **Property 13: AI response formatting**
   - **Validates: Requirements 7.3**
 
-- [ ] 13. Implement spooky story generator for Kiroween
+- [x] 13. Implement spooky story generator for Kiroween
   - Create page 505 (spooky story generator menu)
   - Implement horror story theme selection (haunted house, ghost, monster, etc.)
   - Generate horror stories using Gemini with spooky prompts
@@ -186,7 +186,7 @@
   - Save generated stories to conversation history
   - _Requirements: 20.1, 20.2, 20.3, 20.4, 20.5_
 
-- [ ] 14. Build conversation history and recall system
+- [x] 14. Build conversation history and recall system
   - Create page 520 (conversation index) listing recent AI interactions
   - Display conversation timestamps and topics
   - Implement conversation thread display with full history
@@ -195,7 +195,7 @@
   - Create pages 521-529 for displaying conversation details
   - _Requirements: 22.1, 22.2, 22.3, 22.4, 22.5_
 
-- [ ] 15. Implement games adapter with quiz functionality
+- [x] 15. Implement games adapter with quiz functionality
   - Implement GamesAdapter for pages 600-699
   - Create page 600 (games index)
   - Build quiz of the day (page 601) with trivia API integration
@@ -212,7 +212,7 @@
   - **Property 16: Quiz score calculation**
   - **Validates: Requirements 8.4**
 
-- [ ] 16. Build Bamboozle-style branching quiz game
+- [x] 16. Build Bamboozle-style branching quiz game
   - Create page 610 (Bamboozle game introduction)
   - Implement branching logic where answers lead to different pages
   - Create at least 3 different story paths through the quiz
@@ -225,7 +225,7 @@
   - **Property 17: Branching navigation consistency**
   - **Validates: Requirements 8.5**
 
-- [ ] 17. Implement random facts feature
+- [x] 17. Implement random facts feature
   - Create page 620 (random fact display)
   - Integrate with facts API or create curated database
   - Implement fact refresh on page reload
@@ -233,7 +233,7 @@
   - Categorize facts by topic (science, history, technology)
   - _Requirements: 25.1, 25.2, 25.3, 25.4, 25.5_
 
-- [ ] 18. Build weather adapter with city forecasts
+- [x] 18. Build weather adapter with city forecasts
   - Implement WeatherAdapter for pages 420-449
   - Integrate with weather API (OpenWeatherMap or similar)
   - Create page 420 (weather index) with city selection
@@ -243,7 +243,7 @@
   - Cache weather pages with 30-minute TTL
   - _Requirements: 16.1, 16.2, 16.3, 16.4, 16.5_
 
-- [ ] 19. Implement theme system with classic palettes
+- [x] 19. Implement theme system with classic palettes
   - Create SettingsAdapter for pages 700-799
   - Create page 700 (theme selection) with available palettes
   - Implement Ceefax theme (yellow on blue, BBC colors)
@@ -258,7 +258,7 @@
   - **Property 18: Theme application consistency**
   - **Validates: Requirements 9.2**
 
-- [ ] 20. Build CRT effects control panel
+- [x] 20. Build CRT effects control panel
   - Create page 701 (CRT effects controls)
   - Implement sliders for scanline intensity (0-100%)
   - Implement slider for screen curvature (0-10px)
@@ -268,7 +268,7 @@
   - Add "reset to defaults" button
   - _Requirements: 27.1, 27.2, 27.3, 27.4, 27.5_
 
-- [ ] 21. Implement keyboard shortcuts and help system
+- [x] 21. Implement keyboard shortcuts and help system
   - Create page 710 (custom shortcut configuration)
   - Create page 720 (keyboard shortcuts reference)
   - Document all keyboard shortcuts (digits, Enter, arrows, colors)
@@ -277,7 +277,7 @@
   - Store shortcuts in Firestore user preferences
   - _Requirements: 23.1, 23.2, 23.3, 23.4, 23.5_
 
-- [ ] 22. Build developer tools and API explorer
+- [x] 22. Build developer tools and API explorer
   - Implement DevAdapter for pages 800-899
   - Create page 800 (API explorer index)
   - Create page 801 (raw JSON of current page)
@@ -295,7 +295,7 @@
   - **Property 20: Metadata completeness**
   - **Validates: Requirements 10.5**
 
-- [ ] 23. Implement special Easter egg pages (404 and 666)
+- [x] 23. Implement special Easter egg pages (404 and 666)
   - Create page 404 with animated glitch effects and horror ASCII art
   - Create page 666 with AI-generated horror content and disturbing visuals
   - Implement glitch animation effects (screen shake, color distortion)
@@ -304,7 +304,7 @@
   - Apply maximum haunting mode effects on these pages
   - _Requirements: 13.1, 13.5_
 
-- [ ] 24. Implement HTML sanitization and content parsing
+- [x] 24. Implement HTML sanitization and content parsing
   - Create HTML tag stripping function for news content
   - Implement special character sanitization
   - Add whitespace preservation for layout formatting
@@ -320,7 +320,7 @@
   - **Property 28: Whitespace preservation**
   - **Validates: Requirements 14.5**
 
-- [ ] 25. Implement offline support and cache fallback
+- [x] 25. Implement offline support and cache fallback
   - Add service worker for offline page caching
   - Implement network connectivity detection
   - Display "Cached" indicator when serving offline content
@@ -332,7 +332,7 @@
   - **Property 25: Offline cache fallback**
   - **Validates: Requirements 13.4**
 
-- [ ] 26. Implement performance optimizations
+- [x] 26. Implement performance optimizations
   - Add page preloading for index (100) and frequently accessed pages
   - Implement request cancellation for rapid navigation
   - Add debouncing for keyboard input (100ms)
@@ -349,7 +349,7 @@
   - **Property 30: Request cancellation**
   - **Validates: Requirements 15.5**
 
-- [ ] 27. Set up Firestore security rules and indexes
+- [x] 27. Set up Firestore security rules and indexes
   - Write security rules for pages_cache collection (public read, function write)
   - Write security rules for conversations collection (user-specific access)
   - Write security rules for user_preferences collection (user-specific access)
@@ -358,7 +358,7 @@
   - Test security rules with Firebase emulator
   - _Requirements: All requirements involving Firestore_
 
-- [ ] 28. Deploy to Firebase and configure production environment
+- [x] 28. Deploy to Firebase and configure production environment
   - Configure Firebase App Hosting for Next.js deployment
   - Set up production environment variables
   - Configure Cloud Functions for production region
@@ -368,7 +368,7 @@
   - Deploy and test in production environment
   - _Requirements: All requirements_
 
-- [ ] 29. Create comprehensive documentation
+- [x] 29. Create comprehensive documentation
   - Write README with project overview and setup instructions
   - Document all page numbers and their purposes
   - Create API documentation for Cloud Functions
@@ -378,7 +378,7 @@
   - Document Kiro usage (specs, hooks, steering, MCP)
   - _Requirements: 18.5_
 
-- [ ] 30. Final testing and polish
+- [x] 30. Final testing and polish
   - Test all page navigation flows
   - Verify all adapters work with real APIs
   - Test theme switching and effect controls

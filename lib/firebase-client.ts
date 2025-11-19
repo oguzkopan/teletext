@@ -2,6 +2,7 @@ import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
 import { getAnalytics, Analytics } from 'firebase/analytics';
+import { getPerformance, FirebasePerformance } from 'firebase/performance';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -17,6 +18,7 @@ let app: FirebaseApp;
 let db: Firestore;
 let storage: FirebaseStorage;
 let analytics: Analytics | null = null;
+let performance: FirebasePerformance | null = null;
 
 // Initialize Firebase only if it hasn't been initialized yet
 if (!getApps().length) {
@@ -24,9 +26,15 @@ if (!getApps().length) {
   db = getFirestore(app);
   storage = getStorage(app);
   
-  // Initialize analytics only in browser environment
+  // Initialize analytics and performance monitoring only in browser environment
   if (typeof window !== 'undefined') {
     analytics = getAnalytics(app);
+    
+    // Enable performance monitoring in production
+    if (process.env.NODE_ENV === 'production' || 
+        process.env.NEXT_PUBLIC_ENABLE_PERFORMANCE_MONITORING === 'true') {
+      performance = getPerformance(app);
+    }
   }
 } else {
   app = getApps()[0];
@@ -35,7 +43,12 @@ if (!getApps().length) {
   
   if (typeof window !== 'undefined') {
     analytics = getAnalytics(app);
+    
+    if (process.env.NODE_ENV === 'production' || 
+        process.env.NEXT_PUBLIC_ENABLE_PERFORMANCE_MONITORING === 'true') {
+      performance = getPerformance(app);
+    }
   }
 }
 
-export { app, db, storage, analytics };
+export { app, db, storage, analytics, performance };
