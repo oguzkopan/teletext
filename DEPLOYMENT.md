@@ -5,7 +5,7 @@ This guide covers deploying the Modern Teletext application to Firebase with pro
 ## Prerequisites
 
 - Firebase CLI installed (`npm install -g firebase-tools`)
-- Firebase project created (project ID: `teletext-eacd0`)
+- Firebase project created (project ID: `your-project-id`)
 - Node.js 18+ installed
 - All API keys obtained (News, Sports, Markets, Weather)
 - Google Cloud project with Vertex AI enabled
@@ -33,19 +33,19 @@ Create a `.env.production` file (DO NOT commit to git):
 
 ```bash
 # Firebase Client Configuration (Public)
-NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyAaYDAX2iPyVYLuXeWjk9KN6VVCzZGaddk
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=teletext-eacd0.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=teletext-eacd0
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=teletext-eacd0.firebasestorage.app
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=914122197824
-NEXT_PUBLIC_FIREBASE_APP_ID=1:914122197824:web:56e859f31c15891dce88a5
-NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=G-N1KQXRQ0KM
+NEXT_PUBLIC_FIREBASE_API_KEY=YOUR_FIREBASE_API_KEY
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project-id.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=YOUR_SENDER_ID
+NEXT_PUBLIC_FIREBASE_APP_ID=YOUR_APP_ID
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=YOUR_MEASUREMENT_ID
 
 # Node Environment
 NODE_ENV=production
 
 # API Base URL (update after deployment)
-NEXT_PUBLIC_API_BASE_URL=https://us-central1-teletext-eacd0.cloudfunctions.net
+NEXT_PUBLIC_API_BASE_URL=https://us-central1-your-project-id.cloudfunctions.net
 ```
 
 ### 2. Firebase Functions Environment Variables
@@ -58,7 +58,7 @@ cd functions
 
 # Set production environment variables
 firebase functions:config:set \
-  google.project_id="teletext-eacd0" \
+  google.project_id="your-project-id" \
   google.location="us-central1" \
   news.api_key="YOUR_NEWS_API_KEY" \
   sports.api_key="YOUR_SPORTS_API_KEY" \
@@ -159,7 +159,7 @@ gcloud run deploy modern-teletext \
   --platform managed \
   --region us-central1 \
   --allow-unauthenticated \
-  --project teletext-eacd0
+  --project your-project-id
 ```
 
 ---
@@ -486,13 +486,13 @@ firebase deploy
 
 ```bash
 # Test main index page
-curl https://teletext-eacd0.web.app/
+curl https://your-project-id.web.app/
 
 # Test API endpoint
-curl https://us-central1-teletext-eacd0.cloudfunctions.net/getPage?id=100
+curl https://us-central1-your-project-id.cloudfunctions.net/getPage?id=100
 
 # Test AI endpoint
-curl -X POST https://us-central1-teletext-eacd0.cloudfunctions.net/processAI \
+curl -X POST https://us-central1-your-project-id.cloudfunctions.net/processAI \
   -H "Content-Type: application/json" \
   -d '{"mode":"qa","parameters":{"topic":"test"}}'
 ```
@@ -525,7 +525,7 @@ Use Lighthouse to verify:
 
 ```bash
 # Run Lighthouse
-npx lighthouse https://teletext-eacd0.web.app/ --view
+npx lighthouse https://your-project-id.web.app/ --view
 ```
 
 ### 4. Load Testing
@@ -534,7 +534,7 @@ Use Apache Bench or similar:
 
 ```bash
 # Test 1000 requests with 10 concurrent connections
-ab -n 1000 -c 10 https://teletext-eacd0.web.app/
+ab -n 1000 -c 10 https://your-project-id.web.app/
 ```
 
 ---
@@ -594,7 +594,7 @@ firebase functions:log
 firebase functions:log --only getPage
 
 # View logs in Cloud Console
-gcloud logging read "resource.type=cloud_function" --limit 50 --project teletext-eacd0
+gcloud logging read "resource.type=cloud_function" --limit 50 --project your-project-id
 ```
 
 ### 3. Analytics
@@ -673,7 +673,7 @@ Monitor in Firebase Console:
 
 Your Modern Teletext application is now live in production. Monitor the Firebase Console for performance metrics and user analytics.
 
-**Production URL**: https://teletext-eacd0.web.app/
-**Functions URL**: https://us-central1-teletext-eacd0.cloudfunctions.net/
+**Production URL**: https://your-project-id.web.app/
+**Functions URL**: https://us-central1-your-project-id.cloudfunctions.net/
 
 Enjoy your retro teletext experience! 📺✨
