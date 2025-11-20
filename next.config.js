@@ -53,6 +53,16 @@ const nextConfig = {
       '@': path.resolve(__dirname),
     };
     
+    // Externalize functions dependencies - they're only used in dev mode with dynamic imports
+    // In production, we call deployed Firebase Functions instead
+    if (isServer) {
+      config.externals = config.externals || [];
+      config.externals.push({
+        '@google-cloud/vertexai': 'commonjs @google-cloud/vertexai',
+        'axios': 'commonjs axios',
+      });
+    }
+    
     if (!isServer) {
       // Split chunks for better caching
       config.optimization = {
