@@ -92,4 +92,84 @@ describe('CRTFrame Component', () => {
     const glare = container.querySelector('.screen-glare');
     expect(glare).toBeInTheDocument();
   });
+
+  // Halloween effects tests - Requirements 36.1, 36.2, 36.3, 36.4, 36.5
+  it('applies haunting mode class when enabled', () => {
+    const { container } = render(
+      <CRTFrame 
+        effects={{ scanlines: true, curvature: true, noise: true, glitch: true }}
+        hauntingMode={true}
+      >
+        <div>Test</div>
+      </CRTFrame>
+    );
+
+    const hauntingFrame = container.querySelector('.crt-frame.haunting');
+    expect(hauntingFrame).toBeInTheDocument();
+  });
+
+  it('applies haunting screen class when haunting mode is enabled', () => {
+    const { container } = render(
+      <CRTFrame 
+        effects={{ scanlines: true, curvature: true, noise: true, glitch: true }}
+        hauntingMode={true}
+      >
+        <div>Test</div>
+      </CRTFrame>
+    );
+
+    const hauntingScreen = container.querySelector('.crt-screen.haunting-screen');
+    expect(hauntingScreen).toBeInTheDocument();
+  });
+
+  it('renders Halloween particle effects when haunting mode is enabled', () => {
+    const { container } = render(
+      <CRTFrame 
+        effects={{ scanlines: true, curvature: true, noise: true, glitch: true }}
+        hauntingMode={true}
+      >
+        <div>Test</div>
+      </CRTFrame>
+    );
+
+    const particles = container.querySelector('.halloween-particles');
+    expect(particles).toBeInTheDocument();
+    
+    // Check for specific particle types
+    expect(container.querySelector('.particle.ghost')).toBeInTheDocument();
+    expect(container.querySelector('.particle.bat')).toBeInTheDocument();
+    expect(container.querySelector('.particle.pumpkin')).toBeInTheDocument();
+    expect(container.querySelector('.particle.skull')).toBeInTheDocument();
+  });
+
+  it('does not render Halloween particles when haunting mode is disabled', () => {
+    const { container } = render(
+      <CRTFrame 
+        effects={{ scanlines: true, curvature: true, noise: true, glitch: false }}
+        hauntingMode={false}
+      >
+        <div>Test</div>
+      </CRTFrame>
+    );
+
+    const particles = container.querySelector('.halloween-particles');
+    expect(particles).not.toBeInTheDocument();
+  });
+
+  it('does not apply haunting classes when haunting mode is disabled', () => {
+    const { container } = render(
+      <CRTFrame 
+        effects={{ scanlines: true, curvature: true, noise: true, glitch: false }}
+        hauntingMode={false}
+      >
+        <div>Test</div>
+      </CRTFrame>
+    );
+
+    const hauntingFrame = container.querySelector('.crt-frame.haunting');
+    expect(hauntingFrame).not.toBeInTheDocument();
+    
+    const hauntingScreen = container.querySelector('.crt-screen.haunting-screen');
+    expect(hauntingScreen).not.toBeInTheDocument();
+  });
 });

@@ -582,6 +582,188 @@ rectness Properties
 *For any* sequence of rapid page navigation requests, the system should cancel pending requests and only complete the most recent request.
 **Validates: Requirements 15.5**
 
+### Property 31: Full-width content display
+*For any* page content, the text should utilize the full 40-character width with proper centering or justification.
+**Validates: Requirements 34.2, 34.3**
+
+### Property 32: Multi-page navigation consistency
+*For any* multi-page content sequence, pressing down arrow should navigate to the next page and up arrow to the previous page in the sequence.
+**Validates: Requirements 35.2, 35.3**
+
+### Property 33: Theme persistence
+*For any* theme selection, the chosen theme should be saved to Firestore and restored on next application load.
+**Validates: Requirements 37.4, 37.5**
+
+### Property 34: Environment variable validation
+*For any* required environment variable, if it is missing, the system should display a specific error message identifying the variable name.
+**Validates: Requirements 38.1, 38.2**
+
+## Enhanced Halloween Theme Design
+
+### Haunting Mode Visual Effects
+
+The enhanced Haunting Mode for Kiroween includes:
+
+**Color Palette:**
+```typescript
+interface HauntingTheme {
+  background: '#000000';      // Pure black
+  primary: '#00ff00';         // Matrix green
+  accent1: '#ff6600';         // Halloween orange
+  accent2: '#9933ff';         // Purple
+  warning: '#ff0000';         // Blood red
+  ghost: '#cccccc';           // Ghostly white
+}
+```
+
+**Visual Effects:**
+- **Glitch Animation**: Random horizontal line displacement every 3-5 seconds
+- **Chromatic Aberration**: RGB channel separation on text
+- **Flicker**: Subtle brightness variation (90-100%) at 0.5Hz
+- **Screen Shake**: Occasional 2px tremor on spooky pages
+- **Particle Effects**: Floating ghost/bat sprites in background (CSS animations)
+
+**Decorative Elements:**
+- ASCII art pumpkins in page headers
+- Bat symbols (🦇) as bullet points
+- Ghost emoji (👻) for navigation hints
+- Skull symbols (💀) for warnings
+
+### Full-Screen Layout System
+
+**Layout Strategy:**
+```typescript
+interface LayoutConfig {
+  contentWidth: 40;           // Characters
+  alignment: 'left' | 'center' | 'justify';
+  padding: {
+    left: number;
+    right: number;
+  };
+}
+```
+
+**Text Justification Algorithm:**
+1. For titles: Center text with equal padding on both sides
+2. For body content: Left-align with full 40-character width
+3. For tables: Distribute columns evenly across 40 characters
+4. For navigation: Right-align page numbers, left-align labels
+
+**Example Layouts:**
+```
+Centered Title:
+"        MODERN TELETEXT P100        "
+
+Full-width content:
+"Welcome to the spooky teletext world"
+
+Table layout:
+"TEAM          PLD  W  D  L  PTS     "
+"Man United     38 25  8  5   83     "
+```
+
+### Multi-Page Navigation System
+
+**Page Continuation Model:**
+```typescript
+interface PageContinuation {
+  currentPage: string;        // "201"
+  nextPage?: string;          // "202"
+  previousPage?: string;      // "200"
+  totalPages: number;         // 3
+  currentIndex: number;       // 1 (0-indexed)
+}
+```
+
+**Navigation Indicators:**
+- Bottom of page: "▼ MORE - Press ↓ or 202"
+- Top of continuation: "▲ BACK - Press ↑ or 201"
+- Page counter: "Page 2/3" in header
+
+**Arrow Key Handling:**
+```typescript
+function handleArrowKey(direction: 'up' | 'down', currentPage: TeletextPage) {
+  if (direction === 'down' && currentPage.meta?.nextPage) {
+    navigateToPage(currentPage.meta.nextPage);
+  } else if (direction === 'up' && currentPage.meta?.previousPage) {
+    navigateToPage(currentPage.meta.previousPage);
+  }
+}
+```
+
+### Interactive Theme Selection
+
+**Theme Selection Flow:**
+1. User navigates to page 700
+2. Page displays numbered options (1-4)
+3. User presses number key (1, 2, 3, or 4)
+4. System immediately applies theme without page reload
+5. Confirmation message appears: "Theme applied: [name]"
+6. Theme saved to Firestore user_preferences
+
+**Implementation:**
+```typescript
+function handleThemeSelection(themeNumber: number) {
+  const themes = {
+    1: 'ceefax',
+    2: 'orf',
+    3: 'high-contrast',
+    4: 'haunting'
+  };
+  
+  const selectedTheme = themes[themeNumber];
+  applyTheme(selectedTheme);
+  saveThemePreference(selectedTheme);
+  showConfirmation(`Theme applied: ${selectedTheme}`);
+}
+```
+
+### Environment Variable Validation
+
+**Validation on Startup:**
+```typescript
+const requiredEnvVars = {
+  NEWS_API_KEY: 'NewsAPI key for headlines',
+  SPORTS_API_KEY: 'Sports API key for scores',
+  CRYPTO_API_KEY: 'CoinGecko API key',
+  GOOGLE_CLOUD_PROJECT: 'Firebase project ID',
+  VERTEX_AI_LOCATION: 'Vertex AI region'
+};
+
+function validateEnvironment() {
+  const missing = [];
+  for (const [key, description] of Object.entries(requiredEnvVars)) {
+    if (!process.env[key]) {
+      missing.push({ key, description });
+    }
+  }
+  
+  if (missing.length > 0) {
+    logMissingEnvVars(missing);
+    return false;
+  }
+  return true;
+}
+```
+
+**Error Page Format:**
+```
+API KEY NOT CONFIGURED         210
+════════════════════════════════════
+⚠ NEWS_API_KEY is not set.
+
+TO FIX THIS:
+1. Get a free API key from:
+   https://newsapi.org/
+2. Add to .env.local:
+   NEWS_API_KEY=your_key_here
+3. Restart the dev server
+
+See .env.example for reference.
+
+Press 100 for INDEX
+```
+
 ## Error Handling
 
 ### Error Categories

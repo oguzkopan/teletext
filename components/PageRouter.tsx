@@ -293,7 +293,7 @@ export default function PageRouter({
 
   /**
    * Handles navigation controls with request cancellation
-   * Requirement: 1.4, 1.5, 15.5, 33.1, 33.3
+   * Requirement: 1.4, 1.5, 15.5, 33.1, 33.3, 35.2, 35.3
    */
   const handleNavigate = useCallback((direction: 'back' | 'forward' | 'up' | 'down') => {
     switch (direction) {
@@ -361,23 +361,37 @@ export default function PageRouter({
         break;
         
       case 'up':
-        // Requirement 1.5: Channel up - navigate to next page in sequence
-        if (currentPage) {
-          const currentNum = parseInt(currentPage.id, 10);
-          const nextNum = currentNum + 1;
-          if (nextNum <= 899) {
-            navigateToPage(nextNum.toString().padStart(3, '0'));
+        // Requirement 35.3: Navigate to previous page in multi-page sequence
+        // Check if current page has continuation metadata
+        if (currentPage?.meta?.continuation?.previousPage) {
+          navigateToPage(currentPage.meta.continuation.previousPage);
+        } else {
+          // Fallback to channel up behavior (sequential page navigation)
+          // Requirement 1.5: Channel up - navigate to next page in sequence
+          if (currentPage) {
+            const currentNum = parseInt(currentPage.id, 10);
+            const nextNum = currentNum + 1;
+            if (nextNum <= 899) {
+              navigateToPage(nextNum.toString().padStart(3, '0'));
+            }
           }
         }
         break;
         
       case 'down':
-        // Requirement 1.5: Channel down - navigate to previous page in sequence
-        if (currentPage) {
-          const currentNum = parseInt(currentPage.id, 10);
-          const prevNum = currentNum - 1;
-          if (prevNum >= 100) {
-            navigateToPage(prevNum.toString().padStart(3, '0'));
+        // Requirement 35.2: Navigate to next page in multi-page sequence
+        // Check if current page has continuation metadata
+        if (currentPage?.meta?.continuation?.nextPage) {
+          navigateToPage(currentPage.meta.continuation.nextPage);
+        } else {
+          // Fallback to channel down behavior (sequential page navigation)
+          // Requirement 1.5: Channel down - navigate to previous page in sequence
+          if (currentPage) {
+            const currentNum = parseInt(currentPage.id, 10);
+            const prevNum = currentNum - 1;
+            if (prevNum >= 100) {
+              navigateToPage(prevNum.toString().padStart(3, '0'));
+            }
           }
         }
         break;

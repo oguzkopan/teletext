@@ -529,3 +529,158 @@ describe('formatContentToPages', () => {
     expect(pages[0].length).toBe(24);
   });
 });
+
+// Full-width layout tests - Requirements 34.2, 34.3
+describe('centerText', () => {
+  it('should center text within 40 characters', () => {
+    const { centerText } = require('../teletext-utils');
+    const result = centerText('HELLO', 40);
+    
+    expect(result.length).toBe(40);
+    expect(result.trim()).toBe('HELLO');
+    
+    // Check that padding is roughly equal on both sides
+    const leftPadding = result.indexOf('HELLO');
+    const rightPadding = result.length - result.lastIndexOf('O') - 1;
+    expect(Math.abs(leftPadding - rightPadding)).toBeLessThanOrEqual(1);
+  });
+
+  it('should handle text that is already 40 characters', () => {
+    const { centerText } = require('../teletext-utils');
+    const input = 'A'.repeat(40);
+    const result = centerText(input, 40);
+    
+    expect(result).toBe(input);
+    expect(result.length).toBe(40);
+  });
+
+  it('should truncate text longer than width', () => {
+    const { centerText } = require('../teletext-utils');
+    const input = 'A'.repeat(50);
+    const result = centerText(input, 40);
+    
+    expect(result.length).toBe(40);
+  });
+});
+
+describe('rightAlignText', () => {
+  it('should right-align text within 40 characters', () => {
+    const { rightAlignText } = require('../teletext-utils');
+    const result = rightAlignText('HELLO', 40);
+    
+    expect(result.length).toBe(40);
+    expect(result.trim()).toBe('HELLO');
+    expect(result.endsWith('HELLO')).toBe(true);
+  });
+});
+
+describe('justifyText', () => {
+  it('should justify text by distributing spaces', () => {
+    const { justifyText } = require('../teletext-utils');
+    const result = justifyText('Hello world test', 40);
+    
+    expect(result.length).toBe(40);
+    expect(result.trim()).toContain('Hello');
+    expect(result.trim()).toContain('world');
+    expect(result.trim()).toContain('test');
+  });
+
+  it('should handle single word by left-aligning', () => {
+    const { justifyText } = require('../teletext-utils');
+    const result = justifyText('Hello', 40);
+    
+    expect(result.length).toBe(40);
+    expect(result.startsWith('Hello')).toBe(true);
+  });
+
+  it('should truncate text that exceeds width', () => {
+    const { justifyText } = require('../teletext-utils');
+    const input = 'A'.repeat(50);
+    const result = justifyText(input, 40);
+    
+    expect(result.length).toBe(40);
+  });
+});
+
+describe('createTitleRow', () => {
+  it('should create a centered title with decorations', () => {
+    const { createTitleRow } = require('../teletext-utils');
+    const result = createTitleRow('TITLE', '═', 40);
+    
+    expect(result.length).toBe(40);
+    expect(result).toContain('TITLE');
+    expect(result).toContain('═');
+  });
+
+  it('should handle long titles by centering without decoration', () => {
+    const { createTitleRow } = require('../teletext-utils');
+    const longTitle = 'A'.repeat(38);
+    const result = createTitleRow(longTitle, '═', 40);
+    
+    expect(result.length).toBe(40);
+  });
+});
+
+describe('createSeparator', () => {
+  it('should create a full-width separator', () => {
+    const { createSeparator } = require('../teletext-utils');
+    const result = createSeparator('═', 40);
+    
+    expect(result.length).toBe(40);
+    expect(result).toBe('═'.repeat(40));
+  });
+
+  it('should use default character', () => {
+    const { createSeparator } = require('../teletext-utils');
+    const result = createSeparator();
+    
+    expect(result.length).toBe(40);
+    expect(result).toBe('═'.repeat(40));
+  });
+});
+
+describe('createTwoColumnRow', () => {
+  it('should create a two-column layout', () => {
+    const { createTwoColumnRow } = require('../teletext-utils');
+    const result = createTwoColumnRow('Left', 'Right', 40);
+    
+    expect(result.length).toBe(40);
+    expect(result.startsWith('Left')).toBe(true);
+    expect(result.endsWith('Right')).toBe(true);
+  });
+
+  it('should handle long text by truncating', () => {
+    const { createTwoColumnRow } = require('../teletext-utils');
+    const longLeft = 'A'.repeat(30);
+    const longRight = 'B'.repeat(30);
+    const result = createTwoColumnRow(longLeft, longRight, 40);
+    
+    expect(result.length).toBe(40);
+  });
+});
+
+describe('addHalloweenDecoration', () => {
+  it('should add decoration to both sides', () => {
+    const { addHalloweenDecoration } = require('../teletext-utils');
+    const result = addHalloweenDecoration('TEXT', 'both');
+    
+    expect(result).toContain('TEXT');
+    expect(result.length).toBeGreaterThan('TEXT'.length);
+  });
+
+  it('should add decoration to prefix only', () => {
+    const { addHalloweenDecoration } = require('../teletext-utils');
+    const result = addHalloweenDecoration('TEXT', 'prefix');
+    
+    expect(result).toContain('TEXT');
+    expect(result.endsWith('TEXT')).toBe(true);
+  });
+
+  it('should add decoration to suffix only', () => {
+    const { addHalloweenDecoration } = require('../teletext-utils');
+    const result = addHalloweenDecoration('TEXT', 'suffix');
+    
+    expect(result).toContain('TEXT');
+    expect(result.startsWith('TEXT')).toBe(true);
+  });
+});

@@ -3,6 +3,7 @@
 
 import axios from 'axios';
 import { ContentAdapter, TeletextPage } from '../types';
+import { createMissingApiKeyPage, logMissingApiKey } from '../utils/env-validation';
 
 /**
  * NewsAdapter serves news pages (200-299)
@@ -20,10 +21,23 @@ export class NewsAdapter implements ContentAdapter {
 
   /**
    * Retrieves a news page
-   * @param pageId - The page ID to retrieve (200-299)
+   * @param pageId - The page ID to retrieve (200-299, or sub-pages like "201-2")
    * @returns A TeletextPage object with news content
+   * Requirements: 35.1, 35.2, 35.3 - Handle multi-page navigation
    */
   async getPage(pageId: string): Promise<TeletextPage> {
+    // Check if this is a sub-page request (e.g., "201-2")
+    const subPageMatch = pageId.match(/^(\d{3})-(\d+)$/);
+    if (subPageMatch) {
+      const basePageId = subPageMatch[1];
+      const subPageIndex = parseInt(subPageMatch[2], 10) - 1; // Convert to 0-based index
+      
+      // If the base page has continuation, we need to regenerate all pages
+      // For now, we'll fetch the sub-page directly
+      // In a production system, you'd cache the multi-page result
+      return this.getSubPage(basePageId, subPageIndex);
+    }
+    
     const pageNumber = parseInt(pageId, 10);
 
     // Route to specific news pages
@@ -42,6 +56,92 @@ export class NewsAdapter implements ContentAdapter {
     }
 
     throw new Error(`Invalid news page: ${pageId}`);
+  }
+
+  /**
+   * Retrieves a sub-page of a multi-page news article
+   * Requirements: 35.2, 35.3
+   */
+  private async getSubPage(basePageId: string, subPageIndex: number): Promise<TeletextPage> {
+    // Re-fetch the content to generate all pages
+    const pageNumber = parseInt(basePageId, 10);
+    
+    try {
+      let articles: any[] = [];
+      let title = '';
+      let prevPage = '200';
+      let nextPage = '200';
+      
+      if (pageNumber === 201) {
+        articles = await this.fetchTopHeadlines();
+        title = 'Top Headlines';
+        prevPage = '200';
+        nextPage = '202';
+      } else if (pageNumber === 202) {
+        articles = await this.fetchNewsByCategory('general');
+        title = 'World News';
+        prevPage = '201';
+        nextPage = '203';
+      } else if (pageNumber === 203) {
+        articles = await this.fetchNewsByCountry('us');
+        title = 'Local News';
+        prevPage = '202';
+        nextPage = '200';
+      } else if (pageNumber >= 210 && pageNumber <= 219) {
+        const topicMap: Record<number, { title: string; category: string }> = {
+          210: { title: 'Technology', category: 'technology' },
+          211: { title: 'Business', category: 'business' },
+          212: { title: 'Entertainment', category: 'entertainment' },
+          213: { title: 'Science', category: 'science' },
+          214: { title: 'Health', category: 'health' },
+          215: { title: 'Sports News', category: 'sports' }
+        };
+        const topic = topicMap[pageNumber];
+        if (topic) {
+          articles = await this.fetchNewsByCategory(topic.category);
+          title = topic.title;
+          prevPage = '200';
+          nextPage = '201';
+        }
+      }
+      
+      // Generate content rows
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      const contentRows: string[] = [];
+      contentRows.push(`Updated: ${timeStr}`);
+      contentRows.push('');
+
+      articles.slice(0, 12).forEach((article, index) => {
+        const headline = this.stripHtml(article.title || 'Untitled');
+        const truncated = this.truncateText(headline, 36);
+        contentRows.push(`${index + 1}. ${truncated}`);
+        
+        if (article.source && article.source.name) {
+          const source = this.truncateText(`   ${article.source.name}`, 40);
+          contentRows.push(source);
+        } else {
+          contentRows.push('');
+        }
+      });
+      
+      // Generate all pages
+      const pages = this.createMultiPageNews(basePageId, title, contentRows, prevPage, nextPage);
+      
+      // Return the requested sub-page (add 1 because index 0 is the base page)
+      if (subPageIndex + 1 < pages.length) {
+        return pages[subPageIndex + 1];
+      }
+      
+      // If sub-page doesn't exist, return error
+      return this.getErrorPage(basePageId, title, new Error('Sub-page not found'));
+    } catch (error) {
+      return this.getErrorPage(basePageId, 'News', error);
+    }
   }
 
   /**
@@ -185,6 +285,7 @@ export class NewsAdapter implements ContentAdapter {
    */
   private async fetchTopHeadlines(): Promise<any[]> {
     if (!this.apiKey) {
+      logMissingApiKey('NEWS_API_KEY');
       throw new Error('NEWS_API_KEY not configured');
     }
 
@@ -205,6 +306,7 @@ export class NewsAdapter implements ContentAdapter {
    */
   private async fetchNewsByCategory(category: string): Promise<any[]> {
     if (!this.apiKey) {
+      logMissingApiKey('NEWS_API_KEY');
       throw new Error('NEWS_API_KEY not configured');
     }
 
@@ -226,6 +328,7 @@ export class NewsAdapter implements ContentAdapter {
    */
   private async fetchNewsByCountry(country: string): Promise<any[]> {
     if (!this.apiKey) {
+      logMissingApiKey('NEWS_API_KEY');
       throw new Error('NEWS_API_KEY not configured');
     }
 
@@ -242,7 +345,8 @@ export class NewsAdapter implements ContentAdapter {
   }
 
   /**
-   * Formats news articles into a teletext page
+   * Formats news articles into a teletext page (or multiple pages if content is long)
+   * Requirements: 35.1, 35.2, 35.3, 35.4, 35.5
    */
   private formatNewsPage(
     pageId: string,
@@ -257,51 +361,127 @@ export class NewsAdapter implements ContentAdapter {
       minute: '2-digit'
     });
 
-    const rows = [
-      `${this.truncateText(title.toUpperCase(), 28).padEnd(28, ' ')} P${pageId}`,
-      '════════════════════════════════════',
-      `Updated: ${timeStr}`,
-      ''
-    ];
+    const contentRows: string[] = [];
+    contentRows.push(`Updated: ${timeStr}`);
+    contentRows.push('');
 
     // Add headlines (truncated to 38 characters to leave room for numbering)
     if (articles.length === 0) {
-      rows.push('');
-      rows.push('No articles available at this time.');
-      rows.push('');
-      rows.push('Please try again later.');
+      contentRows.push('');
+      contentRows.push('No articles available at this time.');
+      contentRows.push('');
+      contentRows.push('Please try again later.');
     } else {
-      articles.slice(0, 8).forEach((article, index) => {
+      articles.slice(0, 12).forEach((article, index) => {
         const headline = this.stripHtml(article.title || 'Untitled');
         const truncated = this.truncateText(headline, 36); // 36 chars for headline + "1. " = 39 chars
-        rows.push(`${index + 1}. ${truncated}`);
+        contentRows.push(`${index + 1}. ${truncated}`);
         
         // Add source if available
         if (article.source && article.source.name) {
           const source = this.truncateText(`   ${article.source.name}`, 40);
-          rows.push(source);
+          contentRows.push(source);
         } else {
-          rows.push('');
+          contentRows.push('');
         }
       });
     }
 
-    return {
-      id: pageId,
-      title: title,
-      rows: this.padRows(rows),
-      links: [
-        { label: 'INDEX', targetPage: '200', color: 'red' },
-        { label: 'PREV', targetPage: prevPage, color: 'green' },
-        { label: 'NEXT', targetPage: nextPage, color: 'yellow' },
-        { label: 'BACK', targetPage: '100', color: 'blue' }
-      ],
-      meta: {
-        source: 'NewsAdapter',
-        lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
-      }
-    };
+    // Check if content fits in one page (24 rows total - 3 header - 2 footer = 19 content rows)
+    if (contentRows.length <= 19) {
+      const rows = [
+        `${this.truncateText(title.toUpperCase(), 28).padEnd(28, ' ')} P${pageId}`,
+        '════════════════════════════════════',
+        ''
+      ];
+      
+      rows.push(...contentRows);
+      
+      return {
+        id: pageId,
+        title: title,
+        rows: this.padRows(rows),
+        links: [
+          { label: 'INDEX', targetPage: '200', color: 'red' },
+          { label: 'PREV', targetPage: prevPage, color: 'green' },
+          { label: 'NEXT', targetPage: nextPage, color: 'yellow' },
+          { label: 'BACK', targetPage: '100', color: 'blue' }
+        ],
+        meta: {
+          source: 'NewsAdapter',
+          lastUpdated: new Date().toISOString(),
+          cacheStatus: 'fresh'
+        }
+      };
+    } else {
+      // Content exceeds one page - create multi-page with continuation
+      const pages = this.createMultiPageNews(pageId, title, contentRows, prevPage, nextPage);
+      // Return the first page (the adapter will need to handle sub-pages separately)
+      return pages[0];
+    }
+  }
+
+  /**
+   * Creates multiple news pages with continuation metadata
+   * Requirements: 35.1, 35.2, 35.3, 35.4, 35.5
+   */
+  private createMultiPageNews(
+    basePageId: string,
+    title: string,
+    contentRows: string[],
+    prevPage: string,
+    nextPage: string
+  ): TeletextPage[] {
+    const contentRowsPerPage = 19; // 24 total - 3 header - 2 footer
+    const totalPages = Math.ceil(contentRows.length / contentRowsPerPage);
+    const pages: TeletextPage[] = [];
+    
+    for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
+      const pageId = pageIndex === 0 ? basePageId : `${basePageId}-${pageIndex + 1}`;
+      const startRow = pageIndex * contentRowsPerPage;
+      const endRow = Math.min(startRow + contentRowsPerPage, contentRows.length);
+      const pageContent = contentRows.slice(startRow, endRow);
+      
+      const rows: string[] = [];
+      
+      // Add header
+      const headerTitle = pageIndex === 0 ? title.toUpperCase() : `${title.toUpperCase()} (cont.)`;
+      rows.push(this.truncateText(headerTitle, 28).padEnd(28, ' ') + `P${pageId}`.padStart(12));
+      rows.push('════════════════════════════════════');
+      rows.push('');
+      
+      // Add content
+      pageContent.forEach(row => rows.push(row.padEnd(40, ' ')));
+      
+      // Create continuation metadata
+      const continuation = {
+        currentPage: pageId,
+        nextPage: pageIndex < totalPages - 1 ? (pageIndex === 0 ? `${basePageId}-2` : `${basePageId}-${pageIndex + 2}`) : undefined,
+        previousPage: pageIndex > 0 ? (pageIndex === 1 ? basePageId : `${basePageId}-${pageIndex}`) : undefined,
+        totalPages,
+        currentIndex: pageIndex
+      };
+      
+      pages.push({
+        id: pageId,
+        title: pageIndex === 0 ? title : `${title} (${pageIndex + 1}/${totalPages})`,
+        rows: this.padRows(rows),
+        links: [
+          { label: 'INDEX', targetPage: '200', color: 'red' },
+          { label: 'PREV', targetPage: prevPage, color: 'green' },
+          { label: 'NEXT', targetPage: nextPage, color: 'yellow' },
+          { label: 'BACK', targetPage: '100', color: 'blue' }
+        ],
+        meta: {
+          source: 'NewsAdapter',
+          lastUpdated: new Date().toISOString(),
+          cacheStatus: 'fresh',
+          continuation
+        }
+      });
+    }
+    
+    return pages;
   }
 
   /**
@@ -317,32 +497,9 @@ export class NewsAdapter implements ContentAdapter {
     let rows: string[];
     
     if (isMissingApiKey) {
-      rows = [
-        `${this.truncateText(title.toUpperCase(), 28).padEnd(28, ' ')} P${pageId}`,
-        '════════════════════════════════════',
-        '',
-        '⚠ API KEY NOT CONFIGURED ⚠',
-        '',
-        'NEWS_API_KEY is not set.',
-        '',
-        'TO FIX THIS:',
-        '',
-        '1. Get a free API key from:',
-        '   https://newsapi.org/',
-        '',
-        '2. Add to .env.local:',
-        '   NEWS_API_KEY=your_key_here',
-        '',
-        '3. Restart the dev server',
-        '',
-        'See .env.example for reference.',
-        '',
-        '',
-        '',
-        '',
-        'INDEX   HELP',
-        ''
-      ];
+      // Use enhanced error page with detailed setup instructions
+      // Requirements: 38.1, 38.2, 38.4, 38.5
+      rows = createMissingApiKeyPage('NEWS_API_KEY', pageId);
     } else {
       rows = [
         `${this.truncateText(title.toUpperCase(), 28).padEnd(28, ' ')} P${pageId}`,

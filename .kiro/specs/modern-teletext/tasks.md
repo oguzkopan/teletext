@@ -433,3 +433,101 @@
   - Add helpful error messages for missing API keys
   - Document API key setup in README
   - _Requirements: 4.1, 4.5_
+
+- [x] 32. Enhance Halloween theme and full-screen layout for Kiroween
+  - Enhance Haunting Mode with Halloween-specific color palette (orange, purple, green)
+  - Add animated glitch effects and chromatic aberration to Haunting Mode
+  - Implement Halloween decorative elements (ASCII pumpkins, bats, ghosts, skulls)
+  - Add screen flicker and shake effects for spooky atmosphere
+  - Implement full-width text layout system with centering and justification
+  - Update page 100 to use full 40-character width with centered titles
+  - Add CSS particle effects for floating ghosts/bats in Haunting Mode
+  - _Requirements: 34.2, 34.3, 36.1, 36.2, 36.3, 36.4, 36.5_
+
+- [ ]* 32.1 Write property test for full-width content display
+  - **Property 31: Full-width content display**
+  - **Validates: Requirements 34.2, 34.3**
+
+- [x] 33. Implement interactive theme selection on page 700
+  - Modify page 700 to display numbered theme options (1-4)
+  - Add keyboard event listener for number keys (1-4) on page 700
+  - Implement immediate theme application without page reload
+  - Add visual confirmation message when theme is applied
+  - Save theme selection to Firestore user_preferences
+  - Load saved theme preference on application startup
+  - Test theme switching between all four themes
+  - _Requirements: 37.1, 37.2, 37.3, 37.4, 37.5_
+
+- [ ]* 33.1 Write property test for theme persistence
+  - **Property 33: Theme persistence**
+  - **Validates: Requirements 37.4, 37.5**
+
+- [x] 34. Implement multi-page navigation with arrow keys
+  - Add PageContinuation metadata to TeletextPage model
+  - Implement arrow key handlers for up/down navigation
+  - Add "MORE" indicator at bottom of pages with continuation
+  - Add "BACK" indicator at top of continuation pages
+  - Display page counter (e.g., "Page 2/3") in page headers
+  - Update all adapters to generate continuation page metadata
+  - Test arrow navigation on news, sports, and AI response pages
+  - _Requirements: 35.1, 35.2, 35.3, 35.4, 35.5_
+
+- [ ]* 34.1 Write property test for multi-page navigation consistency
+  - **Property 32: Multi-page navigation consistency**
+  - **Validates: Requirements 35.2, 35.3**
+
+- [x] 35. Enhance environment variable validation and error messages
+  - Create comprehensive environment variable validation function
+  - Add startup check for all required API keys
+  - Implement specific error pages for each missing API key
+  - Display environment variable name and setup instructions in errors
+  - Add links to API provider websites in error messages
+  - Log detailed environment validation errors to console
+  - Update NEWS_API_KEY error page with clear instructions
+  - Test with missing API keys to verify error messages
+  - _Requirements: 38.1, 38.2, 38.3, 38.4, 38.5_
+
+- [ ]* 35.1 Write property test for environment variable validation
+  - **Property 34: Environment variable validation**
+  - **Validates: Requirements 38.1, 38.2**
+
+- [x] 36. Ensure all content sections have meaningful content
+  - Verify page 400 (Markets) displays cryptocurrency and stock data
+  - Verify page 500 (AI Oracle) has working Vertex AI integration
+  - Add sample/placeholder data for sections when APIs are unavailable
+  - Create at least 3 sub-pages for each magazine section
+  - Test all magazine index pages (100, 200, 300, 400, 500, 600, 700, 800)
+  - Add fallback content for development mode when APIs are offline
+  - Document all available pages in PAGE_DIRECTORY.md
+  - _Requirements: 39.1, 39.2, 39.3, 39.4, 39.5_
+
+- [x] 37. Update main index page with specific page numbers
+  - Redesign page 100 to show specific page numbers instead of "1xx", "2xx"
+  - Add clear examples like "101 System Info", "200 News Headlines"
+  - Use full 40-character width for index content
+  - Center section titles and align page numbers
+  - Add helpful navigation instructions with specific page examples
+  - Update colored button links to point to detailed magazine indexes
+  - Test navigation from index to all major sections
+  - _Requirements: 34.1, 34.4, 34.5_
+
+- [x] 38. Final Kiroween polish and testing
+  - Test all Halloween theme effects and animations
+  - Verify theme selection works on page 700
+  - Test arrow key navigation on multi-page content
+  - Verify all API error messages are clear and helpful
+  - Test full-screen layout on different screen sizes
+  - Verify NEWS_API_KEY configuration and error handling
+  - Test all content sections have working pages
+  - Record 3-minute demo video showcasing Kiroween features
+  - _Requirements: All new requirements 34-39_
+
+- [ ] 39. Document Kiro usage for Kiroween submission
+  - Document how specs were used to develop the application
+  - Explain the iterative requirements → design → tasks workflow
+  - Document any agent hooks used during development
+  - Document any steering files used to guide Kiro
+  - Explain how Kiro helped with Halloween theme implementation
+  - Create KIRO_USAGE_GUIDE.md with detailed examples
+  - Prepare submission materials highlighting Kiro features
+  - _Requirements: Kiroween hackathon submission requirements_

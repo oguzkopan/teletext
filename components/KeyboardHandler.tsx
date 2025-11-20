@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { PageRouterState } from './PageRouter';
+import { useTheme } from '@/lib/theme-context';
 
 interface KeyboardHandlerProps {
   routerState: PageRouterState;
@@ -11,11 +12,35 @@ interface KeyboardHandlerProps {
  * KeyboardHandler Component
  * 
  * Handles keyboard input for teletext navigation
+ * Requirements: 37.1, 37.2 - Theme selection on page 700
  */
 export default function KeyboardHandler({ routerState }: KeyboardHandlerProps) {
+  const { setTheme } = useTheme();
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Digit keys (0-9)
+      // Check if we're on page 700 (theme selection page)
+      const isThemeSelectionPage = routerState.currentPage?.id === '700' && 
+                                   routerState.currentPage?.meta?.themeSelectionPage;
+
+      // On page 700, handle theme selection with number keys 1-4
+      // Requirement: 37.1, 37.2
+      if (isThemeSelectionPage && e.key >= '1' && e.key <= '4') {
+        e.preventDefault();
+        const themeMap: Record<string, string> = {
+          '1': 'ceefax',
+          '2': 'orf',
+          '3': 'highcontrast',
+          '4': 'haunting'
+        };
+        const themeKey = themeMap[e.key];
+        if (themeKey) {
+          setTheme(themeKey);
+        }
+        return;
+      }
+
+      // Digit keys (0-9) - normal page navigation
       if (e.key >= '0' && e.key <= '9') {
         e.preventDefault();
         routerState.handleDigitPress(parseInt(e.key));
@@ -68,7 +93,7 @@ export default function KeyboardHandler({ routerState }: KeyboardHandlerProps) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [routerState]);
+  }, [routerState, setTheme]);
 
   return null;
 }

@@ -10,6 +10,7 @@ interface CRTFrameProps {
     noise: boolean;
     glitch: boolean;
   };
+  hauntingMode?: boolean;  // Enable enhanced Halloween effects
 }
 
 /**
@@ -20,17 +21,18 @@ interface CRTFrameProps {
  * - Screen curvature
  * - Noise/static overlay
  * - Glitch effects (for Haunting Mode)
+ * - Enhanced Halloween effects (chromatic aberration, flicker, shake, particles)
  * 
- * Requirements: 2.5, 9.4, 9.5
+ * Requirements: 2.5, 9.4, 9.5, 36.1, 36.2, 36.3, 36.4, 36.5
  */
-export default function CRTFrame({ children, effects }: CRTFrameProps) {
+export default function CRTFrame({ children, effects, hauntingMode = false }: CRTFrameProps) {
   return (
     <div className="crt-container">
-      <div className={`crt-frame ${effects.glitch ? 'glitch' : ''}`}>
+      <div className={`crt-frame ${effects.glitch ? 'glitch' : ''} ${hauntingMode ? 'haunting' : ''}`}>
         {/* CRT bezel/frame */}
         <div className="crt-bezel">
           {/* Screen content */}
-          <div className={`crt-screen ${effects.curvature ? 'curved' : ''}`}>
+          <div className={`crt-screen ${effects.curvature ? 'curved' : ''} ${hauntingMode ? 'haunting-screen' : ''}`}>
             {children}
             
             {/* Scanlines overlay */}
@@ -41,6 +43,18 @@ export default function CRTFrame({ children, effects }: CRTFrameProps) {
             
             {/* Screen glare effect */}
             <div className="screen-glare" />
+            
+            {/* Halloween particle effects - Requirement 36.3 */}
+            {hauntingMode && (
+              <>
+                <div className="halloween-particles">
+                  <div className="particle ghost">👻</div>
+                  <div className="particle bat">🦇</div>
+                  <div className="particle pumpkin">🎃</div>
+                  <div className="particle skull">💀</div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -199,6 +213,211 @@ export default function CRTFrame({ children, effects }: CRTFrameProps) {
           }
           98% { 
             filter: hue-rotate(180deg) saturate(2);
+          }
+        }
+
+        /* Enhanced Halloween effects - Requirements 36.1, 36.2, 36.4 */
+        .crt-frame.haunting {
+          animation: haunting-shake 4s infinite, haunting-glitch 3s infinite;
+        }
+
+        @keyframes haunting-shake {
+          0%, 95%, 100% { transform: translate(0, 0); }
+          96% { transform: translate(-3px, 2px) rotate(0.5deg); }
+          97% { transform: translate(3px, -2px) rotate(-0.5deg); }
+          98% { transform: translate(-2px, -3px) rotate(0.3deg); }
+          99% { transform: translate(2px, 3px) rotate(-0.3deg); }
+        }
+
+        @keyframes haunting-glitch {
+          0%, 90%, 100% { 
+            filter: none;
+          }
+          91% { 
+            filter: hue-rotate(90deg) saturate(4) brightness(1.2);
+          }
+          92% { 
+            filter: hue-rotate(-90deg) saturate(4) brightness(0.8);
+          }
+          93% { 
+            filter: hue-rotate(180deg) saturate(3) brightness(1.1);
+          }
+          94% { 
+            filter: contrast(1.5) brightness(0.9);
+          }
+        }
+
+        /* Chromatic aberration effect - Requirement 36.2 */
+        .crt-screen.haunting-screen {
+          animation: chromatic-aberration 2s infinite, screen-flicker 0.5s infinite;
+        }
+
+        @keyframes chromatic-aberration {
+          0%, 100% {
+            text-shadow: 
+              2px 0 0 rgba(255, 0, 0, 0.5),
+              -2px 0 0 rgba(0, 255, 255, 0.5);
+          }
+          50% {
+            text-shadow: 
+              -2px 0 0 rgba(255, 0, 0, 0.5),
+              2px 0 0 rgba(0, 255, 255, 0.5);
+          }
+        }
+
+        /* Screen flicker effect - Requirement 36.4 */
+        @keyframes screen-flicker {
+          0%, 100% { opacity: 1; }
+          10% { opacity: 0.95; }
+          20% { opacity: 1; }
+          30% { opacity: 0.92; }
+          40% { opacity: 1; }
+          50% { opacity: 0.97; }
+          60% { opacity: 1; }
+          70% { opacity: 0.94; }
+          80% { opacity: 1; }
+          90% { opacity: 0.96; }
+        }
+
+        /* Halloween particle effects - Requirement 36.3 */
+        .halloween-particles {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          pointer-events: none;
+          z-index: 5;
+          overflow: hidden;
+        }
+
+        .particle {
+          position: absolute;
+          font-size: 24px;
+          opacity: 0.6;
+          pointer-events: none;
+        }
+
+        .particle.ghost {
+          animation: float-ghost 8s infinite ease-in-out;
+          left: 10%;
+          top: -50px;
+        }
+
+        .particle.bat {
+          animation: float-bat 6s infinite ease-in-out;
+          left: 70%;
+          top: -50px;
+          animation-delay: 2s;
+        }
+
+        .particle.pumpkin {
+          animation: float-pumpkin 10s infinite ease-in-out;
+          left: 40%;
+          top: -50px;
+          animation-delay: 4s;
+        }
+
+        .particle.skull {
+          animation: float-skull 7s infinite ease-in-out;
+          left: 85%;
+          top: -50px;
+          animation-delay: 6s;
+        }
+
+        @keyframes float-ghost {
+          0% {
+            transform: translateY(-50px) translateX(0) rotate(0deg);
+            opacity: 0;
+          }
+          10% {
+            opacity: 0.6;
+          }
+          50% {
+            transform: translateY(50vh) translateX(30px) rotate(10deg);
+            opacity: 0.8;
+          }
+          90% {
+            opacity: 0.6;
+          }
+          100% {
+            transform: translateY(110vh) translateX(-20px) rotate(-5deg);
+            opacity: 0;
+          }
+        }
+
+        @keyframes float-bat {
+          0% {
+            transform: translateY(-50px) translateX(0) rotate(0deg) scale(1);
+            opacity: 0;
+          }
+          10% {
+            opacity: 0.7;
+          }
+          25% {
+            transform: translateY(25vh) translateX(-40px) rotate(-15deg) scale(1.2);
+          }
+          50% {
+            transform: translateY(50vh) translateX(20px) rotate(10deg) scale(0.9);
+            opacity: 0.8;
+          }
+          75% {
+            transform: translateY(75vh) translateX(-30px) rotate(-10deg) scale(1.1);
+          }
+          90% {
+            opacity: 0.7;
+          }
+          100% {
+            transform: translateY(110vh) translateX(40px) rotate(5deg) scale(1);
+            opacity: 0;
+          }
+        }
+
+        @keyframes float-pumpkin {
+          0% {
+            transform: translateY(-50px) translateX(0) rotate(0deg);
+            opacity: 0;
+          }
+          10% {
+            opacity: 0.5;
+          }
+          50% {
+            transform: translateY(50vh) translateX(-50px) rotate(-20deg);
+            opacity: 0.7;
+          }
+          90% {
+            opacity: 0.5;
+          }
+          100% {
+            transform: translateY(110vh) translateX(30px) rotate(15deg);
+            opacity: 0;
+          }
+        }
+
+        @keyframes float-skull {
+          0% {
+            transform: translateY(-50px) translateX(0) rotate(0deg) scale(1);
+            opacity: 0;
+          }
+          10% {
+            opacity: 0.6;
+          }
+          30% {
+            transform: translateY(30vh) translateX(25px) rotate(8deg) scale(1.1);
+          }
+          50% {
+            transform: translateY(50vh) translateX(-35px) rotate(-12deg) scale(0.95);
+            opacity: 0.8;
+          }
+          70% {
+            transform: translateY(70vh) translateX(15px) rotate(6deg) scale(1.05);
+          }
+          90% {
+            opacity: 0.6;
+          }
+          100% {
+            transform: translateY(110vh) translateX(-25px) rotate(-8deg) scale(1);
+            opacity: 0;
           }
         }
       `}</style>

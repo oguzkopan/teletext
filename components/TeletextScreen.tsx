@@ -75,13 +75,18 @@ const TeletextScreen = React.memo(function TeletextScreen({
 
   /**
    * Renders all rows with memoization for performance
+   * Requirement 35.1, 35.3, 35.4: Add MORE/BACK indicators and page counter
    */
   const renderedRows = useMemo(() => {
+    const continuation = page.meta?.continuation;
+    
     return page.rows.map((row, index) => {
       const segments = parseColorCodes(row);
       
-      return (
-        <div key={index} className="teletext-row">
+      // Add BACK indicator at top of continuation pages (row 0)
+      // Requirement 35.3
+      let rowContent = (
+        <>
           {segments.map((segment, segIndex) => (
             <span
               key={segIndex}
@@ -92,10 +97,55 @@ const TeletextScreen = React.memo(function TeletextScreen({
               {segment.text}
             </span>
           ))}
+        </>
+      );
+      
+      if (index === 0 && continuation && continuation.previousPage) {
+        // Add BACK indicator at the beginning of the first row
+        rowContent = (
+          <>
+            <span style={{ color: theme.colors.cyan }}>▲ BACK </span>
+            {segments.map((segment, segIndex) => (
+              <span
+                key={segIndex}
+                style={{
+                  color: segment.color ? theme.colors[segment.color as keyof typeof theme.colors] : theme.colors.text
+                }}
+              >
+                {segment.text}
+              </span>
+            ))}
+          </>
+        );
+      }
+      
+      // Add MORE indicator at bottom of pages with continuation (row 23)
+      // Requirement 35.1
+      if (index === 23 && continuation && continuation.nextPage) {
+        rowContent = (
+          <>
+            {segments.map((segment, segIndex) => (
+              <span
+                key={segIndex}
+                style={{
+                  color: segment.color ? theme.colors[segment.color as keyof typeof theme.colors] : theme.colors.text
+                }}
+              >
+                {segment.text}
+              </span>
+            ))}
+            <span style={{ color: theme.colors.cyan }}> ▼ MORE</span>
+          </>
+        );
+      }
+      
+      return (
+        <div key={index} className="teletext-row">
+          {rowContent}
         </div>
       );
     });
-  }, [page.rows, theme, parseColorCodes]);
+  }, [page.rows, page.meta?.continuation, theme, parseColorCodes]);
 
   return (
     <div 
@@ -163,6 +213,24 @@ const TeletextScreen = React.memo(function TeletextScreen({
           }}
         >
           [OFFLINE]
+        </div>
+      )}
+      
+      {/* Page counter indicator - Requirement 35.4 */}
+      {!loading && page.meta?.continuation && (
+        <div 
+          className="page-counter"
+          style={{
+            position: 'absolute',
+            top: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            color: theme.colors.cyan,
+            fontSize: '14px',
+            fontWeight: 'bold'
+          }}
+        >
+          Page {page.meta.continuation.currentIndex + 1}/{page.meta.continuation.totalPages}
         </div>
       )}
       

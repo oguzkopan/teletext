@@ -417,3 +417,75 @@ Modern Teletext (working title: "DeadText") resurrects the classic teletext broa
 3. WHEN navigation history is empty THEN the back button SHALL navigate to page 100
 4. WHEN a user navigates 100 → 200 → 201 and presses back twice THEN the Teletext System SHALL return to page 100
 5. THE Teletext System SHALL treat page 100 as the home page in all navigation contexts
+
+### Requirement 34
+
+**User Story:** As a user, I want the main index page to display actual page numbers with full-screen layout, so that I can easily navigate to specific content sections.
+
+#### Acceptance Criteria
+
+1. WHEN viewing page 100 THEN the Teletext System SHALL display specific page numbers (e.g., "101 System Info", "200 News Headlines") instead of range notation
+2. WHEN displaying the index THEN the Teletext System SHALL use the full 40-character width for content display
+3. WHEN content is displayed THEN the Teletext System SHALL center or justify text to utilize the entire screen width
+4. WHEN magazine sections are listed THEN the Teletext System SHALL provide clear page number examples for each section
+5. THE Teletext System SHALL display navigation instructions that reference specific page numbers
+
+### Requirement 35
+
+**User Story:** As a user, I want to navigate through multi-page content using arrow keys, so that I can read all available information without manually entering page numbers.
+
+#### Acceptance Criteria
+
+1. WHEN content exceeds 24 rows THEN the Teletext System SHALL display a "MORE" indicator at the bottom of the page
+2. WHEN a user presses the down arrow key on a page with more content THEN the Teletext System SHALL navigate to the next continuation page
+3. WHEN a user presses the up arrow key on a continuation page THEN the Teletext System SHALL navigate to the previous page
+4. WHEN on the last page of multi-page content THEN the down arrow SHALL display "END OF CONTENT" message
+5. THE Teletext System SHALL display page indicators showing current position (e.g., "Page 1/3")
+
+### Requirement 36
+
+**User Story:** As a user, I want an enhanced Halloween-themed visual mode, so that I can experience a spooky atmosphere for the Kiroween hackathon.
+
+#### Acceptance Criteria
+
+1. WHEN Haunting Mode is enabled THEN the Teletext System SHALL apply Halloween-themed color palette with orange, purple, and green accents
+2. WHEN Haunting Mode is active THEN the Teletext System SHALL display animated glitch effects and screen distortions
+3. WHEN viewing pages in Haunting Mode THEN the Teletext System SHALL show Halloween-themed decorative elements (pumpkins, ghosts, bats)
+4. WHEN Haunting Mode is enabled THEN the Teletext System SHALL apply eerie CRT effects including flickering and chromatic aberration
+5. THE Teletext System SHALL persist Haunting Mode selection across page navigations
+
+### Requirement 37
+
+**User Story:** As a user, I want theme selection to work interactively on page 700, so that I can switch between visual themes by pressing number keys.
+
+#### Acceptance Criteria
+
+1. WHEN a user navigates to page 700 THEN the Teletext System SHALL display numbered theme options (1-4)
+2. WHEN a user presses a number key (1-4) on page 700 THEN the Teletext System SHALL immediately apply the selected theme
+3. WHEN a theme is applied THEN the Teletext System SHALL show visual confirmation of the theme change
+4. WHEN a theme is selected THEN the Teletext System SHALL save the preference to Firestore
+5. THE Teletext System SHALL load the user's saved theme preference on application startup
+
+### Requirement 38
+
+**User Story:** As a developer, I want clear error messages when environment variables are missing, so that I can quickly identify and fix configuration issues.
+
+#### Acceptance Criteria
+
+1. WHEN NEWS_API_KEY is not configured THEN the Teletext System SHALL display a specific error message on news pages indicating the missing key
+2. WHEN any required API key is missing THEN the Teletext System SHALL display the environment variable name and setup instructions
+3. WHEN environment validation fails THEN the Teletext System SHALL log detailed error information to the console
+4. WHEN in development mode THEN the Teletext System SHALL validate all required environment variables on startup
+5. THE Teletext System SHALL provide a link to configuration documentation in error messages
+
+### Requirement 39
+
+**User Story:** As a user, I want all content sections to have meaningful content, so that I can explore the full functionality of the application.
+
+#### Acceptance Criteria
+
+1. WHEN a user navigates to page 400 THEN the Teletext System SHALL display market data including cryptocurrency and stock prices
+2. WHEN a user navigates to page 500 THEN the Teletext System SHALL display the AI Oracle menu with working Vertex AI integration
+3. WHEN a user navigates to any section index page THEN the Teletext System SHALL display at least 3 available sub-pages
+4. WHEN API data is unavailable THEN the Teletext System SHALL display sample data or helpful placeholder content
+5. THE Teletext System SHALL ensure every magazine section (1xx-8xx) has at least one working content page

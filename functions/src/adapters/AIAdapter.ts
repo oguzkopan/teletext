@@ -1160,8 +1160,8 @@ Format your response in clear paragraphs without special formatting or markdown.
     const pages: TeletextPage[] = [];
     const wrappedLines = this.wrapText(response, 40);
     
-    // Split into pages of 20 rows (leaving 4 for header/footer)
-    const linesPerPage = 20;
+    // Split into pages of 19 rows (24 total - 3 header - 2 footer)
+    const linesPerPage = 19;
     const pageCount = Math.ceil(wrappedLines.length / linesPerPage);
     
     for (let i = 0; i < pageCount; i++) {
@@ -1178,12 +1178,6 @@ Format your response in clear paragraphs without special formatting or markdown.
         ...pageLines
       ];
       
-      // Add navigation hint if there are more pages
-      if (i < pageCount - 1) {
-        rows.push('');
-        rows.push(`>>> CONTINUED ON PAGE ${pageNumber + 1} >>>`);
-      }
-      
       const links: Array<{ label: string; targetPage: string; color?: 'red' | 'green' | 'yellow' | 'blue' }> = [
         { label: 'INDEX', targetPage: '100', color: 'red' as const },
         { label: 'AI', targetPage: '500', color: 'green' as const }
@@ -1192,6 +1186,16 @@ Format your response in clear paragraphs without special formatting or markdown.
       if (i < pageCount - 1) {
         links.push({ label: 'NEXT', targetPage: (pageNumber + 1).toString(), color: 'yellow' as const });
       }
+      
+      // Create continuation metadata for multi-page responses
+      // Requirements: 35.1, 35.2, 35.3, 35.4, 35.5
+      const continuation = pageCount > 1 ? {
+        currentPage: pageId,
+        nextPage: i < pageCount - 1 ? (pageNumber + 1).toString() : undefined,
+        previousPage: i > 0 ? (pageNumber - 1).toString() : undefined,
+        totalPages: pageCount,
+        currentIndex: i
+      } : undefined;
       
       pages.push({
         id: pageId,
@@ -1202,7 +1206,9 @@ Format your response in clear paragraphs without special formatting or markdown.
           source: 'AIAdapter',
           lastUpdated: new Date().toISOString(),
           cacheStatus: 'fresh',
-          aiContextId: contextId
+          aiContextId: contextId,
+          aiGenerated: true,
+          continuation
         }
       });
     }

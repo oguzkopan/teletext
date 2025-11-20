@@ -143,13 +143,14 @@ export class SettingsAdapter implements ContentAdapter {
 
   /**
    * Creates the theme selection page (700)
+   * Requirements: 37.1 - Display numbered theme options (1-4)
    */
   private getThemeSelectionPage(currentTheme?: string): TeletextPage {
     const rows = [
       'THEME SELECTION              P700',
       '════════════════════════════════════',
       '',
-      'Choose your visual theme:',
+      'Press a number key to select theme:',
       '',
       '1. CEEFAX (Classic BBC)',
       '   Yellow on blue background',
@@ -169,7 +170,7 @@ export class SettingsAdapter implements ContentAdapter {
       '',
       currentTheme ? `Current: ${currentTheme}` : '',
       '',
-      'EFFECTS CEEFAX  ORF     CONTRAST',
+      'EFFECTS INDEX',
       ''
     ];
 
@@ -179,14 +180,13 @@ export class SettingsAdapter implements ContentAdapter {
       rows: this.padRows(rows),
       links: [
         { label: 'EFFECTS', targetPage: '701', color: 'red' },
-        { label: 'CEEFAX', targetPage: '702', color: 'green' },
-        { label: 'ORF', targetPage: '703', color: 'yellow' },
-        { label: 'CONTRAST', targetPage: '704', color: 'blue' }
+        { label: 'INDEX', targetPage: '100', color: 'green' }
       ],
       meta: {
         source: 'SettingsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
+        cacheStatus: 'fresh',
+        themeSelectionPage: true  // Flag to enable special keyboard handling
       }
     };
   }

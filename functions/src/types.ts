@@ -32,6 +32,14 @@ export interface PageMeta {
     noiseLevel?: number;
   };
   favoritePages?: string[];
+  continuation?: {         // Multi-page navigation metadata
+    currentPage: string;
+    nextPage?: string;
+    previousPage?: string;
+    totalPages: number;
+    currentIndex: number;
+  };
+  themeSelectionPage?: boolean; // Flag to enable special keyboard handling for theme selection
 }
 
 export interface PageCacheDocument {

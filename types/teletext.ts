@@ -63,6 +63,16 @@ export interface PageMeta {
     noiseLevel?: number;
   };
   favoritePages?: string[]; // For keyboard shortcuts config page
+  themeSelectionPage?: boolean; // Flag to enable theme selection keyboard handling
+  continuation?: PageContinuation; // Multi-page navigation metadata
+}
+
+export interface PageContinuation {
+  currentPage: string;      // Current page ID (e.g., "201")
+  nextPage?: string;        // Next page in sequence (e.g., "202")
+  previousPage?: string;    // Previous page in sequence (e.g., "200")
+  totalPages: number;       // Total pages in sequence
+  currentIndex: number;     // Current page index (0-based)
 }
 
 export interface ThemeConfig {

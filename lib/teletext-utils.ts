@@ -399,3 +399,314 @@ export function formatContentToPages(
   // Return at least one page
   return pages.length > 0 ? pages : [normalizeRows(Array(maxRows).fill(''), 40)];
 }
+
+/**
+ * Centers text within the full 40-character width.
+ * 
+ * @param text - The text to center
+ * @param width - Target width (default: 40)
+ * @returns Centered text padded to full width
+ * 
+ * Requirements: 34.2, 34.3
+ */
+export function centerText(text: string, width: number = 40): string {
+  return padText(text, width, 'center');
+}
+
+/**
+ * Right-aligns text within the full 40-character width.
+ * 
+ * @param text - The text to right-align
+ * @param width - Target width (default: 40)
+ * @returns Right-aligned text padded to full width
+ * 
+ * Requirements: 34.2, 34.3
+ */
+export function rightAlignText(text: string, width: number = 40): string {
+  return padText(text, width, 'right');
+}
+
+/**
+ * Justifies text to fill the full 40-character width by distributing spaces.
+ * 
+ * @param text - The text to justify
+ * @param width - Target width (default: 40)
+ * @returns Justified text with distributed spacing
+ * 
+ * Requirements: 34.2, 34.3
+ */
+export function justifyText(text: string, width: number = 40): string {
+  // If text is already at or exceeds width, truncate
+  if (text.length >= width) {
+    return text.slice(0, width);
+  }
+  
+  // Split into words
+  const words = text.trim().split(/\s+/);
+  
+  // If only one word, left-align it
+  if (words.length === 1) {
+    return padText(text, width, 'left');
+  }
+  
+  // Calculate total character count and spaces needed
+  const totalChars = words.reduce((sum, word) => sum + word.length, 0);
+  const totalSpaces = width - totalChars;
+  const gaps = words.length - 1;
+  
+  // If not enough space, just join with single spaces
+  if (totalSpaces < gaps) {
+    return padText(words.join(' '), width, 'left');
+  }
+  
+  // Distribute spaces evenly
+  const baseSpaces = Math.floor(totalSpaces / gaps);
+  const extraSpaces = totalSpaces % gaps;
+  
+  let result = '';
+  for (let i = 0; i < words.length; i++) {
+    result += words[i];
+    if (i < words.length - 1) {
+      // Add base spaces plus one extra for the first 'extraSpaces' gaps
+      const spacesToAdd = baseSpaces + (i < extraSpaces ? 1 : 0);
+      result += ' '.repeat(spacesToAdd);
+    }
+  }
+  
+  return result;
+}
+
+/**
+ * Creates a full-width title row with decorative elements.
+ * 
+ * @param title - The title text
+ * @param decoration - Decoration character (default: '═')
+ * @param width - Target width (default: 40)
+ * @returns Centered title with decorative padding
+ * 
+ * Requirements: 34.2, 34.3
+ */
+export function createTitleRow(
+  title: string, 
+  decoration: string = '═', 
+  width: number = 40
+): string {
+  const titleLength = title.length;
+  
+  // If title is too long, truncate
+  if (titleLength >= width - 4) {
+    return centerText(title, width);
+  }
+  
+  // Calculate decoration on each side
+  const totalDecoration = width - titleLength - 2; // -2 for spaces around title
+  const leftDecoration = Math.floor(totalDecoration / 2);
+  const rightDecoration = totalDecoration - leftDecoration;
+  
+  return decoration.repeat(leftDecoration) + ' ' + title + ' ' + decoration.repeat(rightDecoration);
+}
+
+/**
+ * Creates a full-width separator line.
+ * 
+ * @param char - Character to use for separator (default: '═')
+ * @param width - Target width (default: 40)
+ * @returns Full-width separator line
+ * 
+ * Requirements: 34.2, 34.3
+ */
+export function createSeparator(char: string = '═', width: number = 40): string {
+  return char.repeat(width);
+}
+
+/**
+ * Formats a two-column layout within 40 characters.
+ * 
+ * @param left - Left column text
+ * @param right - Right column text
+ * @param width - Total width (default: 40)
+ * @returns Formatted two-column row
+ * 
+ * Requirements: 34.2, 34.3
+ */
+export function createTwoColumnRow(
+  left: string, 
+  right: string, 
+  width: number = 40
+): string {
+  const leftTruncated = truncateText(left, width - right.length - 1, false);
+  const rightTruncated = truncateText(right, width - leftTruncated.length - 1, false);
+  const spaces = width - leftTruncated.length - rightTruncated.length;
+  
+  return leftTruncated + ' '.repeat(spaces) + rightTruncated;
+}
+
+/**
+ * Adds Halloween decorative elements to text.
+ * 
+ * @param text - The text to decorate
+ * @param position - Position of decoration: 'prefix', 'suffix', or 'both'
+ * @returns Text with Halloween decorations
+ * 
+ * Requirements: 36.3
+ */
+export function addHalloweenDecoration(
+  text: string, 
+  position: 'prefix' | 'suffix' | 'both' = 'both'
+): string {
+  const decorations = ['🎃', '👻', '🦇', '💀'];
+  const randomDecoration = () => decorations[Math.floor(Math.random() * decorations.length)];
+  
+  if (position === 'prefix') {
+    return `${randomDecoration()} ${text}`;
+  } else if (position === 'suffix') {
+    return `${text} ${randomDecoration()}`;
+  } else {
+    return `${randomDecoration()} ${text} ${randomDecoration()}`;
+  }
+}
+
+/**
+ * Creates multiple pages from long content with continuation metadata.
+ * Each page will have proper navigation links to previous/next pages.
+ * 
+ * @param basePageId - Base page ID (e.g., "201")
+ * @param title - Page title
+ * @param contentRows - Array of content rows (can exceed 24 rows)
+ * @param headerRows - Number of rows reserved for header (default: 3)
+ * @param footerRows - Number of rows reserved for footer/links (default: 2)
+ * @param links - Navigation links for the pages
+ * @param meta - Additional metadata for the pages
+ * @returns Array of TeletextPage objects with continuation metadata
+ * 
+ * Requirements: 35.1, 35.2, 35.3, 35.4, 35.5
+ */
+export function createMultiPageContent(
+  basePageId: string,
+  title: string,
+  contentRows: string[],
+  headerRows: number = 3,
+  footerRows: number = 2,
+  links: Array<{ label: string; targetPage: string; color?: 'red' | 'green' | 'yellow' | 'blue' }> = [],
+  meta: any = {}
+): TeletextPage[] {
+  const contentRowsPerPage = 24 - headerRows - footerRows;
+  const pages: TeletextPage[] = [];
+  
+  // Calculate total pages needed
+  const totalPages = Math.ceil(contentRows.length / contentRowsPerPage);
+  
+  // If content fits in one page, return single page without continuation
+  if (totalPages === 1) {
+    const rows: string[] = [];
+    
+    // Add header
+    rows.push(padText(`${title.toUpperCase()}`, 28) + `P${basePageId}`.padStart(12));
+    rows.push(createSeparator('═', 40));
+    rows.push(''.padEnd(40));
+    
+    // Add content
+    contentRows.forEach(row => rows.push(padText(row, 40)));
+    
+    // Pad to 24 rows
+    while (rows.length < 24) {
+      rows.push(''.padEnd(40));
+    }
+    
+    return [{
+      id: basePageId,
+      title,
+      rows: rows.slice(0, 24),
+      links,
+      meta: {
+        ...meta,
+        source: meta.source || 'System',
+        lastUpdated: new Date().toISOString(),
+        cacheStatus: 'fresh'
+      }
+    }];
+  }
+  
+  // Create multiple pages with continuation metadata
+  for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
+    const pageId = pageIndex === 0 ? basePageId : `${basePageId}-${pageIndex + 1}`;
+    const startRow = pageIndex * contentRowsPerPage;
+    const endRow = Math.min(startRow + contentRowsPerPage, contentRows.length);
+    const pageContent = contentRows.slice(startRow, endRow);
+    
+    const rows: string[] = [];
+    
+    // Add header
+    const headerTitle = pageIndex === 0 ? title.toUpperCase() : `${title.toUpperCase()} (cont.)`;
+    rows.push(padText(headerTitle, 28) + `P${pageId}`.padStart(12));
+    rows.push(createSeparator('═', 40));
+    rows.push(''.padEnd(40));
+    
+    // Add content
+    pageContent.forEach(row => rows.push(padText(row, 40)));
+    
+    // Pad to 24 rows
+    while (rows.length < 24) {
+      rows.push(''.padEnd(40));
+    }
+    
+    // Create continuation metadata
+    const continuation = {
+      currentPage: pageId,
+      nextPage: pageIndex < totalPages - 1 ? (pageIndex === 0 ? `${basePageId}-2` : `${basePageId}-${pageIndex + 2}`) : undefined,
+      previousPage: pageIndex > 0 ? (pageIndex === 1 ? basePageId : `${basePageId}-${pageIndex}`) : undefined,
+      totalPages,
+      currentIndex: pageIndex
+    };
+    
+    pages.push({
+      id: pageId,
+      title: pageIndex === 0 ? title : `${title} (${pageIndex + 1}/${totalPages})`,
+      rows: rows.slice(0, 24),
+      links,
+      meta: {
+        ...meta,
+        source: meta.source || 'System',
+        lastUpdated: new Date().toISOString(),
+        cacheStatus: 'fresh',
+        continuation
+      }
+    });
+  }
+  
+  return pages;
+}
+
+/**
+ * Splits long AI responses into multiple pages with continuation.
+ * 
+ * @param basePageId - Base page ID for the response
+ * @param title - Response title
+ * @param responseText - The full AI response text
+ * @param links - Navigation links
+ * @param meta - Additional metadata
+ * @returns Array of TeletextPage objects
+ * 
+ * Requirements: 7.4, 35.1, 35.2, 35.3
+ */
+export function splitAIResponse(
+  basePageId: string,
+  title: string,
+  responseText: string,
+  links: Array<{ label: string; targetPage: string; color?: 'red' | 'green' | 'yellow' | 'blue' }> = [],
+  meta: any = {}
+): TeletextPage[] {
+  // Wrap the response text to 40 characters
+  const wrappedLines = wrapText(responseText, 40);
+  
+  // Create multi-page content
+  return createMultiPageContent(
+    basePageId,
+    title,
+    wrappedLines,
+    3, // header rows
+    2, // footer rows
+    links,
+    { ...meta, aiGenerated: true }
+  );
+}

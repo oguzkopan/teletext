@@ -69,28 +69,29 @@ export function createFallbackIndexPage(): TeletextPage {
   });
   
   const rows = [
-    'MODERN TELETEXT              P100',
-    '════════════════════════════════════',
-    `${dateStr} ${timeStr}`,
+    centerText('MODERN TELETEXT', 32) + '    P100',
+    '════════════════════════════════════════',
+    centerText(`${dateStr} ${timeStr}`, 40),
     '',
-    'MAIN INDEX (OFFLINE MODE)',
+    centerText('MAIN INDEX (OFFLINE)', 40),
     '',
-    '110 SYSTEM PAGES',
-    '200 NEWS (requires emulator)',
-    '300 SPORT (requires emulator)',
-    '400 MARKETS (requires emulator)',
-    '500 AI ORACLE (requires emulator)',
-    '600 GAMES (requires emulator)',
-    '700 SETTINGS (requires emulator)',
-    '800 DEVELOPER TOOLS (requires emulator)',
+    '  101  System Info & Help',
+    '  110  System Pages Index',
+    '  120  Emergency Bulletins',
+    '  199  About & Credits',
+    '  999  Help & Navigation',
     '',
-    'TRY THESE PAGES:',
-    '101 How it works',
-    '120 Emergency bulletins',
-    '199 About & credits',
-    '999 Help',
+    '  200  News (requires emulator)',
+    '  300  Sport (requires emulator)',
+    '  400  Markets (requires emulator)',
+    '  500  AI Oracle (requires emulator)',
+    '  600  Games (requires emulator)',
+    '  700  Settings (requires emulator)',
+    '  800  Dev Tools (requires emulator)',
     '',
-    '',
+    centerText('NAVIGATION EXAMPLES', 40),
+    '  Enter 101 for system info',
+    '  Enter 999 for help guide',
     'HELP    ABOUT',
     ''
   ];
@@ -470,6 +471,19 @@ export function getFallbackPage(pageId: string): TeletextPage | null {
   }
   
   return null;
+}
+
+/**
+ * Centers text within specified width
+ */
+function centerText(text: string, width: number): string {
+  if (text.length >= width) {
+    return text.slice(0, width);
+  }
+  const padding = width - text.length;
+  const leftPad = Math.floor(padding / 2);
+  const rightPad = padding - leftPad;
+  return ' '.repeat(leftPad) + text + ' '.repeat(rightPad);
 }
 
 /**

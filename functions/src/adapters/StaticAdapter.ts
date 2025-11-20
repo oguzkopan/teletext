@@ -73,7 +73,7 @@ export class StaticAdapter implements ContentAdapter {
 
   /**
    * Creates the main index page (100)
-   * Requirements: 3.1, 3.2, 32.1
+   * Requirements: 3.1, 3.2, 32.1, 34.1, 34.2, 34.3, 34.4, 34.5
    */
   private getIndexPage(): TeletextPage {
     const now = new Date();
@@ -87,32 +87,33 @@ export class StaticAdapter implements ContentAdapter {
       minute: '2-digit' 
     });
     
+    // Full-width layout with centered titles and specific page numbers
+    // Requirements 34.1, 34.2, 34.3, 34.4, 34.5
     const rows = [
-      'MODERN TELETEXT              P100',
-      '════════════════════════════════════',
-      `${dateStr} ${timeStr}`,
+      this.centerText('MODERN TELETEXT', 32) + '    P100',
+      '════════════════════════════════════════',
+      this.centerText(`${dateStr} ${timeStr}`, 40),
       '',
-      'MAIN INDEX',
+      this.centerText('★ MAIN INDEX ★', 40),
       '',
-      '110 SYSTEM PAGES',
-      '200 NEWS & CURRENT AFFAIRS',
-      '300 SPORT',
-      '400 MARKETS & FINANCE',
-      '420 WEATHER FORECASTS',
-      '500 AI ORACLE',
-      '600 GAMES & ENTERTAINMENT',
-      '700 SETTINGS & PREFERENCES',
-      '800 DEVELOPER TOOLS',
+      '  101  System Info & Help',
+      '  110  System Pages Index',
+      '  200  News Headlines',
+      '  300  Sport & Live Scores',
+      '  400  Markets & Finance',
+      '  420  Weather Forecasts',
+      '  500  AI Oracle Assistant',
+      '  600  Games & Entertainment',
+      '  700  Settings & Themes',
+      '  800  Developer Tools',
       '',
-      'TRY THESE PAGES:',
-      '101 How it works',
-      '120 Emergency bulletins',
-      '201 Top headlines',
-      '301 Live scores',
-      '999 Help',
+      this.centerText('NAVIGATION EXAMPLES', 40),
+      '  Enter 200 for latest news',
+      '  Enter 500 to chat with AI',
+      '  Enter 999 for help guide',
       '',
-      'NEWS    SPORT   WEATHER AI',
-      ''
+      this.centerText('Use remote or keyboard', 40),
+      'NEWS    SPORT   WEATHER AI'
     ];
 
     return {
@@ -131,6 +132,19 @@ export class StaticAdapter implements ContentAdapter {
         cacheStatus: 'fresh'
       }
     };
+  }
+
+  /**
+   * Centers text within specified width
+   */
+  private centerText(text: string, width: number): string {
+    if (text.length >= width) {
+      return text.slice(0, width);
+    }
+    const padding = width - text.length;
+    const leftPad = Math.floor(padding / 2);
+    const rightPad = padding - leftPad;
+    return ' '.repeat(leftPad) + text + ' '.repeat(rightPad);
   }
 
   /**
