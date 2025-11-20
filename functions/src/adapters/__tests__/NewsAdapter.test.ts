@@ -22,7 +22,65 @@ describe('NewsAdapter', () => {
   });
 
   describe('getPage', () => {
-    
+    it('should return article detail page for sub-page request (e.g., 202-1)', async () => {
+      const mockArticles = [
+        {
+          title: 'First Article Title',
+          description: 'This is the first article description',
+          source: { name: 'Test Source' },
+          publishedAt: '2024-01-01T12:00:00Z',
+          url: 'https://example.com/article1'
+        },
+        {
+          title: 'Second Article Title',
+          description: 'This is the second article description',
+          source: { name: 'Another Source' },
+          publishedAt: '2024-01-02T12:00:00Z',
+          url: 'https://example.com/article2'
+        }
+      ];
+
+      mockedAxios.get.mockResolvedValue({
+        data: { articles: mockArticles }
+      });
+
+      const page = await adapter.getPage('202-1');
+      
+      expect(page.id).toBe('202-1');
+      expect(page.title).toContain('Article 1');
+      expect(page.rows).toHaveLength(24);
+      expect(page.rows.join('')).toContain('First Article Title');
+      expect(page.rows.join('')).toContain('Test Source');
+      
+      // Check navigation links
+      expect(page.links).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ label: 'BACK', targetPage: '202' }),
+          expect.objectContaining({ label: 'NEXT', targetPage: '202-2' })
+        ])
+      );
+    });
+
+    it('should handle invalid article index gracefully', async () => {
+      const mockArticles = [
+        {
+          title: 'Only Article',
+          description: 'Description',
+          source: { name: 'Source' }
+        }
+      ];
+
+      mockedAxios.get.mockResolvedValue({
+        data: { articles: mockArticles }
+      });
+
+      const page = await adapter.getPage('202-5'); // Request article 5 when only 1 exists
+      
+      // Should return error page
+      expect(page.id).toBe('202-5');
+      expect(page.rows.join('')).toContain('ARTICLE NOT FOUND');
+      expect(page.meta?.error).toBe('article_not_found');
+    });
   });
 
   describe('page validation', () => {

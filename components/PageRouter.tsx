@@ -193,8 +193,23 @@ export default function PageRouter({
    * Handles digit press for page number input with debouncing
    * Requirement: 12.3, 12.5 - Input buffer with 3 digits
    * Requirement: Performance - Debouncing for keyboard input (100ms)
+   * Requirement: 35.1 - Support single-digit navigation to news articles
    */
   const handleDigitPress = useCallback((digit: number) => {
+    // Special case: Single digit navigation on news pages (200-299)
+    // If we're on a news page and buffer is empty, treat single digit as article selection
+    if (inputBuffer.length === 0 && currentPage) {
+      const pageNum = parseInt(currentPage.id.split('-')[0], 10);
+      
+      // Check if we're on a news index page (201-219)
+      if (pageNum >= 201 && pageNum <= 219 && digit >= 1 && digit <= 9) {
+        // Navigate to article sub-page (e.g., 202-1, 202-2, etc.)
+        const articlePageId = `${currentPage.id.split('-')[0]}-${digit}`;
+        navigateToPage(articlePageId);
+        return;
+      }
+    }
+    
     if (inputBuffer.length < 3) {
       const newBuffer = inputBuffer + digit.toString();
       setInputBuffer(newBuffer);
@@ -207,7 +222,7 @@ export default function PageRouter({
         }, 100);
       }
     }
-  }, [inputBuffer, navigateToPage]);
+  }, [inputBuffer, currentPage, navigateToPage]);
 
   /**
    * Handles Enter key press
