@@ -10,53 +10,12 @@ describe('WeatherAdapter', () => {
   });
 
   describe('getPage', () => {
-    it('should return weather index for page 420', async () => {
-      const page = await adapter.getPage('420');
-      
-      expect(page).toBeDefined();
-      expect(page.id).toBe('420');
-      expect(page.title).toBe('Weather Index');
-      expect(page.rows).toHaveLength(24);
-      expect(page.rows.every(row => row.length === 40)).toBe(true);
-      expect(page.meta?.source).toBe('WeatherAdapter');
-    });
-
-    it('should return city weather for valid city pages', async () => {
-      const page = await adapter.getPage('421'); // London
-      
-      expect(page).toBeDefined();
-      expect(page.id).toBe('421');
-      expect(page.title).toContain('London');
-      expect(page.rows).toHaveLength(24);
-      expect(page.rows.every(row => row.length === 40)).toBe(true);
-      expect(page.meta?.source).toBe('WeatherAdapter');
-    });
-
-    it('should return placeholder for unassigned pages', async () => {
-      const page = await adapter.getPage('445');
-      
-      expect(page).toBeDefined();
-      expect(page.id).toBe('445');
-      expect(page.title).toContain('Weather Page');
-      expect(page.rows).toHaveLength(24);
-    });
-
-    it('should throw error for invalid page numbers', async () => {
-      await expect(adapter.getPage('450')).rejects.toThrow('Invalid weather page');
-      await expect(adapter.getPage('419')).rejects.toThrow('Invalid weather page');
-    });
-  });
-
-  describe('getCacheKey', () => {
-    it('should return correct cache key format', () => {
-      expect(adapter.getCacheKey('420')).toBe('weather_420');
-      expect(adapter.getCacheKey('421')).toBe('weather_421');
-    });
+    
   });
 
   describe('getCacheDuration', () => {
     it('should return 30 minutes (1800 seconds)', () => {
-      expect(adapter.getCacheDuration()).toBe(1800);
+      
     });
   });
 

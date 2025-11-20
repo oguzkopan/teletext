@@ -16,15 +16,7 @@ service cloud.firestore {
       return pageId.matches('^[1-8][0-9]{2}$');
     }
     
-    function isValidPageData() {
-      let data = request.resource.data;
-      // Validate page structure
-      return data.keys().hasAll(['pageId', 'page', 'source', 'cachedAt', 'expiresAt', 'accessCount'])
-        && data.page.keys().hasAll(['id', 'title', 'rows', 'links'])
-        && data.page.rows.size() == 24
-        && data.accessCount is int
-        && data.accessCount >= 0;
-    }
+
     
     function isValidConversation() {
       let data = request.resource.data;
@@ -48,15 +40,7 @@ service cloud.firestore {
         && data.updatedAt is timestamp;
     }
     
-    // Pages cache collection - public read, function write only
-    // This allows all users to read cached pages but only Cloud Functions can write
-    match /pages_cache/{pageId} {
-      allow read: if isValidPageId(pageId);
-      allow create: if false; // Only Cloud Functions via Admin SDK
-      allow update: if false; // Only Cloud Functions via Admin SDK
-      allow delete: if false; // Only Cloud Functions via Admin SDK
-    }
-    
+
     // Conversations collection - user-specific access
     // Users can only access their own conversations
     // Anonymous users can create and access conversations using session-based IDs

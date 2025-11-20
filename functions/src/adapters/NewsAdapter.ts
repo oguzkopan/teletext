@@ -144,23 +144,7 @@ export class NewsAdapter implements ContentAdapter {
     }
   }
 
-  /**
-   * Gets the cache key for a page
-   * @param pageId - The page ID
-   * @returns The cache key
-   */
-  getCacheKey(pageId: string): string {
-    return `news_${pageId}`;
-  }
 
-  /**
-   * Gets the cache duration for news pages
-   * News pages are cached for 5 minutes (300 seconds)
-   * @returns Cache duration in seconds
-   */
-  getCacheDuration(): number {
-    return 300; // 5 minutes
-  }
 
   /**
    * Creates the news index page (200)
@@ -206,7 +190,6 @@ export class NewsAdapter implements ContentAdapter {
       meta: {
         source: 'NewsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -410,7 +393,6 @@ export class NewsAdapter implements ContentAdapter {
         meta: {
           source: 'NewsAdapter',
           lastUpdated: new Date().toISOString(),
-          cacheStatus: 'fresh'
         }
       };
     } else {
@@ -475,7 +457,6 @@ export class NewsAdapter implements ContentAdapter {
         meta: {
           source: 'NewsAdapter',
           lastUpdated: new Date().toISOString(),
-          cacheStatus: 'fresh',
           continuation
         }
       });
@@ -542,7 +523,6 @@ export class NewsAdapter implements ContentAdapter {
       meta: {
         source: 'NewsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh',
         error: isMissingApiKey ? 'missing_api_key' : 'service_unavailable'
       }
     };
@@ -589,7 +569,6 @@ export class NewsAdapter implements ContentAdapter {
       meta: {
         source: 'NewsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }

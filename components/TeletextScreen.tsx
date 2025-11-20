@@ -8,7 +8,6 @@ interface TeletextScreenProps {
   loading: boolean;
   theme: ThemeConfig;
   isOnline?: boolean;
-  isCached?: boolean;
 }
 
 /**
@@ -26,8 +25,7 @@ const TeletextScreen = React.memo(function TeletextScreen({
   page, 
   loading, 
   theme, 
-  isOnline = true, 
-  isCached = false 
+  isOnline = true
 }: TeletextScreenProps) {
   /**
    * Parses a row of text and applies color codes.
@@ -182,23 +180,7 @@ const TeletextScreen = React.memo(function TeletextScreen({
         </div>
       )}
       
-      {/* Cached indicator - Requirement 13.4 */}
-      {!loading && (isCached || page.meta?.cacheStatus === 'cached') && (
-        <div 
-          className="cached-indicator"
-          style={{
-            position: 'absolute',
-            top: '20px',
-            right: '20px',
-            color: theme.colors.yellow,
-            fontSize: '14px',
-            fontWeight: 'bold'
-          }}
-        >
-          [CACHED]
-        </div>
-      )}
-      
+
       {/* Offline indicator */}
       {!loading && !isOnline && (
         <div 

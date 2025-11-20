@@ -100,23 +100,7 @@ export class GamesAdapter implements ContentAdapter {
     throw new Error(`Invalid games page: ${pageId}`);
   }
 
-  /**
-   * Gets the cache key for a page
-   * @param pageId - The page ID
-   * @returns The cache key
-   */
-  getCacheKey(pageId: string): string {
-    return `games_${pageId}`;
-  }
 
-  /**
-   * Gets the cache duration for games pages
-   * Games pages are not cached (0 seconds) as they are dynamic
-   * @returns Cache duration in seconds
-   */
-  getCacheDuration(): number {
-    return 0; // Don't cache game pages
-  }
 
   /**
    * Creates the games index page (600)
@@ -161,7 +145,6 @@ export class GamesAdapter implements ContentAdapter {
       meta: {
         source: 'GamesAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -225,7 +208,6 @@ export class GamesAdapter implements ContentAdapter {
         meta: {
           source: 'GamesAdapter',
           lastUpdated: new Date().toISOString(),
-          cacheStatus: 'fresh',
           aiContextId: newSessionId
         }
       };
@@ -301,7 +283,6 @@ export class GamesAdapter implements ContentAdapter {
         meta: {
           source: 'GamesAdapter',
           lastUpdated: new Date().toISOString(),
-          cacheStatus: 'fresh',
           aiContextId: sessionId
         }
       };
@@ -388,7 +369,6 @@ export class GamesAdapter implements ContentAdapter {
         meta: {
           source: 'GamesAdapter',
           lastUpdated: new Date().toISOString(),
-          cacheStatus: 'fresh',
           aiContextId: sessionId
         }
       };
@@ -451,7 +431,6 @@ export class GamesAdapter implements ContentAdapter {
         meta: {
           source: 'GamesAdapter',
           lastUpdated: new Date().toISOString(),
-          cacheStatus: 'fresh'
         }
       };
     } catch (error) {
@@ -712,7 +691,6 @@ Just provide the commentary text, nothing else.`;
       meta: {
         source: 'GamesAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -758,7 +736,6 @@ Just provide the commentary text, nothing else.`;
         meta: {
           source: 'GamesAdapter',
           lastUpdated: new Date().toISOString(),
-          cacheStatus: 'fresh',
           aiContextId: sessionId
         }
       };
@@ -1240,7 +1217,6 @@ Just provide the commentary text, nothing else.`;
         meta: {
           source: 'GamesAdapter',
           lastUpdated: new Date().toISOString(),
-          cacheStatus: 'fresh'
         }
       };
     } catch (error) {
@@ -1463,7 +1439,6 @@ Just provide the commentary text, nothing else.`;
       meta: {
         source: 'GamesAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -1509,7 +1484,6 @@ Just provide the commentary text, nothing else.`;
       meta: {
         source: 'GamesAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -1555,7 +1529,6 @@ Just provide the commentary text, nothing else.`;
       meta: {
         source: 'GamesAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }

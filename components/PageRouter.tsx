@@ -2,8 +2,6 @@
 
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { TeletextPage, createOfflinePage } from '@/types/teletext';
-import { useOfflineSupport, useBrowserCache } from '@/hooks/useOfflineSupport';
-import { usePagePreload } from '@/hooks/usePagePreload';
 import { useRequestCancellation } from '@/hooks/useRequestCancellation';
 import { performanceMonitor } from '@/lib/performance-monitor';
 
@@ -50,15 +48,7 @@ export default function PageRouter({
   const [history, setHistory] = useState<string[]>(initialPage ? [initialPage.id] : []);
   const [historyIndex, setHistoryIndex] = useState(initialPage ? 0 : -1);
   const [isCached, setIsCached] = useState(false);
-  
-  // Offline support hooks
-  // Requirements: 13.4, 15.3
-  const { isOnline, serviceWorkerReady, cachePage: cachePageInSW } = useOfflineSupport();
-  const { savePage, loadPage } = useBrowserCache();
-  
-  // Performance optimization hooks
-  // Requirement: 15.4 - Page preloading
-  usePagePreload();
+  const [isOnline] = useState(true); // Always online now that caching is removed
   
   // Requirement: 15.5 - Request cancellation
   const { createCancellableRequest, clearRequest, isRequestActive } = useRequestCancellation();
@@ -88,9 +78,8 @@ export default function PageRouter({
   };
 
   /**
-   * Fetches a page by ID with offline support and request cancellation
+   * Fetches a page by ID with request cancellation
    * Requirements: 1.1 - Display page within 500ms
-   * Requirements: 13.4 - Display cached content when offline
    * Requirements: 15.3 - Remain responsive during loading
    * Requirements: 15.5 - Cancel pending requests for rapid navigation
    */
@@ -98,27 +87,8 @@ export default function PageRouter({
     pageId: string, 
     abortSignal?: AbortSignal
   ): Promise<{ page: TeletextPage | null; fromCache: boolean }> => {
-    // First, try to load from browser cache if offline
-    if (!isOnline) {
-      console.log(`Offline: Attempting to load page ${pageId} from cache`);
-      const cachedPage = loadPage(pageId);
-      if (cachedPage) {
-        // Mark as cached
-        const pageWithCacheStatus = {
-          ...cachedPage,
-          meta: {
-            ...cachedPage.meta,
-            cacheStatus: 'cached' as const
-          }
-        };
-        return { page: pageWithCacheStatus, fromCache: true };
-      }
-      // No cache available
-      return { page: null, fromCache: false };
-    }
-
     try {
-      // Try network request with abort signal for cancellation
+      // Network request with abort signal for cancellation
       const response = await fetch(`/api/page/${pageId}`, {
         signal: abortSignal,
       });
@@ -127,32 +97,10 @@ export default function PageRouter({
         throw new Error(`Failed to fetch page ${pageId}`);
       }
       
-      // Check if response came from service worker cache
-      const cacheStatus = response.headers.get('X-Cache-Status');
-      const fromCache = cacheStatus === 'cached';
-      
       const data = await response.json();
       const page = data.page || null;
       
-      if (page) {
-        // Update cache status in metadata
-        if (fromCache) {
-          page.meta = {
-            ...page.meta,
-            cacheStatus: 'cached' as const
-          };
-        }
-        
-        // Save to browser cache for offline access
-        savePage(pageId, page);
-        
-        // Also cache in service worker if available
-        if (serviceWorkerReady && !fromCache) {
-          cachePageInSW(pageId, data);
-        }
-      }
-      
-      return { page, fromCache };
+      return { page, fromCache: false };
     } catch (error) {
       // Check if request was aborted
       if (error instanceof Error && error.name === 'AbortError') {
@@ -161,28 +109,13 @@ export default function PageRouter({
       }
       
       console.error('Error fetching page:', error);
-      
-      // Network error - try browser cache as fallback
-      console.log(`Network error: Attempting to load page ${pageId} from browser cache`);
-      const cachedPage = loadPage(pageId);
-      if (cachedPage) {
-        const pageWithCacheStatus = {
-          ...cachedPage,
-          meta: {
-            ...cachedPage.meta,
-            cacheStatus: 'cached' as const
-          }
-        };
-        return { page: pageWithCacheStatus, fromCache: true };
-      }
-      
       return { page: null, fromCache: false };
     }
-  }, [isOnline, loadPage, savePage, serviceWorkerReady, cachePageInSW]);
+  }, []);
 
   /**
-   * Navigates to a specific page with offline support and request cancellation
-   * Requirements: 1.1, 1.2, 13.4, 15.3, 15.5, 33.2
+   * Navigates to a specific page with request cancellation
+   * Requirements: 1.1, 1.2, 15.3, 15.5, 33.2
    */
   const navigateToPage = useCallback(async (pageId: string) => {
     // Validate page number
@@ -236,9 +169,8 @@ export default function PageRouter({
           onPageChange(page);
         }
       } else {
-        // No page available (offline and no cache)
-        // Requirement 13.4: Display offline error page
-        console.error(`Page ${pageId} not available offline`);
+        // No page available
+        console.error(`Page ${pageId} not available`);
         const offlinePage = createOfflinePage(pageId);
         setCurrentPage(offlinePage);
         setIsCached(false);

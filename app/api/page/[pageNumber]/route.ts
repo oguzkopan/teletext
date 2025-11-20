@@ -35,12 +35,9 @@ export async function GET(
 
     const data = await response.json();
     
-    // Pass through cache headers
+    // Disable caching
     const headers = new Headers();
-    const cacheControl = response.headers.get('Cache-Control');
-    if (cacheControl) {
-      headers.set('Cache-Control', cacheControl);
-    }
+    headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     
     return NextResponse.json(data, { 
       status: 200,

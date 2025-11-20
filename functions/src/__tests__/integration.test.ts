@@ -167,19 +167,6 @@ describe('StaticAdapter', () => {
     });
   });
 
-  describe('getCacheDuration', () => {
-    it('should return long cache duration for static pages', () => {
-      const duration = adapter.getCacheDuration();
-      expect(duration).toBe(31536000); // 1 year
-    });
-  });
-
-  describe('getCacheKey', () => {
-    it('should generate correct cache key', () => {
-      const key = adapter.getCacheKey('100');
-      expect(key).toBe('static_100');
-    });
-  });
 });
 
 describe('Page Format Validation', () => {

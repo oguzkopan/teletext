@@ -111,19 +111,7 @@ describe('StaticAdapter', () => {
       expect(page.meta).toBeDefined();
       expect(page.meta?.source).toBe('StaticAdapter');
       expect(page.meta?.lastUpdated).toBeDefined();
-      expect(page.meta?.cacheStatus).toBe('fresh');
-    });
-  });
 
-  describe('Cache Configuration', () => {
-    it('should return correct cache key', () => {
-      const cacheKey = adapter.getCacheKey('100');
-      expect(cacheKey).toBe('static_100');
-    });
-
-    it('should return long cache duration for static pages', () => {
-      const duration = adapter.getCacheDuration();
-      expect(duration).toBe(31536000); // 1 year
     });
   });
 

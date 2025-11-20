@@ -69,23 +69,7 @@ export class WeatherAdapter implements ContentAdapter {
     throw new Error(`Invalid weather page: ${pageId}`);
   }
 
-  /**
-   * Gets the cache key for a page
-   * @param pageId - The page ID
-   * @returns The cache key
-   */
-  getCacheKey(pageId: string): string {
-    return `weather_${pageId}`;
-  }
 
-  /**
-   * Gets the cache duration for weather pages
-   * Weather pages are cached for 30 minutes (1800 seconds)
-   * @returns Cache duration in seconds
-   */
-  getCacheDuration(): number {
-    return 1800; // 30 minutes
-  }
 
   /**
    * Creates the weather index page (420)
@@ -132,7 +116,6 @@ export class WeatherAdapter implements ContentAdapter {
       meta: {
         source: 'WeatherAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -271,7 +254,6 @@ export class WeatherAdapter implements ContentAdapter {
       meta: {
         source: 'WeatherAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -401,7 +383,6 @@ export class WeatherAdapter implements ContentAdapter {
       meta: {
         source: 'WeatherAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -447,7 +428,6 @@ export class WeatherAdapter implements ContentAdapter {
       meta: {
         source: 'WeatherAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }

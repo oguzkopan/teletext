@@ -38,44 +38,7 @@
         }
       ]
     },
-    {
-      "collectionGroup": "pages_cache",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "source",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "cachedAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "pages_cache",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "expiresAt",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "pages_cache",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "source",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "accessCount",
-          "order": "DESCENDING"
-        }
-      ]
-    },
+
     {
       "collectionGroup": "user_preferences",
       "queryScope": "COLLECTION",
@@ -94,11 +57,6 @@
   "fieldOverrides": [
     {
       "collectionGroup": "conversations",
-      "fieldPath": "expiresAt",
-      "ttl": true
-    },
-    {
-      "collectionGroup": "pages_cache",
       "fieldPath": "expiresAt",
       "ttl": true
     }

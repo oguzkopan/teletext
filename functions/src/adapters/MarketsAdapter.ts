@@ -41,23 +41,7 @@ export class MarketsAdapter implements ContentAdapter {
     throw new Error(`Invalid markets page: ${pageId}`);
   }
 
-  /**
-   * Gets the cache key for a page
-   * @param pageId - The page ID
-   * @returns The cache key
-   */
-  getCacheKey(pageId: string): string {
-    return `markets_${pageId}`;
-  }
 
-  /**
-   * Gets the cache duration for markets pages
-   * Markets pages are cached for 1 minute (60 seconds)
-   * @returns Cache duration in seconds
-   */
-  getCacheDuration(): number {
-    return 60; // 1 minute
-  }
 
   /**
    * Creates the markets index page (400)
@@ -102,7 +86,6 @@ export class MarketsAdapter implements ContentAdapter {
       meta: {
         source: 'MarketsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -276,7 +259,6 @@ export class MarketsAdapter implements ContentAdapter {
       meta: {
         source: 'MarketsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -335,7 +317,6 @@ export class MarketsAdapter implements ContentAdapter {
       meta: {
         source: 'MarketsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -389,7 +370,6 @@ export class MarketsAdapter implements ContentAdapter {
       meta: {
         source: 'MarketsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -606,7 +586,6 @@ export class MarketsAdapter implements ContentAdapter {
       meta: {
         source: 'MarketsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -652,7 +631,6 @@ export class MarketsAdapter implements ContentAdapter {
       meta: {
         source: 'MarketsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }

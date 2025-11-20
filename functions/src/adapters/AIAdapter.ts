@@ -86,23 +86,7 @@ export class AIAdapter implements ContentAdapter {
     throw new Error(`Invalid AI page: ${pageId}`);
   }
 
-  /**
-   * Gets the cache key for a page
-   * @param pageId - The page ID
-   * @returns The cache key
-   */
-  getCacheKey(pageId: string): string {
-    return `ai_${pageId}`;
-  }
 
-  /**
-   * Gets the cache duration for AI pages
-   * AI pages are not cached (0 seconds) as they are dynamic
-   * @returns Cache duration in seconds
-   */
-  getCacheDuration(): number {
-    return 0; // Don't cache AI pages
-  }
 
   /**
    * Creates the AI Oracle index page (500)
@@ -148,7 +132,6 @@ export class AIAdapter implements ContentAdapter {
       meta: {
         source: 'AIAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -196,7 +179,6 @@ export class AIAdapter implements ContentAdapter {
       meta: {
         source: 'AIAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -254,7 +236,6 @@ export class AIAdapter implements ContentAdapter {
       meta: {
         source: 'AIAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -302,7 +283,6 @@ export class AIAdapter implements ContentAdapter {
       meta: {
         source: 'AIAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -359,7 +339,6 @@ export class AIAdapter implements ContentAdapter {
       meta: {
         source: 'AIAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -424,7 +403,6 @@ export class AIAdapter implements ContentAdapter {
       meta: {
         source: 'AIAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -592,7 +570,6 @@ Remember: This is for Halloween entertainment, so make it properly scary!`;
         meta: {
           source: 'AIAdapter',
           lastUpdated: new Date().toISOString(),
-          cacheStatus: 'fresh',
           aiContextId: contextId
         }
       });
@@ -798,7 +775,6 @@ Format your response in clear paragraphs without special formatting or markdown.
         meta: {
           source: 'AIAdapter',
           lastUpdated: new Date().toISOString(),
-          cacheStatus: 'fresh'
         }
       };
     } catch (error) {
@@ -864,7 +840,6 @@ Format your response in clear paragraphs without special formatting or markdown.
           meta: {
             source: 'AIAdapter',
             lastUpdated: new Date().toISOString(),
-            cacheStatus: 'fresh'
           }
         };
       }
@@ -951,7 +926,6 @@ Format your response in clear paragraphs without special formatting or markdown.
         meta: {
           source: 'AIAdapter',
           lastUpdated: new Date().toISOString(),
-          cacheStatus: 'fresh',
           aiContextId: contextId
         }
       };
@@ -1205,7 +1179,6 @@ Format your response in clear paragraphs without special formatting or markdown.
         meta: {
           source: 'AIAdapter',
           lastUpdated: new Date().toISOString(),
-          cacheStatus: 'fresh',
           aiContextId: contextId,
           aiGenerated: true,
           continuation
@@ -1265,7 +1238,6 @@ Format your response in clear paragraphs without special formatting or markdown.
       meta: {
         source: 'AIAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -1311,7 +1283,6 @@ Format your response in clear paragraphs without special formatting or markdown.
       meta: {
         source: 'AIAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }

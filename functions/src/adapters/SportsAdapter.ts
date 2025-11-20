@@ -43,26 +43,7 @@ export class SportsAdapter implements ContentAdapter {
     throw new Error(`Invalid sports page: ${pageId}`);
   }
 
-  /**
-   * Gets the cache key for a page
-   * @param pageId - The page ID
-   * @returns The cache key
-   */
-  getCacheKey(pageId: string): string {
-    return `sports_${pageId}`;
-  }
 
-  /**
-   * Gets the cache duration for sports pages
-   * Sports pages are cached for 2 minutes (120 seconds)
-   * During live events, cache for 1 minute (60 seconds)
-   * @returns Cache duration in seconds
-   */
-  getCacheDuration(): number {
-    // TODO: Implement logic to detect live events and return 60 seconds
-    // For now, default to 2 minutes
-    return 120; // 2 minutes
-  }
 
   /**
    * Creates the sports index page (300)
@@ -107,7 +88,6 @@ export class SportsAdapter implements ContentAdapter {
       meta: {
         source: 'SportsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -178,7 +158,6 @@ export class SportsAdapter implements ContentAdapter {
       meta: {
         source: 'SportsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -228,7 +207,6 @@ export class SportsAdapter implements ContentAdapter {
       meta: {
         source: 'SportsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -342,7 +320,6 @@ export class SportsAdapter implements ContentAdapter {
       meta: {
         source: 'SportsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -396,7 +373,6 @@ export class SportsAdapter implements ContentAdapter {
       meta: {
         source: 'SportsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -596,7 +572,6 @@ export class SportsAdapter implements ContentAdapter {
       meta: {
         source: 'SportsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -642,7 +617,6 @@ export class SportsAdapter implements ContentAdapter {
       meta: {
         source: 'SportsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }

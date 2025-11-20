@@ -37,19 +37,15 @@ const nextConfig = {
     optimizePackageImports: ['@/components', '@/hooks', '@/lib'],
   },
   
-  // Allow service worker to be served from public directory
+  // Disable caching for all resources
   async headers() {
     return [
       {
-        source: '/sw.js',
+        source: '/:path*',
         headers: [
           {
-            key: 'Service-Worker-Allowed',
-            value: '/',
-          },
-          {
             key: 'Cache-Control',
-            value: 'public, max-age=0, must-revalidate',
+            value: 'no-store, no-cache, must-revalidate, max-age=0',
           },
         ],
       },

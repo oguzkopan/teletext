@@ -1,7 +1,6 @@
 import { onRequest } from 'firebase-functions/v2/https';
 import { setGlobalOptions } from 'firebase-functions/v2';
 import * as admin from 'firebase-admin';
-import { getCachedPage, setCachedPage } from './utils/cache';
 import { routeToAdapter, isValidPageId } from './utils/router';
 import { createLogger } from './utils/logger';
 import {
@@ -41,9 +40,8 @@ export const getPage = onRequest(async (req, res) => {
   res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.set('Access-Control-Allow-Headers', 'Content-Type');
   
-  // Set CDN caching headers for production
-  // Cache at CDN for 5 minutes, allow stale content for 10 minutes
-  res.set('Cache-Control', 'public, max-age=300, s-maxage=600, stale-while-revalidate=600');
+  // Disable caching
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
 
   if (req.method === 'OPTIONS') {
     res.status(204).send('');
@@ -66,23 +64,6 @@ export const getPage = onRequest(async (req, res) => {
       throw new InvalidPageError(pageId);
     }
 
-    // Check cache first
-    const cachedPage = await getCachedPage(pageId);
-    if (cachedPage) {
-      const duration = Date.now() - startTime;
-      pageLogger.info('Cache hit', { pageId, duration });
-      
-      const response: PageResponse = {
-        success: true,
-        page: cachedPage
-      };
-      
-      res.status(200).json(response);
-      return;
-    }
-
-    pageLogger.info('Cache miss', { pageId });
-
     // Route to appropriate adapter
     const adapter = routeToAdapter(pageId);
     const page = await adapter.getPage(pageId);
@@ -90,10 +71,6 @@ export const getPage = onRequest(async (req, res) => {
     if (!page) {
       throw new PageNotFoundError(pageId);
     }
-
-    // Cache the page
-    const cacheDuration = adapter.getCacheDuration();
-    await setCachedPage(pageId, page, cacheDuration);
 
     const duration = Date.now() - startTime;
     pageLogger.logResponse(200, duration, { pageId, source: page.meta?.source });

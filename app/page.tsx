@@ -137,7 +137,6 @@ function HomeContent() {
                 loading={routerState.loading} 
                 theme={effectiveTheme}
                 isOnline={routerState.isOnline}
-                isCached={routerState.isCached}
               />
             </CRTFrame>
             

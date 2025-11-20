@@ -20,7 +20,6 @@ export interface PageMeta {
   source?: string;
   lastUpdated?: string;
   aiContextId?: string;
-  cacheStatus?: 'fresh' | 'cached' | 'stale';
   haunting?: boolean;      // Enable maximum glitch effects for horror pages
   aiGenerated?: boolean;   // Indicates AI-generated content
   fallback?: boolean;      // Indicates this is a fallback page (emulator offline)
@@ -42,19 +41,8 @@ export interface PageMeta {
   themeSelectionPage?: boolean; // Flag to enable special keyboard handling for theme selection
 }
 
-export interface PageCacheDocument {
-  pageId: string;
-  page: TeletextPage;
-  source: string;
-  cachedAt: FirebaseFirestore.Timestamp;
-  expiresAt: FirebaseFirestore.Timestamp;
-  accessCount: number;
-}
-
 export interface ContentAdapter {
   getPage(pageId: string, params?: Record<string, any>): Promise<TeletextPage>;
-  getCacheKey(pageId: string): string;
-  getCacheDuration(): number;
 }
 
 export interface PageResponse {

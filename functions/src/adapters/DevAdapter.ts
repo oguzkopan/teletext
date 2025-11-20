@@ -51,23 +51,7 @@ export class DevAdapter implements ContentAdapter {
     }
   }
 
-  /**
-   * Gets the cache key for a page
-   * @param pageId - The page ID
-   * @returns The cache key
-   */
-  getCacheKey(pageId: string): string {
-    return `dev_${pageId}`;
-  }
 
-  /**
-   * Gets the cache duration for dev pages
-   * Dev pages are not cached (0 seconds) as they may show dynamic content
-   * @returns Cache duration in seconds
-   */
-  getCacheDuration(): number {
-    return 0; // No caching for dev tools
-  }
 
   /**
    * Creates the API explorer index page (800)
@@ -114,7 +98,6 @@ export class DevAdapter implements ContentAdapter {
       meta: {
         source: 'DevAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -147,7 +130,6 @@ export class DevAdapter implements ContentAdapter {
         meta: {
           source: 'ExampleAdapter',
           lastUpdated: new Date().toISOString(),
-          cacheStatus: 'fresh'
         }
       };
       jsonContent = JSON.stringify(examplePage, null, 2);
@@ -186,7 +168,6 @@ export class DevAdapter implements ContentAdapter {
       meta: {
         source: 'DevAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -238,7 +219,6 @@ export class DevAdapter implements ContentAdapter {
       meta: {
         source: 'DevAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -288,7 +268,6 @@ export class DevAdapter implements ContentAdapter {
       meta: {
         source: 'DevAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -334,7 +313,6 @@ export class DevAdapter implements ContentAdapter {
       meta: {
         source: 'DevAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }

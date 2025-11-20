@@ -53,23 +53,7 @@ export class StaticAdapter implements ContentAdapter {
     }
   }
 
-  /**
-   * Gets the cache key for a page
-   * @param pageId - The page ID
-   * @returns The cache key
-   */
-  getCacheKey(pageId: string): string {
-    return `static_${pageId}`;
-  }
 
-  /**
-   * Gets the cache duration for static pages
-   * Static pages are cached indefinitely (1 year)
-   * @returns Cache duration in seconds
-   */
-  getCacheDuration(): number {
-    return 31536000; // 1 year
-  }
 
   /**
    * Creates the main index page (100)
@@ -129,7 +113,6 @@ export class StaticAdapter implements ContentAdapter {
       meta: {
         source: 'StaticAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -190,7 +173,6 @@ export class StaticAdapter implements ContentAdapter {
       meta: {
         source: 'StaticAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -237,7 +219,6 @@ export class StaticAdapter implements ContentAdapter {
       meta: {
         source: 'StaticAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -291,7 +272,6 @@ export class StaticAdapter implements ContentAdapter {
       meta: {
         source: 'StaticAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -338,7 +318,6 @@ export class StaticAdapter implements ContentAdapter {
       meta: {
         source: 'StaticAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -393,7 +372,6 @@ export class StaticAdapter implements ContentAdapter {
       meta: {
         source: 'StaticAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -443,7 +421,6 @@ export class StaticAdapter implements ContentAdapter {
       meta: {
         source: 'StaticAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh',
         haunting: true // Signal to frontend to apply glitch effects
       }
     };
@@ -490,7 +467,6 @@ export class StaticAdapter implements ContentAdapter {
       meta: {
         source: 'StaticAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -581,7 +557,6 @@ export class StaticAdapter implements ContentAdapter {
       meta: {
         source: 'StaticAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh',
         haunting: true, // Signal to frontend to apply maximum glitch effects
         aiGenerated: useAI
       }

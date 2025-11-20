@@ -123,23 +123,7 @@ export class SettingsAdapter implements ContentAdapter {
     return this.getErrorPage(pageId);
   }
 
-  /**
-   * Gets the cache key for a page
-   * @param pageId - The page ID
-   * @returns The cache key
-   */
-  getCacheKey(pageId: string): string {
-    return `settings_${pageId}`;
-  }
 
-  /**
-   * Gets the cache duration for settings pages
-   * Settings pages are cached for 1 hour
-   * @returns Cache duration in seconds
-   */
-  getCacheDuration(): number {
-    return 3600; // 1 hour
-  }
 
   /**
    * Creates the theme selection page (700)
@@ -185,7 +169,6 @@ export class SettingsAdapter implements ContentAdapter {
       meta: {
         source: 'SettingsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh',
         themeSelectionPage: true  // Flag to enable special keyboard handling
       }
     };
@@ -240,7 +223,6 @@ export class SettingsAdapter implements ContentAdapter {
       meta: {
         source: 'SettingsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -296,7 +278,6 @@ export class SettingsAdapter implements ContentAdapter {
       meta: {
         source: 'SettingsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh',
         favoritePages: favorites
       }
     };
@@ -344,7 +325,6 @@ export class SettingsAdapter implements ContentAdapter {
       meta: {
         source: 'SettingsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -414,7 +394,6 @@ export class SettingsAdapter implements ContentAdapter {
       meta: {
         source: 'SettingsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh',
         effectsData: {
           scanlinesIntensity,
           curvature,
@@ -466,7 +445,6 @@ export class SettingsAdapter implements ContentAdapter {
       meta: {
         source: 'SettingsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
@@ -512,7 +490,6 @@ export class SettingsAdapter implements ContentAdapter {
       meta: {
         source: 'SettingsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
       }
     };
   }
