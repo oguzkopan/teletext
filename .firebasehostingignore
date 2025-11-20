@@ -1,0 +1,7 @@
+# Firebase App Hosting - files to ignore during deployment
+node_modules/
+.git/
+.next/
+.env.local
+*.log
+.DS_Store

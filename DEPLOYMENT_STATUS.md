@@ -1,11 +1,15 @@
 # Deployment Status
 
-## ✅ Code Pushed to GitHub!
+## ✅ Dependency Conflict Fixed!
 
-Your code has been successfully pushed to the `main` branch. Firebase App Hosting will now automatically:
+**Latest Update**: Added `.npmrc` with `legacy-peer-deps=true` to resolve Firebase dependency conflict.
 
-1. **Detect the push** (within seconds)
-2. **Start the build** (takes 2-5 minutes)
+**Commit**: `a909f83` - "Fix: Add legacy-peer-deps to resolve Firebase dependency conflict"
+
+Firebase App Hosting will now automatically:
+
+1. **Detect the push** (within seconds) ✅
+2. **Start the build** (takes 2-5 minutes) 🔄
 3. **Deploy the app** (takes 1-2 minutes)
 4. **Update the live URL**
 
@@ -31,18 +35,30 @@ firebase apphosting:backends:list
 
 ## 🔧 What Was Fixed
 
-### Issue
+### Issue 1: Import Errors (Fixed ✅)
 The initial deployment failed because the build was trying to import adapter files that don't exist in the production build context.
 
-### Solution
-1. **Dynamic Imports**: Changed to use dynamic `import()` in development mode only
-2. **Production Mode**: Always uses deployed Cloud Functions (no adapter imports)
-3. **App Hosting Config**: Added `apphosting.yaml` for proper configuration
+**Solution:**
+- Changed to dynamic `import()` in development mode only
+- Production mode always uses deployed Cloud Functions
+
+### Issue 2: Dependency Conflict (Fixed ✅)
+The build failed with:
+```
+npm error peer firebase@"^12.0.0" from @firebase/rules-unit-testing@5.0.0
+npm error Found: firebase@10.14.1
+```
+
+**Solution:**
+- Added `.npmrc` with `legacy-peer-deps=true`
+- Updated `apphosting.yaml` to set `NPM_CONFIG_LEGACY_PEER_DEPS=true` during build
+- This allows npm to install dependencies despite peer dependency conflicts
 
 ### Changes Made
-- Modified `app/api/page/[pageNumber]/route.ts` to use dynamic imports
-- Added `apphosting.yaml` configuration file
-- Committed and pushed to GitHub
+1. Modified `app/api/page/[pageNumber]/route.ts` to use dynamic imports
+2. Added `apphosting.yaml` configuration file
+3. Added `.npmrc` with legacy-peer-deps flag
+4. Updated `apphosting.yaml` with build environment variable
 
 ## ⏱️ Expected Timeline
 
