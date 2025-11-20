@@ -12,6 +12,7 @@
     "test:firestore-rules": "jest --config jest.firestore.config.js --runInBand",
     "emulators:start": "firebase emulators:start",
     "emulators:exec": "firebase emulators:exec",
+    "emulators:check": "./scripts/check-emulators.sh",
     "deploy": "./scripts/deploy-production.sh",
     "deploy:hosting": "npm run build && firebase deploy --only hosting",
     "deploy:functions": "cd functions && npm run build && cd .. && firebase deploy --only functions",

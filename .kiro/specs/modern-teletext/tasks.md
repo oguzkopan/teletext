@@ -388,3 +388,48 @@
   - Test on multiple browsers and devices
   - Fix any remaining bugs or visual issues
   - _Requirements: All requirements_
+
+- [x] 31. Fix critical navigation and API issues
+  - Fix Firebase emulator connection errors causing 500 responses
+  - Improve main index page (100) to show actual page numbers instead of "1xx", "2xx" notation
+  - Fix back navigation from any page to return to page 100
+  - Add better error handling and user feedback for missing pages
+  - Ensure NEWS_API_KEY environment variable is properly configured
+  - _Requirements: 1.1, 1.2, 1.4, 3.1, 3.2, 4.1_
+
+- [x] 31.1 Fix Firebase emulator connection and error handling
+  - Add better error messages when Firebase emulators are not running
+  - Create fallback static pages for development when emulators are offline
+  - Add startup check script to verify emulators are running
+  - Update documentation with clear emulator setup instructions
+  - _Requirements: 1.1, 4.5, 11.3_
+
+- [x] 31.2 Improve main index page navigation clarity
+  - Replace "1xx", "2xx" notation with specific page numbers (e.g., "101", "200", "300")
+  - Add sub-menu pages for each magazine showing available pages
+  - Create page 110 (System Pages index) with list of 1xx pages
+  - Create page 200 (News index) with list of 2xx pages
+  - Update colored button links to point to magazine index pages
+  - _Requirements: 3.1, 3.2, 3.3_
+
+- [x] 31.3 Fix back button navigation to always return to index
+  - Modify navigation history to treat page 100 as home
+  - Add special handling for "back to 100" navigation
+  - Ensure pressing 100 always navigates to main index
+  - Test navigation flow: 100 → 200 → 201 → back → back → 100
+  - _Requirements: 1.4, 3.1_
+
+- [x] 31.4 Add development mode fallback pages
+  - Create static fallback pages for common pages (100, 200, 300, 400, 500, 600, 700, 800)
+  - Display helpful error messages when APIs are unavailable
+  - Add "emulator not running" detection and user-friendly message
+  - Create offline-first development experience
+  - _Requirements: 4.5, 13.2, 13.4_
+
+- [x] 31.5 Fix environment variable configuration
+  - Verify NEWS_API_KEY is loaded from .env.local
+  - Add environment variable validation on startup
+  - Create .env.example with all required variables
+  - Add helpful error messages for missing API keys
+  - Document API key setup in README
+  - _Requirements: 4.1, 4.5_

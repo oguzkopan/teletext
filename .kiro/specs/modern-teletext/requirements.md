@@ -381,3 +381,39 @@ Modern Teletext (working title: "DeadText") resurrects the classic teletext broa
 3. WHEN a user selects a category THEN the Teletext System SHALL display the top 5 stories in that category
 4. THE Teletext System SHALL format each story with headline, summary, and source
 5. THE Teletext System SHALL provide navigation links between related stories
+
+### Requirement 31
+
+**User Story:** As a developer, I want clear error messages and fallback behavior when services are unavailable, so that I can quickly diagnose and fix issues during development.
+
+#### Acceptance Criteria
+
+1. WHEN Firebase emulators are not running THEN the Teletext System SHALL display a helpful error message with instructions to start the emulators
+2. WHEN an API key is missing or invalid THEN the Teletext System SHALL display an error page indicating which configuration is missing
+3. WHEN a page adapter fails THEN the Teletext System SHALL provide fallback static content with error details
+4. WHEN in development mode THEN the Teletext System SHALL validate all required environment variables on startup
+5. WHEN network requests fail THEN the Teletext System SHALL log detailed error information for debugging
+
+### Requirement 32
+
+**User Story:** As a user, I want clear navigation instructions on the main index page, so that I understand how to access different sections.
+
+#### Acceptance Criteria
+
+1. WHEN viewing page 100 THEN the Teletext System SHALL display specific page numbers (e.g., "200", "300") instead of range notation (e.g., "2xx", "3xx")
+2. WHEN a magazine section has multiple pages THEN the Teletext System SHALL provide a sub-index page listing all available pages
+3. WHEN a user navigates to a magazine index THEN the Teletext System SHALL display numbered options for each available page
+4. THE Teletext System SHALL provide examples of page numbers to try (e.g., "Try 200 for News Headlines")
+5. WHEN colored buttons are pressed THEN the Teletext System SHALL navigate to the corresponding magazine index page with detailed listings
+
+### Requirement 33
+
+**User Story:** As a user, I want consistent back navigation behavior, so that I can easily return to the main index from any page.
+
+#### Acceptance Criteria
+
+1. WHEN a user presses the back button from any page THEN the Teletext System SHALL navigate to the previously viewed page
+2. WHEN a user enters page number 100 THEN the Teletext System SHALL always navigate to the main index regardless of current location
+3. WHEN navigation history is empty THEN the back button SHALL navigate to page 100
+4. WHEN a user navigates 100 → 200 → 201 and presses back twice THEN the Teletext System SHALL return to page 100
+5. THE Teletext System SHALL treat page 100 as the home page in all navigation contexts

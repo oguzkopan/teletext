@@ -222,9 +222,53 @@ cd functions && npm install && cd ..
    firebase use --add
    ```
 
-### 3. Configure External API Keys (Optional)
+### 3. Configure External API Keys
 
-For full functionality, configure these API keys:
+#### Required API Keys
+
+**NEWS_API_KEY** (Required for news pages 200-299)
+- Get a free API key from [NewsAPI.org](https://newsapi.org/)
+- Add to `.env.local`: `NEWS_API_KEY=your_key_here`
+- Without this key, news pages will show an error message with setup instructions
+
+#### Optional API Keys
+
+These keys enable additional features but are not required:
+
+**SPORTS_API_KEY** (Optional for sports pages 300-399)
+- Get from [API-Football](https://www.api-football.com/)
+- Add to `.env.local`: `SPORTS_API_KEY=your_key_here`
+- Sports pages will show demo data without this key
+
+**ALPHA_VANTAGE_API_KEY** (Optional for stock market data)
+- Get from [Alpha Vantage](https://www.alphavantage.co/)
+- Add to `.env.local`: `ALPHA_VANTAGE_API_KEY=your_key_here`
+- Stock market data will be limited without this key
+
+**OPENWEATHER_API_KEY** (Optional for weather pages 420-449)
+- Get from [OpenWeatherMap](https://openweathermap.org/api)
+- Add to `.env.local`: `OPENWEATHER_API_KEY=your_key_here`
+- Weather pages will show demo data without this key
+
+#### Environment Variable Validation
+
+The application validates environment variables on startup:
+
+```bash
+# Start the dev server - it will check for missing variables
+npm run dev
+
+# You'll see output like:
+# ✅ Environment variables validated successfully
+# ⚠️  Optional API keys not configured:
+#    - NEWS_API_KEY not set - News pages (200-299) will have limited functionality
+```
+
+If required variables are missing, you'll see clear error messages with setup instructions.
+
+#### Firebase Functions Configuration (Production)
+
+For production deployment, configure API keys in Firebase:
 
 ```bash
 # News API (https://newsapi.org)
@@ -258,33 +302,64 @@ firebase deploy --only firestore:rules,firestore:indexes,storage
 
 ### 5. Run Development Server
 
-**IMPORTANT**: You must run BOTH services for the app to work:
+**Good news: No Firebase emulators needed!**
 
-**Terminal 1 - Firebase Emulators (REQUIRED):**
-```bash
-# Start Firebase emulators (Functions, Firestore, Storage)
-npm run emulators:start
-```
+The app now works in two modes:
 
-**Terminal 2 - Next.js Dev Server:**
+**Development Mode (Local):**
 ```bash
-# Start Next.js development server
+# Just start the Next.js dev server
 npm run dev
 ```
 
-Then open http://localhost:3000 (or the port shown) in your browser.
+In development, the app calls adapters directly - no emulators needed! This makes development much faster and simpler.
 
-**Note**: The app will not work without the Firebase emulators running. If you see 500 errors or "Page not available offline" messages, make sure the emulators are running on port 5001.
+**Production Mode:**
+The app automatically uses deployed Firebase Cloud Functions (already deployed at `https://us-central1-teletext-eacd0.cloudfunctions.net/`).
+
+Then open http://localhost:3000 in your browser.
+
+**Optional: Firebase Emulators (for testing Firestore/Storage)**
+
+If you want to test Firestore caching or Storage features:
+```bash
+# Terminal 1: Start emulators (optional)
+npm run emulators:start
+
+# Terminal 2: Start dev server
+npm run dev
+```
 
 ### 6. Deploy to Production
 
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for comprehensive deployment instructions.
+**🎉 Already Deployed!**
 
-Quick deploy:
+The app is deployed with automatic GitHub integration:
+
+- **Live URL**: https://teletextwebapp--teletext-eacd0.us-central1.hosted.app
+- **Auto-Deploy**: Enabled on `main` branch
+- **Cloud Functions**: https://us-central1-teletext-eacd0.cloudfunctions.net/
+
+**Automatic Deployment:**
+Just push to GitHub and your app will automatically deploy!
+
 ```bash
-# Build and deploy everything
-npm run deploy
+git add .
+git commit -m "Your changes"
+git push origin main
+# Firebase App Hosting will automatically build and deploy!
 ```
+
+**Manual Deployment (if needed):**
+```bash
+# Deploy functions only
+firebase deploy --only functions
+
+# Trigger app hosting deployment
+firebase apphosting:rollouts:create teletextwebapp
+```
+
+See [DEPLOYMENT_SUMMARY.md](./DEPLOYMENT_SUMMARY.md) for full deployment details.
 
 ## 🔑 Environment Variables
 

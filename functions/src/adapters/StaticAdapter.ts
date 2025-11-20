@@ -25,6 +25,9 @@ export class StaticAdapter implements ContentAdapter {
       case 101:
         return this.getHowItWorksPage();
       
+      case 110:
+        return this.getSystemPagesIndex();
+      
       case 120:
         return this.getEmergencyBulletinsPage();
       
@@ -70,6 +73,7 @@ export class StaticAdapter implements ContentAdapter {
 
   /**
    * Creates the main index page (100)
+   * Requirements: 3.1, 3.2, 32.1
    */
   private getIndexPage(): TeletextPage {
     const now = new Date();
@@ -90,20 +94,21 @@ export class StaticAdapter implements ContentAdapter {
       '',
       'MAIN INDEX',
       '',
-      '1xx SYSTEM PAGES',
-      '2xx NEWS & CURRENT AFFAIRS',
-      '3xx SPORT',
-      '4xx MARKETS & FINANCE',
-      '420 Weather forecasts',
-      '5xx AI ORACLE',
-      '6xx GAMES & ENTERTAINMENT',
-      '7xx SETTINGS & PREFERENCES',
-      '8xx DEVELOPER TOOLS',
+      '110 SYSTEM PAGES',
+      '200 NEWS & CURRENT AFFAIRS',
+      '300 SPORT',
+      '400 MARKETS & FINANCE',
+      '420 WEATHER FORECASTS',
+      '500 AI ORACLE',
+      '600 GAMES & ENTERTAINMENT',
+      '700 SETTINGS & PREFERENCES',
+      '800 DEVELOPER TOOLS',
       '',
-      'QUICK ACCESS:',
+      'TRY THESE PAGES:',
       '101 How it works',
       '120 Emergency bulletins',
-      '199 About & credits',
+      '201 Top headlines',
+      '301 Live scores',
       '999 Help',
       '',
       'NEWS    SPORT   WEATHER AI',
@@ -119,6 +124,54 @@ export class StaticAdapter implements ContentAdapter {
         { label: 'SPORT', targetPage: '300', color: 'green' },
         { label: 'WEATHER', targetPage: '420', color: 'yellow' },
         { label: 'AI', targetPage: '500', color: 'blue' }
+      ],
+      meta: {
+        source: 'StaticAdapter',
+        lastUpdated: new Date().toISOString(),
+        cacheStatus: 'fresh'
+      }
+    };
+  }
+
+  /**
+   * Creates the System Pages index (110)
+   * Requirements: 3.2, 3.3, 32.2
+   */
+  private getSystemPagesIndex(): TeletextPage {
+    const rows = [
+      'SYSTEM PAGES                 P110',
+      '════════════════════════════════════',
+      '',
+      'AVAILABLE SYSTEM PAGES:',
+      '',
+      '100 Main index',
+      '101 How it works',
+      '110 System pages (this page)',
+      '120 Emergency bulletins',
+      '199 About & credits',
+      '',
+      'SPECIAL PAGES:',
+      '404 Page not found (error)',
+      '666 The cursed page',
+      '999 Help & navigation guide',
+      '',
+      'System pages provide information',
+      'about the teletext service itself.',
+      '',
+      'Press 100 to return to main index',
+      '',
+      '',
+      'INDEX   HELP',
+      ''
+    ];
+
+    return {
+      id: '110',
+      title: 'System Pages',
+      rows: this.padRows(rows),
+      links: [
+        { label: 'INDEX', targetPage: '100', color: 'red' },
+        { label: 'HELP', targetPage: '999', color: 'green' }
       ],
       meta: {
         source: 'StaticAdapter',

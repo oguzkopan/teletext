@@ -306,47 +306,87 @@ export class NewsAdapter implements ContentAdapter {
 
   /**
    * Creates an error page when API fails
+   * Requirements: 4.5, 31.5
    */
   private getErrorPage(pageId: string, title: string, error: any): TeletextPage {
-    const rows = [
-      `${this.truncateText(title.toUpperCase(), 28).padEnd(28, ' ')} P${pageId}`,
-      '════════════════════════════════════',
-      '',
-      'SERVICE UNAVAILABLE',
-      '',
-      'Unable to fetch news at this time.',
-      '',
-      'This could be due to:',
-      '• API service is down',
-      '• Network connectivity issues',
-      '• Rate limit exceeded',
-      '',
-      'Please try again in a few minutes.',
-      '',
-      '',
-      '',
-      '',
-      '',
-      'Press 200 for news index',
-      'Press 100 for main index',
-      '',
-      '',
-      'INDEX   NEWS',
-      ''
-    ];
+    // Check if error is due to missing API key
+    const isMissingApiKey = !this.apiKey || 
+                           error?.message?.includes('NEWS_API_KEY') ||
+                           error?.message?.includes('not configured');
+    
+    let rows: string[];
+    
+    if (isMissingApiKey) {
+      rows = [
+        `${this.truncateText(title.toUpperCase(), 28).padEnd(28, ' ')} P${pageId}`,
+        '════════════════════════════════════',
+        '',
+        '⚠ API KEY NOT CONFIGURED ⚠',
+        '',
+        'NEWS_API_KEY is not set.',
+        '',
+        'TO FIX THIS:',
+        '',
+        '1. Get a free API key from:',
+        '   https://newsapi.org/',
+        '',
+        '2. Add to .env.local:',
+        '   NEWS_API_KEY=your_key_here',
+        '',
+        '3. Restart the dev server',
+        '',
+        'See .env.example for reference.',
+        '',
+        '',
+        '',
+        '',
+        'INDEX   HELP',
+        ''
+      ];
+    } else {
+      rows = [
+        `${this.truncateText(title.toUpperCase(), 28).padEnd(28, ' ')} P${pageId}`,
+        '════════════════════════════════════',
+        '',
+        'SERVICE UNAVAILABLE',
+        '',
+        'Unable to fetch news at this time.',
+        '',
+        'This could be due to:',
+        '• API service is down',
+        '• Network connectivity issues',
+        '• Rate limit exceeded',
+        '• Invalid API key',
+        '',
+        'Please try again in a few minutes.',
+        '',
+        'If problem persists, check:',
+        '• NEWS_API_KEY in .env.local',
+        '• Firebase emulators are running',
+        '',
+        '',
+        '',
+        'INDEX   NEWS',
+        ''
+      ];
+    }
 
     return {
       id: pageId,
       title: title,
       rows: this.padRows(rows),
-      links: [
+      links: isMissingApiKey ? [
+        { label: 'INDEX', targetPage: '100', color: 'red' },
+        { label: 'HELP', targetPage: '999', color: 'green' }
+      ] : [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'NEWS', targetPage: '200', color: 'green' }
       ],
       meta: {
         source: 'NewsAdapter',
         lastUpdated: new Date().toISOString(),
-        cacheStatus: 'fresh'
+        cacheStatus: 'fresh',
+        error: isMissingApiKey ? 'missing_api_key' : 'service_unavailable'
       }
     };
   }

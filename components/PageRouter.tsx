@@ -182,7 +182,7 @@ export default function PageRouter({
 
   /**
    * Navigates to a specific page with offline support and request cancellation
-   * Requirements: 1.1, 1.2, 13.4, 15.3, 15.5
+   * Requirements: 1.1, 1.2, 13.4, 15.3, 15.5, 33.2
    */
   const navigateToPage = useCallback(async (pageId: string) => {
     // Validate page number
@@ -219,10 +219,18 @@ export default function PageRouter({
         setIsCached(fromCache);
         
         // Update history - remove any forward history and add new page
+        // Requirement 33.2: Treat page 100 as home
         const newHistory = history.slice(0, historyIndex + 1);
-        newHistory.push(pageId);
-        setHistory(newHistory);
-        setHistoryIndex(newHistory.length - 1);
+        
+        // If navigating to page 100, clear history and start fresh
+        if (pageId === '100') {
+          setHistory(['100']);
+          setHistoryIndex(0);
+        } else {
+          newHistory.push(pageId);
+          setHistory(newHistory);
+          setHistoryIndex(newHistory.length - 1);
+        }
         
         if (onPageChange) {
           onPageChange(page);
@@ -285,12 +293,13 @@ export default function PageRouter({
 
   /**
    * Handles navigation controls with request cancellation
-   * Requirement: 1.4, 1.5, 15.5
+   * Requirement: 1.4, 1.5, 15.5, 33.1, 33.3
    */
   const handleNavigate = useCallback((direction: 'back' | 'forward' | 'up' | 'down') => {
     switch (direction) {
       case 'back':
         // Requirement 1.4: Navigate to previously viewed page
+        // Requirement 33.3: When history is empty, navigate to page 100
         if (historyIndex > 0) {
           const newIndex = historyIndex - 1;
           const pageId = history[newIndex];
@@ -315,6 +324,10 @@ export default function PageRouter({
             }
             setLoading(false);
           });
+        } else if (currentPage && currentPage.id !== '100') {
+          // At the beginning of history but not on page 100
+          // Navigate to page 100 (home)
+          navigateToPage('100');
         }
         break;
         

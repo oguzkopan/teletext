@@ -1,4 +1,4 @@
-import * as functions from 'firebase-functions';
+import { onRequest } from 'firebase-functions/v2/https';
 import { setGlobalOptions } from 'firebase-functions/v2';
 import * as admin from 'firebase-admin';
 import { getCachedPage, setCachedPage } from './utils/cache';
@@ -33,7 +33,7 @@ const aiLogger = createLogger('processAI');
  * GET /api/page/:id
  * Retrieves a teletext page by ID with Firestore caching
  */
-export const getPage = functions.https.onRequest(async (req, res) => {
+export const getPage = onRequest(async (req, res) => {
   const startTime = Date.now();
   
   // Enable CORS
@@ -119,7 +119,7 @@ export const getPage = functions.https.onRequest(async (req, res) => {
  * POST /api/ai
  * Processes AI requests and returns formatted teletext pages
  */
-export const processAI = functions.https.onRequest(async (req, res) => {
+export const processAI = onRequest(async (req, res) => {
   const startTime = Date.now();
 
   // Enable CORS
@@ -241,7 +241,7 @@ export const processAI = functions.https.onRequest(async (req, res) => {
  * DELETE /api/conversation/:contextId
  * Deletes a conversation from Firestore
  */
-export const deleteConversation = functions.https.onRequest(async (req, res) => {
+export const deleteConversation = onRequest(async (req, res) => {
   const startTime = Date.now();
   const deleteLogger = createLogger('deleteConversation');
 

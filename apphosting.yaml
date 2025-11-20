@@ -1,0 +1,26 @@
+# Firebase App Hosting configuration
+# https://firebase.google.com/docs/app-hosting
+
+runConfig:
+  # Minimum number of instances (0 = scale to zero when idle)
+  minInstances: 0
+  
+  # Maximum number of instances
+  maxInstances: 10
+  
+  # CPU allocation (1 = 1 vCPU)
+  cpu: 1
+  
+  # Memory allocation
+  memoryMiB: 512
+  
+  # Maximum concurrent requests per instance
+  concurrency: 80
+
+env:
+  # Environment variables for the build and runtime
+  - variable: NODE_ENV
+    value: production
+    availability:
+      - BUILD
+      - RUNTIME

@@ -24,22 +24,14 @@ interface BootSequenceProps {
  * Requirements: 19.1, 19.2, 19.3, 19.4, 19.5
  */
 export default function BootSequence({ onComplete, theme }: BootSequenceProps) {
-  const [phase, setPhase] = useState<'warmup' | 'static' | 'transition'>('warmup');
+  const [phase, setPhase] = useState<'warmup' | 'static' | 'transition' | 'waiting'>('warmup');
   const [brightness, setBrightness] = useState(0);
 
   useEffect(() => {
-    // Handle keyboard skip
-    const handleKeyPress = () => {
-      onComplete();
-    };
-
-    window.addEventListener('keydown', handleKeyPress);
-    window.addEventListener('click', handleKeyPress);
-
-    // Phase 1: Warm-up (0-800ms) - Screen gradually brightens
+    // Phase 1: Warm-up (0-1000ms) - Screen gradually brightens
     const warmupTimer = setTimeout(() => {
       setPhase('static');
-    }, 800);
+    }, 1000);
 
     // Gradual brightness increase during warm-up
     const brightnessInterval = setInterval(() => {
@@ -52,25 +44,40 @@ export default function BootSequence({ onComplete, theme }: BootSequenceProps) {
       });
     }, 40);
 
-    // Phase 2: Static noise (800-2200ms)
+    // Phase 2: Static noise (1000-2500ms)
     const staticTimer = setTimeout(() => {
       setPhase('transition');
-    }, 2200);
+    }, 2500);
 
-    // Phase 3: Transition to page 100 (2200-3000ms)
-    const completeTimer = setTimeout(() => {
-      onComplete();
-    }, 3000);
+    // Phase 3: Show instructions and wait for user input (after 4000ms)
+    const transitionTimer = setTimeout(() => {
+      setPhase('waiting');
+    }, 4000);
 
     return () => {
       clearTimeout(warmupTimer);
       clearTimeout(staticTimer);
-      clearTimeout(completeTimer);
+      clearTimeout(transitionTimer);
       clearInterval(brightnessInterval);
+    };
+  }, []);
+
+  // Handle keyboard/click only when in waiting phase
+  useEffect(() => {
+    if (phase !== 'waiting') return;
+
+    const handleKeyPress = () => {
+      onComplete();
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    window.addEventListener('click', handleKeyPress);
+
+    return () => {
       window.removeEventListener('keydown', handleKeyPress);
       window.removeEventListener('click', handleKeyPress);
     };
-  }, [onComplete]);
+  }, [phase, onComplete]);
 
   return (
     <div className="boot-sequence">
@@ -100,16 +107,30 @@ export default function BootSequence({ onComplete, theme }: BootSequenceProps) {
               )}
 
               {/* Transition phase - static fades, text appears */}
-              {phase === 'transition' && (
+              {(phase === 'transition' || phase === 'waiting') && (
                 <div className="transition-screen">
                   <div className="static-noise fade-out" />
                   <div 
                     className="boot-text"
                     style={{ color: theme.green }}
                   >
-                    <div className="boot-line">MODERN TELETEXT</div>
-                    <div className="boot-line delay-1">SYSTEM READY</div>
-                    <div className="boot-line delay-2">LOADING PAGE 100...</div>
+                    <div className="boot-line glitch-text">MODERN TELETEXT</div>
+                    <div className="boot-line delay-1 glitch-text">SYSTEM READY</div>
+                    <div className="boot-line delay-2" style={{ fontSize: '18px', color: '#ffff00', marginTop: '40px' }}>
+                      KEYBOARD CONTROLS:
+                    </div>
+                    <div className="boot-line delay-3" style={{ fontSize: '16px', color: '#ffffff', marginTop: '15px' }}>
+                      0-9: Enter page number
+                    </div>
+                    <div className="boot-line delay-4" style={{ fontSize: '16px', color: '#ffffff', marginTop: '8px' }}>
+                      Arrow Keys: Navigate pages
+                    </div>
+                    <div className="boot-line delay-5" style={{ fontSize: '16px', color: '#ffffff', marginTop: '8px' }}>
+                      R/G/Y/B: Color shortcuts
+                    </div>
+                    <div className="boot-line delay-6" style={{ fontSize: '20px', color: '#ff0000', marginTop: '40px', fontWeight: 'bold' }}>
+                      {phase === 'waiting' ? '▶ PRESS ANY KEY TO ENTER ◀' : 'LOADING...'}
+                    </div>
                   </div>
                 </div>
               )}
@@ -200,16 +221,35 @@ export default function BootSequence({ onComplete, theme }: BootSequenceProps) {
         }
 
         .warmup-glow {
-          width: 50px;
-          height: 50px;
+          width: 80px;
+          height: 80px;
           border-radius: 50%;
-          background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
-          animation: pulse 0.5s ease-in-out infinite;
+          background: radial-gradient(circle, rgba(0, 255, 100, 0.4) 0%, rgba(255, 0, 0, 0.2) 50%, transparent 70%);
+          animation: pulse-horror 0.6s ease-in-out infinite;
+          box-shadow: 0 0 40px rgba(0, 255, 100, 0.5);
         }
 
-        @keyframes pulse {
-          0%, 100% { transform: scale(1); opacity: 0.5; }
-          50% { transform: scale(1.2); opacity: 0.8; }
+        @keyframes pulse-horror {
+          0%, 100% { 
+            transform: scale(1); 
+            opacity: 0.4;
+            filter: hue-rotate(0deg);
+          }
+          25% { 
+            transform: scale(1.3); 
+            opacity: 0.7;
+            filter: hue-rotate(90deg);
+          }
+          50% { 
+            transform: scale(0.9); 
+            opacity: 0.9;
+            filter: hue-rotate(180deg);
+          }
+          75% { 
+            transform: scale(1.2); 
+            opacity: 0.6;
+            filter: hue-rotate(270deg);
+          }
         }
 
         /* Static noise phase */
@@ -218,6 +258,14 @@ export default function BootSequence({ onComplete, theme }: BootSequenceProps) {
           height: 100%;
           position: relative;
           background: #000;
+          animation: screen-flicker 0.15s infinite;
+        }
+
+        @keyframes screen-flicker {
+          0%, 100% { filter: brightness(1); }
+          25% { filter: brightness(0.8) hue-rotate(5deg); }
+          50% { filter: brightness(1.2) hue-rotate(-5deg); }
+          75% { filter: brightness(0.9) hue-rotate(3deg); }
         }
 
         .static-noise {
@@ -231,18 +279,27 @@ export default function BootSequence({ onComplete, theme }: BootSequenceProps) {
               0deg,
               transparent,
               transparent 2px,
-              rgba(255, 255, 255, 0.03) 2px,
-              rgba(255, 255, 255, 0.03) 4px
+              rgba(255, 255, 255, 0.05) 2px,
+              rgba(255, 255, 255, 0.05) 4px
             ),
             repeating-linear-gradient(
               90deg,
               transparent,
               transparent 2px,
-              rgba(255, 255, 255, 0.03) 2px,
-              rgba(255, 255, 255, 0.03) 4px
+              rgba(255, 255, 255, 0.05) 2px,
+              rgba(255, 255, 255, 0.05) 4px
             );
-          animation: static-animation 0.1s infinite;
-          opacity: 0.8;
+          animation: static-animation 0.08s infinite, static-glitch 0.5s infinite;
+          opacity: 0.9;
+        }
+
+        @keyframes static-glitch {
+          0%, 90% { transform: translate(0, 0); }
+          91% { transform: translate(-2px, 2px); }
+          92% { transform: translate(2px, -2px); }
+          93% { transform: translate(-1px, -1px); }
+          94% { transform: translate(1px, 1px); }
+          95% { transform: translate(0, 0); }
         }
 
         .static-noise::before {
@@ -339,9 +396,61 @@ export default function BootSequence({ onComplete, theme }: BootSequenceProps) {
           animation-delay: 0.4s;
         }
 
+        .boot-line.delay-3 {
+          animation-delay: 0.6s;
+        }
+
+        .boot-line.delay-4 {
+          animation-delay: 0.7s;
+        }
+
+        .boot-line.delay-5 {
+          animation-delay: 0.8s;
+        }
+
+        .boot-line.delay-6 {
+          animation-delay: 1s;
+          animation: fade-in 0.3s ease-in forwards, blink-text 1s ease-in-out infinite 1.3s;
+        }
+
         @keyframes fade-in {
           0% { opacity: 0; transform: translateY(10px); }
           100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes blink-text {
+          0%, 49% { opacity: 1; }
+          50%, 100% { opacity: 0.3; }
+        }
+
+        /* Glitch text effect */
+        .glitch-text {
+          position: relative;
+          animation: glitch-skew 2s infinite;
+        }
+
+        .glitch-text::before,
+        .glitch-text::after {
+          content: attr(data-text);
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+        }
+
+        @keyframes glitch-skew {
+          0% { transform: skew(0deg); }
+          10% { transform: skew(-2deg); }
+          20% { transform: skew(2deg); }
+          30% { transform: skew(0deg); }
+          40% { transform: skew(1deg); }
+          50% { transform: skew(-1deg); }
+          60% { transform: skew(0deg); }
+          70% { transform: skew(-2deg); }
+          80% { transform: skew(2deg); }
+          90% { transform: skew(0deg); }
+          100% { transform: skew(0deg); }
         }
 
         /* Scanlines overlay */

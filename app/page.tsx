@@ -154,43 +154,38 @@ export default function Home() {
               />
             </CRTFrame>
             
-            {/* On-screen input display */}
-            {routerState.inputBuffer && (
+            {/* On-screen input display - always show when there's input */}
+            {routerState.inputBuffer && routerState.inputBuffer.length > 0 && (
               <div 
-                className="fixed bottom-8 right-8 bg-black bg-opacity-80 border-4 border-yellow-400 rounded-lg px-6 py-4 z-50"
                 style={{
+                  position: 'fixed',
+                  bottom: '32px',
+                  right: '32px',
+                  backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                  border: '4px solid #ffff00',
+                  borderRadius: '12px',
+                  padding: '24px',
+                  zIndex: 9999,
                   fontFamily: "'Courier New', Courier, monospace",
                   fontSize: '32px',
                   color: '#ffff00',
-                  minWidth: '120px',
+                  minWidth: '150px',
                   textAlign: 'center',
-                  boxShadow: '0 0 20px rgba(255, 255, 0, 0.5)'
+                  boxShadow: '0 0 30px rgba(255, 255, 0, 0.8), inset 0 0 20px rgba(255, 255, 0, 0.2)',
+                  pointerEvents: 'none'
                 }}
               >
-                <div style={{ fontSize: '16px', marginBottom: '4px', color: '#00ff00' }}>
-                  PAGE:
+                <div style={{ fontSize: '16px', marginBottom: '8px', color: '#00ff00', fontWeight: 'bold' }}>
+                  PAGE NUMBER:
                 </div>
-                <div style={{ letterSpacing: '8px' }}>
+                <div style={{ letterSpacing: '12px', fontSize: '48px', fontWeight: 'bold' }}>
                   {routerState.inputBuffer}
-                  {routerState.inputBuffer.length < 3 && '_'.repeat(3 - routerState.inputBuffer.length)}
+                  {routerState.inputBuffer.length < 3 && <span style={{ color: '#666' }}>{'_'.repeat(3 - routerState.inputBuffer.length)}</span>}
                 </div>
               </div>
             )}
             
-            {/* Keyboard shortcuts help - shows on first load */}
-            <div 
-              className="fixed bottom-4 left-4 bg-black bg-opacity-70 text-white px-4 py-2 rounded text-sm z-40"
-              style={{
-                fontFamily: "'Courier New', Courier, monospace",
-                fontSize: '12px'
-              }}
-            >
-              <div style={{ color: '#00ff00', marginBottom: '4px' }}>KEYBOARD SHORTCUTS:</div>
-              <div>0-9: Enter page number</div>
-              <div>Arrow Keys: Navigate</div>
-              <div>R/G/Y/B: Color buttons</div>
-              <div>Backspace: Go back</div>
-            </div>
+
           </>
         )}
       </PageRouter>

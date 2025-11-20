@@ -23,6 +23,9 @@ export interface PageMeta {
   cacheStatus?: 'fresh' | 'cached' | 'stale';
   haunting?: boolean;      // Enable maximum glitch effects for horror pages
   aiGenerated?: boolean;   // Indicates AI-generated content
+  fallback?: boolean;      // Indicates this is a fallback page (emulator offline)
+  emulatorOffline?: boolean; // Indicates emulator connection failed
+  error?: string;          // Error type (e.g., 'missing_api_key', 'service_unavailable')
   effectsData?: {
     scanlinesIntensity?: number;
     curvature?: number;

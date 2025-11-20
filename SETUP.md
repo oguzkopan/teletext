@@ -70,15 +70,44 @@ To continue development:
    ```
 
 2. **Start Development**
+   
+   **Good news: No Firebase emulators needed for local development!**
+   
    ```bash
-   # Start Next.js dev server
+   # Just start the Next.js dev server
    npm run dev
    
-   # In another terminal, start Firebase emulators
-   firebase emulators:start
+   # Open http://localhost:3000
    ```
+   
+   The app now calls adapters directly in development mode, so you don't need to run Firebase emulators locally. This makes development much faster and simpler!
+   
+   **Optional: Firebase Emulators (for testing Firestore/Storage)**
+   
+   If you want to test Firestore caching or Storage features, you can optionally run emulators:
+   
+   ```bash
+   # Terminal 1: Start Firebase emulators (optional)
+   npm run emulators:start
+   
+   # Terminal 2: Start Next.js dev server
+   npm run dev
+   ```
+   
+   The emulators are only needed if you're:
+   - Testing Firestore caching behavior
+   - Testing Firebase Storage features
+   - Testing conversation history (AI features)
+   - Running integration tests
 
-3. **Deploy to Firebase**
+3. **Troubleshooting**
+   
+   Common issues:
+   - **Port 3000 already in use**: Another Next.js app is running
+   - **API key errors**: Check .env.local has required API keys (see .env.example)
+   - **Build errors**: Run `npm install` to ensure all dependencies are installed
+
+4. **Deploy to Firebase**
    ```bash
    # Build the app
    npm run build
