@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
+
 const nextConfig = {
   reactStrictMode: true,
   
@@ -45,6 +47,12 @@ const nextConfig = {
   
   // Webpack configuration for bundle optimization
   webpack: (config, { isServer }) => {
+    // Ensure path alias resolution works in all environments
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname),
+    };
+    
     if (!isServer) {
       // Split chunks for better caching
       config.optimization = {
