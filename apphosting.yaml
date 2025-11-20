@@ -24,3 +24,8 @@ env:
     availability:
       - BUILD
       - RUNTIME
+  
+  - variable: NPM_CONFIG_LEGACY_PEER_DEPS
+    value: "true"
+    availability:
+      - BUILD
