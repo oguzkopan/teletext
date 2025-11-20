@@ -4,6 +4,16 @@ const path = require('path');
 const nextConfig = {
   reactStrictMode: true,
   
+  // Exclude functions directory from Next.js processing
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+  
+  eslint: {
+    ignoreDuringBuilds: false,
+    dirs: ['app', 'components', 'hooks', 'lib', 'types'], // Only lint Next.js directories
+  },
+  
   // Performance optimizations
   // Requirement: Optimize bundle size to < 200KB initial load
   compiler: {
@@ -53,8 +63,7 @@ const nextConfig = {
       '@': path.resolve(__dirname),
     };
     
-    // Externalize functions dependencies - they're only used in dev mode with dynamic imports
-    // In production, we call deployed Firebase Functions instead
+    // Externalize functions dependencies
     if (isServer) {
       config.externals = config.externals || [];
       config.externals.push({
