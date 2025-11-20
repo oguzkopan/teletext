@@ -73,13 +73,14 @@ function HomeContent() {
 
   // Validate environment variables on startup
   // Requirements: 38.3, 38.4
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('\n🔍 Validating environment variables...\n');
-      validateEnvironmentVariablesWithWarnings();
-      console.log('\n');
-    }
-  }, []);
+  // TEMPORARILY DISABLED - Environment variables not loading from .env.local
+  // useEffect(() => {
+  //   if (process.env.NODE_ENV === 'development') {
+  //     console.log('\n🔍 Validating environment variables...\n');
+  //     validateEnvironmentVariablesWithWarnings();
+  //     console.log('\n');
+  //   }
+  // }, []);
 
   // Check if boot sequence has been shown in this session
   useEffect(() => {
