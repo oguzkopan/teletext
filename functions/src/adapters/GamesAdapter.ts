@@ -189,8 +189,8 @@ export class GamesAdapter implements ContentAdapter {
         'You will be asked 5 multiple-choice',
         'questions on various topics.',
         '',
-        'Answer each question by selecting',
-        'the number (1-4) of your choice.',
+        'Answer each question by pressing',
+        'the color button (R/G/Y/B).',
         '',
         'At the end, you will receive:',
         '• Your final score',
@@ -273,9 +273,14 @@ export class GamesAdapter implements ContentAdapter {
         ''
       ];
 
-      // Add answer options
+      // Add answer options with color button indicators
+      const colorLabels = ['RED', 'GREEN', 'YELLOW', 'BLUE'];
+      const colorCodes = ['{red}', '{green}', '{yellow}', '{blue}'];
+      
       shuffledAnswers.forEach((answer, index) => {
-        const wrappedAnswer = this.wrapText(`${index + 1}. ${this.decodeHtml(answer)}`, 38);
+        const colorLabel = colorLabels[index];
+        const colorCode = colorCodes[index];
+        const wrappedAnswer = this.wrapText(`${colorCode}${colorLabel}: ${this.decodeHtml(answer)}`, 38);
         rows.push(...wrappedAnswer);
         if (index < shuffledAnswers.length - 1) {
           rows.push('');

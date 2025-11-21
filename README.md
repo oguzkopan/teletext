@@ -90,6 +90,48 @@ A nostalgic web application that faithfully recreates the 40×24 character grid 
 ### Easter Eggs
 - **666**: Horror Page - AI-generated spooky content with disturbing visuals
 
+## 🎮 Navigation Guide
+
+### Input Methods
+
+**3-Digit Page Numbers** (Required for all page navigation)
+- Enter any page from 100-899
+- Example: Type `2` `0` `1` to navigate to page 201
+- Auto-navigates after 3rd digit or press Enter
+
+**Arrow Keys**
+- **↑ UP**: Previous page in multi-page sequence (when "▲ BACK" indicator shown)
+- **↓ DOWN**: Next page in multi-page sequence (when "▼ MORE" indicator shown)
+- **← LEFT**: Back in history
+- **→ RIGHT**: Forward in history
+
+**Color Buttons** (Fastext Navigation)
+- **R** (Red): First link (usually INDEX or BACK)
+- **G** (Green): Second link (usually category or action)
+- **Y** (Yellow): Third link (usually navigation)
+- **B** (Blue): Fourth link (usually BACK or HOME)
+
+**Other Keys**
+- **Enter**: Confirm 3-digit page input
+- **F1-F10**: Quick access to favorite pages (configurable)
+
+### Multi-Page Articles
+
+Long articles are automatically split into multiple pages. Look for these indicators:
+
+- **▼ MORE**: Press Arrow DOWN to see next page
+- **▲ BACK**: Press Arrow UP to return to previous page
+- **Page X/Y**: Shows current page number and total pages
+
+### Important Changes (v2.0)
+
+⚠️ **Single-digit navigation has been removed**
+- Previously: Pressing `1` on news page would navigate to article 1
+- Now: All navigation requires 3-digit input (e.g., `201`)
+- Quiz answers now use color buttons (R/G/Y/B) instead of numbers
+
+For detailed navigation instructions, see [NAVIGATION_GUIDE.md](NAVIGATION_GUIDE.md)
+
 ## 📁 Project Structure
 
 ```

@@ -79,13 +79,32 @@ export function routeToAdapter(pageId: string): ContentAdapter {
 
 /**
  * Validates a page ID format
- * Supports both standard pages (e.g., "202") and sub-pages (e.g., "202-1")
+ * Supports standard pages (e.g., "202"), sub-pages (e.g., "202-1"), and multi-page articles (e.g., "202-1-2")
  * @param pageId - The page ID to validate
  * @returns True if valid, false otherwise
  */
 export function isValidPageId(pageId: string): boolean {
   if (!pageId || typeof pageId !== 'string') {
     return false;
+  }
+
+  // Check for multi-page article format (e.g., "202-1-2" for article 1, page 2)
+  const multiPageMatch = pageId.match(/^(\d{3})-(\d+)-(\d+)$/);
+  if (multiPageMatch) {
+    const basePageNumber = parseInt(multiPageMatch[1], 10);
+    const articleIndex = parseInt(multiPageMatch[2], 10);
+    const pageIndex = parseInt(multiPageMatch[3], 10);
+    
+    // Validate base page number, article index, and page index
+    return !isNaN(basePageNumber) && 
+           basePageNumber >= 100 && 
+           basePageNumber <= 899 &&
+           !isNaN(articleIndex) &&
+           articleIndex >= 1 &&
+           articleIndex <= 99 &&
+           !isNaN(pageIndex) &&
+           pageIndex >= 2 &&  // Page 1 is the base article page
+           pageIndex <= 99;
   }
 
   // Check for sub-page format (e.g., "202-1", "202-2")

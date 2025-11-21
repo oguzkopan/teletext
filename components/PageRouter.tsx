@@ -70,10 +70,29 @@ export default function PageRouter({
 
   /**
    * Validates page number is in valid range (100-899)
-   * Supports both standard pages (e.g., "202") and sub-pages (e.g., "202-1")
-   * Requirement: 1.2, 35.1
+   * Supports standard pages (e.g., "202"), sub-pages (e.g., "202-1"), and multi-page articles (e.g., "202-1-2")
+   * Requirement: 1.2, 35.1, 35.2, 35.3
    */
   const isValidPageNumber = (pageId: string): boolean => {
+    // Check for multi-page article format (e.g., "202-1-2" for article 1, page 2)
+    const multiPageMatch = pageId.match(/^(\d{3})-(\d+)-(\d+)$/);
+    if (multiPageMatch) {
+      const basePageNumber = parseInt(multiPageMatch[1], 10);
+      const articleIndex = parseInt(multiPageMatch[2], 10);
+      const pageIndex = parseInt(multiPageMatch[3], 10);
+      
+      // Validate base page number, article index, and page index
+      return !isNaN(basePageNumber) && 
+             basePageNumber >= 100 && 
+             basePageNumber <= 899 &&
+             !isNaN(articleIndex) &&
+             articleIndex >= 1 &&
+             articleIndex <= 99 &&
+             !isNaN(pageIndex) &&
+             pageIndex >= 2 &&  // Page 1 is the base article page
+             pageIndex <= 99;
+    }
+    
     // Check for sub-page format (e.g., "202-1", "202-2")
     const subPageMatch = pageId.match(/^(\d{3})-(\d+)$/);
     if (subPageMatch) {
@@ -209,23 +228,10 @@ export default function PageRouter({
    * Handles digit press for page number input with debouncing
    * Requirement: 12.3, 12.5 - Input buffer with 3 digits
    * Requirement: Performance - Debouncing for keyboard input (100ms)
-   * Requirement: 35.1 - Support single-digit navigation to news articles
+   * All navigation requires 3-digit input - no single-digit shortcuts
    */
   const handleDigitPress = useCallback((digit: number) => {
-    // Special case: Single digit navigation on news pages (200-299)
-    // If we're on a news page and buffer is empty, treat single digit as article selection
-    if (inputBuffer.length === 0 && currentPage) {
-      const pageNum = parseInt(currentPage.id.split('-')[0], 10);
-      
-      // Check if we're on a news index page (201-219)
-      if (pageNum >= 201 && pageNum <= 219 && digit >= 1 && digit <= 9) {
-        // Navigate to article sub-page (e.g., 202-1, 202-2, etc.)
-        const articlePageId = `${currentPage.id.split('-')[0]}-${digit}`;
-        navigateToPage(articlePageId);
-        return;
-      }
-    }
-    
+    // Only accept digits to build 3-digit page number
     if (inputBuffer.length < 3) {
       const newBuffer = inputBuffer + digit.toString();
       setInputBuffer(newBuffer);
@@ -238,7 +244,7 @@ export default function PageRouter({
         }, 100);
       }
     }
-  }, [inputBuffer, currentPage, navigateToPage]);
+  }, [inputBuffer, navigateToPage]);
 
   /**
    * Handles Enter key press
@@ -324,39 +330,21 @@ export default function PageRouter({
         break;
         
       case 'up':
+        // Arrow UP: Navigate to previous page in multi-page sequence (BACK indicator)
         // Requirement 35.3: Navigate to previous page in multi-page sequence
-        // Check if current page has continuation metadata
         if (currentPage?.meta?.continuation?.previousPage) {
           navigateToPage(currentPage.meta.continuation.previousPage);
-        } else {
-          // Fallback to channel up behavior (sequential page navigation)
-          // Requirement 1.5: Channel up - navigate to next page in sequence
-          if (currentPage) {
-            const currentNum = parseInt(currentPage.id, 10);
-            const nextNum = currentNum + 1;
-            if (nextNum <= 899) {
-              navigateToPage(nextNum.toString().padStart(3, '0'));
-            }
-          }
         }
+        // No fallback - up arrow only works for multi-page navigation
         break;
         
       case 'down':
+        // Arrow DOWN: Navigate to next page in multi-page sequence (MORE indicator)
         // Requirement 35.2: Navigate to next page in multi-page sequence
-        // Check if current page has continuation metadata
         if (currentPage?.meta?.continuation?.nextPage) {
           navigateToPage(currentPage.meta.continuation.nextPage);
-        } else {
-          // Fallback to channel down behavior (sequential page navigation)
-          // Requirement 1.5: Channel down - navigate to previous page in sequence
-          if (currentPage) {
-            const currentNum = parseInt(currentPage.id, 10);
-            const prevNum = currentNum - 1;
-            if (prevNum >= 100) {
-              navigateToPage(prevNum.toString().padStart(3, '0'));
-            }
-          }
         }
+        // No fallback - down arrow only works for multi-page navigation
         break;
     }
   }, [currentPage, history, historyIndex, navigateToPage, onPageChange, createCancellableRequest, isRequestActive, fetchPage]);
