@@ -3,6 +3,7 @@
 
 import axios from 'axios';
 import { ContentAdapter, TeletextPage } from '../types';
+import { getApiKey } from '../utils/config';
 
 interface CityConfig {
   name: string;
@@ -47,8 +48,8 @@ export class WeatherAdapter implements ContentAdapter {
   ];
 
   constructor() {
-    // Get API key from environment variable
-    this.apiKey = process.env.OPENWEATHER_API_KEY || '';
+    // Get API key from environment variable or Firebase config
+    this.apiKey = getApiKey('OPENWEATHER_API_KEY', 'openweather.api_key');
   }
 
   /**

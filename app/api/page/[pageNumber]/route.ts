@@ -3,10 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 /**
  * API Route: GET /api/page/[pageNumber]
  * 
- * This route handles page requests.
- * 
- * In production: Calls deployed Firebase Functions
- * In development: Calls adapters directly (no emulator needed!)
+ * This route proxies requests to Firebase Functions
  */
 export async function GET(
   _request: NextRequest,
@@ -15,17 +12,20 @@ export async function GET(
   const { pageNumber } = params;
 
   try {
-    // Always use deployed Firebase Functions in production builds
-    // This prevents webpack from trying to bundle the functions directory
-    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'teletext-eacd0';
-    const functionUrl = `https://us-central1-${projectId}.cloudfunctions.net/getPage`;
+    // Determine if we're in development or production
+    const isDevelopment = process.env.NODE_ENV === 'development';
     
-    const response = await fetch(`${functionUrl}/${pageNumber}`, {
+    // Use local emulator in development, production functions in production
+    const functionUrl = isDevelopment
+      ? `http://127.0.0.1:5001/teletext-eacd0/us-central1/getPage/${pageNumber}`
+      : `https://getpage-q6w32usldq-uc.a.run.app/${pageNumber}`;
+    
+    const response = await fetch(functionUrl, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
-      signal: AbortSignal.timeout(5000),
+      signal: AbortSignal.timeout(10000),
     });
 
     if (!response.ok) {
@@ -58,7 +58,7 @@ export async function GET(
   }
 }
 
-export async function OPTIONS(request: NextRequest) {
+export async function OPTIONS(_request: NextRequest) {
   return new NextResponse(null, {
     status: 204,
     headers: {
@@ -68,3 +68,17 @@ export async function OPTIONS(request: NextRequest) {
     },
   });
 }
+
+// This is required for static export - generate paths for common pages
+export async function generateStaticParams() {
+  // Generate static params for common pages
+  const pages = [];
+  for (let i = 100; i <= 899; i++) {
+    pages.push({ pageNumber: i.toString() });
+  }
+  return pages;
+}
+
+// Mark as dynamic to allow runtime generation
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;

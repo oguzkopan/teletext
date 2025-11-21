@@ -3,6 +3,7 @@
 
 import axios from 'axios';
 import { ContentAdapter, TeletextPage } from '../types';
+import { getApiKey } from '../utils/config';
 
 /**
  * SportsAdapter serves sports pages (300-399)
@@ -13,8 +14,8 @@ export class SportsAdapter implements ContentAdapter {
   private baseUrl: string = 'https://v3.football.api-sports.io';
 
   constructor() {
-    // Get API key from environment variable
-    this.apiKey = process.env.SPORTS_API_KEY || '';
+    // Get API key from environment variable or Firebase config
+    this.apiKey = getApiKey('SPORTS_API_KEY', 'sports.api_key');
   }
 
   /**

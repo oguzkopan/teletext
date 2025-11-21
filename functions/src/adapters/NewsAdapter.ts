@@ -4,6 +4,7 @@
 import axios from 'axios';
 import { ContentAdapter, TeletextPage } from '../types';
 import { createMissingApiKeyPage, logMissingApiKey } from '../utils/env-validation';
+import { getApiKey } from '../utils/config';
 
 /**
  * NewsAdapter serves news pages (200-299)
@@ -14,9 +15,8 @@ export class NewsAdapter implements ContentAdapter {
   private baseUrl: string = 'https://newsapi.org/v2';
 
   constructor() {
-    // Get API key from environment variable
-    // In Firebase Functions, use functions.config() or process.env
-    this.apiKey = process.env.NEWS_API_KEY || '';
+    // Get API key from environment variable or Firebase config
+    this.apiKey = getApiKey('NEWS_API_KEY', 'news.api_key');
   }
 
   /**

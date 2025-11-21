@@ -3,6 +3,7 @@
 
 import axios from 'axios';
 import { ContentAdapter, TeletextPage } from '../types';
+import { getApiKey } from '../utils/config';
 
 /**
  * MarketsAdapter serves market pages (400-499)
@@ -10,11 +11,13 @@ import { ContentAdapter, TeletextPage } from '../types';
  */
 export class MarketsAdapter implements ContentAdapter {
   private coinGeckoBaseUrl: string = 'https://api.coingecko.com/api/v3';
+  private coinGeckoApiKey: string;
   private alphaVantageApiKey: string;
 
   constructor() {
-    // Get API key from environment variable
-    this.alphaVantageApiKey = process.env.ALPHA_VANTAGE_API_KEY || '';
+    // Get API keys from environment variables or Firebase config
+    this.coinGeckoApiKey = getApiKey('COINGECKO_API_KEY', 'coingecko.api_key');
+    this.alphaVantageApiKey = getApiKey('ALPHA_VANTAGE_API_KEY', 'alphavantage.api_key');
   }
 
   /**
@@ -131,6 +134,11 @@ export class MarketsAdapter implements ContentAdapter {
    */
   private async fetchCryptoPrices(): Promise<any[]> {
     try {
+      const headers: Record<string, string> = {};
+      if (this.coinGeckoApiKey) {
+        headers['x-cg-demo-api-key'] = this.coinGeckoApiKey;
+      }
+
       const response = await axios.get(
         `${this.coinGeckoBaseUrl}/coins/markets`,
         {
@@ -142,12 +150,14 @@ export class MarketsAdapter implements ContentAdapter {
             sparkline: false,
             price_change_percentage: '24h'
           },
+          headers,
           timeout: 5000
         }
       );
 
       return response.data || [];
     } catch (error) {
+      console.error('Error fetching crypto prices:', error);
       // Fallback to mock data on error
       return this.getMockCryptoData();
     }
@@ -177,10 +187,16 @@ export class MarketsAdapter implements ContentAdapter {
    */
   private async fetchForexRates(): Promise<any[]> {
     try {
-      // Using CoinGecko's exchange rates endpoint (free, no API key needed)
+      const headers: Record<string, string> = {};
+      if (this.coinGeckoApiKey) {
+        headers['x-cg-demo-api-key'] = this.coinGeckoApiKey;
+      }
+
+      // Using CoinGecko's exchange rates endpoint
       const response = await axios.get(
         `${this.coinGeckoBaseUrl}/exchange_rates`,
         {
+          headers,
           timeout: 5000
         }
       );
@@ -200,6 +216,7 @@ export class MarketsAdapter implements ContentAdapter {
 
       return forexData;
     } catch (error) {
+      console.error('Error fetching forex rates:', error);
       return this.getMockForexData();
     }
   }
