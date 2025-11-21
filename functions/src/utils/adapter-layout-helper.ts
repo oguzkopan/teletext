@@ -200,23 +200,52 @@ export function centerText(text: string, width: number = 40): string {
 }
 
 /**
- * Pads rows array to exactly 24 rows, each max 40 characters
+ * Strips color codes and calculates visible length
+ */
+function getVisibleLength(text: string): number {
+  // Remove color codes like {red}, {green}, etc.
+  let cleaned = text.replace(/\{(red|green|yellow|blue|magenta|cyan|white|black)\}/gi, '');
+  
+  // Count emojis as 2 characters (they take up 2 character widths in monospace)
+  const emojiRegex = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu;
+  const emojis = cleaned.match(emojiRegex) || [];
+  const emojiCount = emojis.length;
+  
+  // Remove emojis to count regular characters
+  const withoutEmojis = cleaned.replace(emojiRegex, '');
+  
+  // Total visible length = regular chars + (emojis * 2)
+  return withoutEmojis.length + (emojiCount * 2);
+}
+
+/**
+ * Pads rows array to exactly 24 rows, each exactly 40 visible characters
  * 
  * @param rows - Array of rows to pad
  * @returns Padded rows array
  */
 export function padRows(rows: string[]): string[] {
   const paddedRows = rows.map(row => {
-    if (row.length > 40) {
+    const visibleLength = getVisibleLength(row);
+    
+    if (visibleLength > 40) {
+      // Truncate to 40 characters (rough approximation)
       return row.substring(0, 40);
+    } else if (visibleLength < 40) {
+      // Pad to exactly 40 visible characters
+      const paddingNeeded = 40 - visibleLength;
+      return row + ' '.repeat(paddingNeeded);
     }
-    return row.padEnd(40, ' ');
+    
+    return row;
   });
 
+  // Ensure exactly 24 rows
   while (paddedRows.length < 24) {
     paddedRows.push(''.padEnd(40, ' '));
   }
 
+  // CRITICAL: Always return exactly 24 rows, truncate if necessary
   return paddedRows.slice(0, 24);
 }
 

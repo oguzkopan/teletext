@@ -100,28 +100,28 @@ export class StaticAdapter implements ContentAdapter {
     // Requirements: 4.1, 4.2, 9.1, 9.3, 9.4, 29.3, 30.3
     const rows = [
       'MODERN TELETEXT                     P100',
-      '════════════════════════════════════════',
+      '========================================',
       this.centerText(`${dateStr} ${timeStr}`, 40),
       '',
-      '▓▓▓▓▓▓▓▓ MAGAZINES ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓',
-      '101 System      500 AI Oracle           ',
-      '110 Index       600 Games               ',
-      '200 News        700 Settings            ',
-      '300 Sport       800 Dev Tools           ',
-      '400 Markets     999 Help                ',
-      '420 Weather                             ',
+      '======== MAGAZINES =====================',
+      '101 System      500 AI Oracle',
+      '110 Index       600 Games',
+      '200 News        700 Settings',
+      '300 Sport       800 Dev Tools',
+      '400 Markets     999 Help',
+      '420 Weather',
       '',
-      '▓▓▓▓▓▓▓▓ QUICK START ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓',
-      '  Enter 3-digit page number             ',
-      '  Use colored buttons for shortcuts     ',
-      '  Press 999 for help anytime            ',
+      '======== QUICK START ===================',
+      '  Enter 3-digit page number',
+      '  Use colored buttons for shortcuts',
+      '  Press 999 for help anytime',
       '',
-      this.centerText('WHAT\'S NEW', 40),
-      '  Enhanced UX with visual indicators    ',
-      '  ' + randomTip.substring(0, 37),
+      this.centerText('WHATS NEW', 40),
+      '  Enhanced UX with visual indicators',
+      '  ' + randomTip.substring(4, 37), // Remove "TIP: " prefix
       '',
       '',
-      '────────────────────────────────────────',
+      '========================================',
       'RED=NEWS GREEN=SPORT YELLOW=WEATHER HELP'
     ];
 
@@ -825,14 +825,44 @@ export class StaticAdapter implements ContentAdapter {
   }
 
   /**
-   * Pads rows array to exactly 24 rows, each max 40 characters
+   * Strips color codes and emojis to get visible length
+   */
+  private getVisibleLength(text: string): number {
+    // Remove color codes like {red}, {green}, etc.
+    let cleaned = text.replace(/\{(red|green|yellow|blue|magenta|cyan|white|black)\}/gi, '');
+    
+    // Count emojis as 2 characters (they take up 2 character widths in monospace)
+    // This regex matches most common emojis
+    const emojiRegex = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu;
+    const emojis = cleaned.match(emojiRegex) || [];
+    const emojiCount = emojis.length;
+    
+    // Remove emojis to count regular characters
+    const withoutEmojis = cleaned.replace(emojiRegex, '');
+    
+    // Total visible length = regular chars + (emojis * 2)
+    return withoutEmojis.length + (emojiCount * 2);
+  }
+
+  /**
+   * Pads rows array to exactly 24 rows, each exactly 40 visible characters
    */
   private padRows(rows: string[]): string[] {
     const paddedRows = rows.map(row => {
-      if (row.length > 40) {
+      const visibleLength = this.getVisibleLength(row);
+      
+      if (visibleLength > 40) {
+        // Truncate to 40 visible characters
+        // This is tricky with emojis, so we'll just truncate the string
+        // and accept some imperfection
         return row.substring(0, 40);
+      } else if (visibleLength < 40) {
+        // Pad to exactly 40 visible characters
+        const paddingNeeded = 40 - visibleLength;
+        return row + ' '.repeat(paddingNeeded);
       }
-      return row.padEnd(40, ' ');
+      
+      return row;
     });
 
     // Ensure exactly 24 rows
