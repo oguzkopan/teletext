@@ -5,6 +5,15 @@ import axios from 'axios';
 import { ContentAdapter, TeletextPage } from '../types';
 import { createMissingApiKeyPage, logMissingApiKey } from '../utils/env-validation';
 import { getApiKey } from '../utils/config';
+import {
+  applyAdapterLayout,
+  createSimpleHeader,
+  createSeparator,
+  truncateText,
+  wrapText,
+  stripHtml,
+  padRows
+} from '../utils/adapter-layout-helper';
 
 /**
  * NewsAdapter serves news pages (200-299)
@@ -128,7 +137,7 @@ export class NewsAdapter implements ContentAdapter {
     totalArticles: number
   ): TeletextPage {
     const rows = [
-      `${this.truncateText(categoryTitle.toUpperCase(), 28).padEnd(28, ' ')} P${pageId}`,
+      `${truncateText(categoryTitle.toUpperCase(), 28).padEnd(28, ' ')} P${pageId}`,
       '════════════════════════════════════',
       '',
       'ARTICLE NOT FOUND',
@@ -156,7 +165,7 @@ export class NewsAdapter implements ContentAdapter {
     return {
       id: pageId,
       title: `${categoryTitle} - Article Not Found`,
-      rows: this.padRows(rows),
+      rows: padRows(rows),
       links: [
         { label: 'BACK', targetPage: basePageId, color: 'red' },
         { label: 'INDEX', targetPage: '200', color: 'green' }
@@ -188,14 +197,14 @@ export class NewsAdapter implements ContentAdapter {
     contentRows.push('');
     
     // Headline (wrapped)
-    const headline = this.stripHtml(article.title || 'Untitled');
-    const headlineLines = this.wrapText(headline, 40);
-    headlineLines.forEach(line => contentRows.push(line));
+    const headline = stripHtml(article.title || 'Untitled');
+    const headlineLines = wrapText(headline, 40);
+    headlineLines.forEach((line: string) => contentRows.push(line));
     contentRows.push('');
     
     // Source and date
     if (article.source && article.source.name) {
-      contentRows.push(`Source: ${this.truncateText(article.source.name, 32)}`);
+      contentRows.push(`Source: ${truncateText(article.source.name, 32)}`);
     }
     if (article.publishedAt) {
       const date = new Date(article.publishedAt);
@@ -210,17 +219,17 @@ export class NewsAdapter implements ContentAdapter {
     
     // Description (wrapped)
     if (article.description) {
-      const description = this.stripHtml(article.description);
-      const descLines = this.wrapText(description, 40);
-      descLines.forEach(line => contentRows.push(line));
+      const description = stripHtml(article.description);
+      const descLines = wrapText(description, 40);
+      descLines.forEach((line: string) => contentRows.push(line));
     }
     
     // Content (wrapped) - if available
     if (article.content) {
       contentRows.push('');
-      const content = this.stripHtml(article.content);
-      const contentLines = this.wrapText(content, 40);
-      contentLines.forEach(line => contentRows.push(line));
+      const content = stripHtml(article.content);
+      const contentLines = wrapText(content, 40);
+      contentLines.forEach((line: string) => contentRows.push(line));
     }
     
     // Check if content fits in one page (24 rows total - 3 header = 21 content rows)
@@ -229,7 +238,7 @@ export class NewsAdapter implements ContentAdapter {
     if (contentRows.length <= contentRowsPerPage) {
       // Single page - fits everything
       const rows: string[] = [];
-      rows.push(`${this.truncateText(categoryTitle.toUpperCase(), 28).padEnd(28, ' ')} P${pageId}`);
+      rows.push(`${truncateText(categoryTitle.toUpperCase(), 28).padEnd(28, ' ')} P${pageId}`);
       rows.push('════════════════════════════════════');
       rows.push('');
       rows.push(...contentRows);
@@ -237,7 +246,7 @@ export class NewsAdapter implements ContentAdapter {
       return {
         id: pageId,
         title: `${categoryTitle} - Article ${articleIndex}`,
-        rows: this.padRows(rows),
+        rows: padRows(rows),
         links: [
           { label: 'BACK', targetPage: basePageId, color: 'red' },
           { label: 'INDEX', targetPage: '200', color: 'green' },
@@ -292,7 +301,7 @@ export class NewsAdapter implements ContentAdapter {
     const headerTitle = subPageIndex === 0 
       ? categoryTitle.toUpperCase() 
       : `${categoryTitle.toUpperCase()} (cont.)`;
-    rows.push(`${this.truncateText(headerTitle, 28).padEnd(28, ' ')} P${pageId}`);
+    rows.push(`${truncateText(headerTitle, 28).padEnd(28, ' ')} P${pageId}`);
     rows.push('════════════════════════════════════');
     rows.push('');
     
@@ -315,7 +324,7 @@ export class NewsAdapter implements ContentAdapter {
     return {
       id: pageId,
       title: `${categoryTitle} - Article ${articleIndex}${subPageIndex > 0 ? ` (${subPageIndex + 1}/${totalPages})` : ''}`,
-      rows: this.padRows(rows),
+      rows: padRows(rows),
       links: [
         { label: 'BACK', targetPage: basePageId, color: 'red' },
         { label: 'INDEX', targetPage: '200', color: 'green' },
@@ -334,39 +343,39 @@ export class NewsAdapter implements ContentAdapter {
 
   /**
    * Creates the news index page (200)
+   * Requirements: Uses layout manager for full-screen utilization
    */
   private getNewsIndex(): TeletextPage {
-    const rows = [
-      'NEWS INDEX                   P200',
-      '════════════════════════════════════',
+    const contentRows = [
+      createSimpleHeader('NEWS INDEX', '200'),
+      createSeparator(),
       '',
       'HEADLINES',
-      '201 Top Headlines',
-      '202 World News',
-      '203 Local News',
+      '201 📰 Top Headlines',
+      '202 🌍 World News',
+      '203 📍 Local News',
       '',
       'TOPICS',
-      '210 Technology',
-      '211 Business',
-      '212 Entertainment',
-      '213 Science',
-      '214 Health',
-      '215 Sports News',
+      '210 💻 Technology',
+      '211 💼 Business',
+      '212 🎬 Entertainment',
+      '213 🔬 Science',
+      '214 ❤️  Health',
+      '215 ⚽ Sports News',
       '',
       'Updated every 5 minutes',
       '',
       '',
       '',
       '',
-      '',
-      'INDEX   TOP     WORLD   TECH',
-      ''
+      createSeparator('─'),
+      'INDEX   TOP     WORLD   TECH'
     ];
 
-    return {
-      id: '200',
+    return applyAdapterLayout({
+      pageId: '200',
       title: 'News Index',
-      rows: this.padRows(rows),
+      contentRows,
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'TOP', targetPage: '201', color: 'green' },
@@ -376,8 +385,10 @@ export class NewsAdapter implements ContentAdapter {
       meta: {
         source: 'NewsAdapter',
         lastUpdated: new Date().toISOString(),
-      }
-    };
+        contentType: 'NEWS'
+      },
+      showTimestamp: false
+    });
   }
 
   /**
@@ -516,6 +527,7 @@ export class NewsAdapter implements ContentAdapter {
   /**
    * Formats news articles into a teletext page (or multiple pages if content is long)
    * Requirements: 35.1, 35.2, 35.3, 35.4, 35.5
+   * Uses layout manager for full-screen utilization with content type indicators
    */
   private formatNewsPage(
     pageId: string,
@@ -531,8 +543,9 @@ export class NewsAdapter implements ContentAdapter {
     });
 
     const contentRows: string[] = [];
+    contentRows.push(createSimpleHeader(title, pageId));
+    contentRows.push(createSeparator());
     contentRows.push(`Updated: ${timeStr}`);
-    contentRows.push('Use color buttons to navigate');
     contentRows.push('');
 
     // Add headlines (truncated to 38 characters to leave room for numbering)
@@ -543,13 +556,13 @@ export class NewsAdapter implements ContentAdapter {
       contentRows.push('Please try again later.');
     } else {
       articles.slice(0, 9).forEach((article, index) => {
-        const headline = this.stripHtml(article.title || 'Untitled');
-        const truncated = this.truncateText(headline, 36); // 36 chars for headline + "1. " = 39 chars
+        const headline = stripHtml(article.title || 'Untitled');
+        const truncated = truncateText(headline, 36); // 36 chars for headline + "1. " = 39 chars
         contentRows.push(`${index + 1}. ${truncated}`);
         
         // Add source if available
         if (article.source && article.source.name) {
-          const source = this.truncateText(`   ${article.source.name}`, 40);
+          const source = truncateText(`   ${article.source.name}`, 40);
           contentRows.push(source);
         } else {
           contentRows.push('');
@@ -557,43 +570,39 @@ export class NewsAdapter implements ContentAdapter {
       });
     }
 
-    // Check if content fits in one page (24 rows total - 3 header - 2 footer = 19 content rows)
-    if (contentRows.length <= 19) {
-      const rows = [
-        `${this.truncateText(title.toUpperCase(), 28).padEnd(28, ' ')} P${pageId}`,
-        '════════════════════════════════════',
-        ''
-      ];
-      
-      rows.push(...contentRows);
-      
-      return {
-        id: pageId,
-        title: title,
-        rows: this.padRows(rows),
-        links: [
-          { label: 'INDEX', targetPage: '200', color: 'red' },
-          { label: 'PREV', targetPage: prevPage, color: 'green' },
-          { label: 'NEXT', targetPage: nextPage, color: 'yellow' },
-          { label: 'BACK', targetPage: '100', color: 'blue' }
-        ],
-        meta: {
-          source: 'NewsAdapter',
-          lastUpdated: new Date().toISOString(),
-        }
-      };
-    } else {
-      // Content exceeds one page - create multi-page with continuation
-      const pages = this.createMultiPageNews(pageId, title, contentRows, prevPage, nextPage);
-      // Return the first page (the adapter will need to handle sub-pages separately)
-      return pages[0];
+    // Add footer
+    while (contentRows.length < 22) {
+      contentRows.push('');
     }
+    contentRows.push(createSeparator('─'));
+    contentRows.push('INDEX   PREV    NEXT    BACK');
+
+    return applyAdapterLayout({
+      pageId,
+      title,
+      contentRows,
+      links: [
+        { label: 'INDEX', targetPage: '200', color: 'red' },
+        { label: 'PREV', targetPage: prevPage, color: 'green' },
+        { label: 'NEXT', targetPage: nextPage, color: 'yellow' },
+        { label: 'BACK', targetPage: '100', color: 'blue' }
+      ],
+      meta: {
+        source: 'NewsAdapter',
+        lastUpdated: new Date().toISOString(),
+        contentType: 'NEWS',
+        cacheStatus: 'cached'
+      },
+      showTimestamp: true
+    });
   }
 
   /**
    * Creates multiple news pages with continuation metadata
    * Requirements: 35.1, 35.2, 35.3, 35.4, 35.5
+   * @deprecated - Currently unused but kept for future multi-page news feature
    */
+  // @ts-ignore - Unused method kept for future feature
   private createMultiPageNews(
     basePageId: string,
     title: string,
@@ -615,7 +624,7 @@ export class NewsAdapter implements ContentAdapter {
       
       // Add header
       const headerTitle = pageIndex === 0 ? title.toUpperCase() : `${title.toUpperCase()} (cont.)`;
-      rows.push(this.truncateText(headerTitle, 28).padEnd(28, ' ') + `P${pageId}`.padStart(12));
+      rows.push(truncateText(headerTitle, 28).padEnd(28, ' ') + `P${pageId}`.padStart(12));
       rows.push('════════════════════════════════════');
       rows.push('');
       
@@ -634,7 +643,7 @@ export class NewsAdapter implements ContentAdapter {
       pages.push({
         id: pageId,
         title: pageIndex === 0 ? title : `${title} (${pageIndex + 1}/${totalPages})`,
-        rows: this.padRows(rows),
+        rows: padRows(rows),
         links: [
           { label: 'INDEX', targetPage: '200', color: 'red' },
           { label: 'PREV', targetPage: prevPage, color: 'green' },
@@ -670,7 +679,7 @@ export class NewsAdapter implements ContentAdapter {
       rows = createMissingApiKeyPage('NEWS_API_KEY', pageId);
     } else {
       rows = [
-        `${this.truncateText(title.toUpperCase(), 28).padEnd(28, ' ')} P${pageId}`,
+        `${truncateText(title.toUpperCase(), 28).padEnd(28, ' ')} P${pageId}`,
         '════════════════════════════════════',
         '',
         'SERVICE UNAVAILABLE',
@@ -699,7 +708,7 @@ export class NewsAdapter implements ContentAdapter {
     return {
       id: pageId,
       title: title,
-      rows: this.padRows(rows),
+      rows: padRows(rows),
       links: isMissingApiKey ? [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'HELP', targetPage: '999', color: 'green' }
@@ -748,7 +757,7 @@ export class NewsAdapter implements ContentAdapter {
     return {
       id: pageId,
       title: `News Page ${pageId}`,
-      rows: this.padRows(rows),
+      rows: padRows(rows),
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'NEWS', targetPage: '200', color: 'green' }
@@ -760,85 +769,4 @@ export class NewsAdapter implements ContentAdapter {
     };
   }
 
-  /**
-   * Truncates text to specified length with ellipsis
-   */
-  private truncateText(text: string, maxLength: number): string {
-    if (!text || text.length <= maxLength) {
-      return text || '';
-    }
-    return text.slice(0, maxLength - 3) + '...';
-  }
-
-  /**
-   * Wraps text to multiple lines with specified width
-   */
-  private wrapText(text: string, maxWidth: number): string[] {
-    if (!text) return [];
-    
-    const words = text.split(' ');
-    const lines: string[] = [];
-    let currentLine = '';
-    
-    for (const word of words) {
-      const testLine = currentLine ? `${currentLine} ${word}` : word;
-      
-      if (testLine.length <= maxWidth) {
-        currentLine = testLine;
-      } else {
-        if (currentLine) {
-          lines.push(currentLine);
-        }
-        // If single word is longer than maxWidth, truncate it
-        if (word.length > maxWidth) {
-          lines.push(word.substring(0, maxWidth - 3) + '...');
-          currentLine = '';
-        } else {
-          currentLine = word;
-        }
-      }
-    }
-    
-    if (currentLine) {
-      lines.push(currentLine);
-    }
-    
-    return lines;
-  }
-
-  /**
-   * Strips HTML tags from text
-   */
-  private stripHtml(html: string): string {
-    if (!html) return '';
-    
-    let text = html.replace(/<[^>]*>/g, '');
-    text = text
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
-      .replace(/&nbsp;/g, ' ');
-    
-    return text;
-  }
-
-  /**
-   * Pads rows array to exactly 24 rows, each max 40 characters
-   */
-  private padRows(rows: string[]): string[] {
-    const paddedRows = rows.map(row => {
-      if (row.length > 40) {
-        return row.substring(0, 40);
-      }
-      return row.padEnd(40, ' ');
-    });
-
-    while (paddedRows.length < 24) {
-      paddedRows.push(''.padEnd(40, ' '));
-    }
-
-    return paddedRows.slice(0, 24);
-  }
 }

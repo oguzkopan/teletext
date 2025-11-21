@@ -31,7 +31,9 @@ describe('KeyboardHandler', () => {
     canGoBack: false,
     canGoForward: false,
     isOnline: true,
-    isCached: false
+    isCached: false,
+    expectedInputLength: 3,
+    highlightBreadcrumb: false
   };
 
   beforeEach(() => {

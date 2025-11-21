@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { ThemeConfig } from '@/types/teletext';
 import { db } from '@/lib/firebase-client';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { useThemeTransition } from '@/hooks/useThemeTransition';
 
 // Theme definitions
 export const themes: Record<string, ThemeConfig> = {
@@ -94,6 +95,12 @@ interface ThemeContextType {
   currentThemeKey: string;
   setTheme: (themeKey: string) => Promise<void>;
   confirmationMessage: string | null;
+  isTransitioning: boolean;
+  transitionBanner: {
+    visible: boolean;
+    text: string;
+    theme: string;
+  };
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -102,6 +109,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [currentThemeKey, setCurrentThemeKey] = useState<string>('ceefax');
   const [currentTheme, setCurrentTheme] = useState<ThemeConfig>(themes.ceefax);
   const [confirmationMessage, setConfirmationMessage] = useState<string | null>(null);
+  
+  // Use theme transition hook for animated transitions
+  const { state: transitionState, executeTransition, getTransitionClass } = useThemeTransition();
 
   // Load saved theme preference on startup
   // Requirement: 37.5
@@ -132,8 +142,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     loadThemePreference();
   }, []);
 
-  // Set theme and save to Firestore
-  // Requirements: 37.2, 37.3, 37.4
+  // Set theme and save to Firestore with animated transition
+  // Requirements: 27.1, 27.2, 27.3, 27.4, 27.5, 37.2, 37.3, 37.4
   const setTheme = useCallback(async (themeKey: string) => {
     if (!themes[themeKey]) {
       console.error(`Invalid theme key: ${themeKey}`);
@@ -141,51 +151,98 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
 
     const newTheme = themes[themeKey];
-    
-    // Update state immediately for instant visual feedback
-    // Requirement: 37.2
-    setCurrentThemeKey(themeKey);
-    setCurrentTheme(newTheme);
+    const oldThemeKey = currentThemeKey;
 
-    // Show confirmation message
-    // Requirement: 37.3
-    setConfirmationMessage(`Theme applied: ${newTheme.name}`);
-    setTimeout(() => {
-      setConfirmationMessage(null);
-    }, 3000);
+    // Execute animated transition
+    // Requirements: 27.1, 27.2, 27.3, 27.4
+    await executeTransition(
+      oldThemeKey,
+      themeKey,
+      newTheme.name,
+      async () => {
+        // Update state during transition
+        // Requirement: 37.2
+        setCurrentThemeKey(themeKey);
+        setCurrentTheme(newTheme);
 
-    // Save to Firestore
-    // Requirement: 37.4
-    try {
-      const userId = 'default_user';
-      const userPrefsRef = doc(db, 'user_preferences', userId);
-      
-      await setDoc(userPrefsRef, {
-        userId,
-        theme: themeKey,
-        favoritePages: [],
-        settings: {
-          scanlines: newTheme.effects.scanlines,
-          curvature: newTheme.effects.curvature,
-          noise: newTheme.effects.noise
-        },
-        effects: {
-          scanlinesIntensity: 50,
-          curvature: 5,
-          noiseLevel: 10
-        },
-        updatedAt: new Date()
-      }, { merge: true });
+        // Save to Firestore immediately after transition completes
+        // Requirement: 27.5, 37.4
+        try {
+          const userId = 'default_user';
+          const userPrefsRef = doc(db, 'user_preferences', userId);
+          
+          await setDoc(userPrefsRef, {
+            userId,
+            theme: themeKey,
+            favoritePages: [],
+            settings: {
+              scanlines: newTheme.effects.scanlines,
+              curvature: newTheme.effects.curvature,
+              noise: newTheme.effects.noise
+            },
+            effects: {
+              scanlinesIntensity: 50,
+              curvature: 5,
+              noiseLevel: 10
+            },
+            updatedAt: new Date()
+          }, { merge: true });
 
-      console.log(`Theme saved to Firestore: ${themeKey}`);
-    } catch (error) {
-      console.error('Error saving theme preference:', error);
-      // Theme is still applied locally even if save fails
-    }
-  }, []);
+          console.log(`Theme saved to Firestore: ${themeKey}`);
+        } catch (error) {
+          console.error('Error saving theme preference:', error);
+          // Theme is still applied locally even if save fails
+        }
+      },
+      {
+        duration: themeKey === 'haunting' ? 1000 : 500,
+        showBanner: true,
+        onTransitionComplete: () => {
+          // Show confirmation message after transition
+          // Requirement: 37.3
+          setConfirmationMessage(`Theme applied: ${newTheme.name}`);
+          setTimeout(() => {
+            setConfirmationMessage(null);
+          }, 3000);
+        }
+      }
+    );
+  }, [currentThemeKey, executeTransition]);
 
   return (
-    <ThemeContext.Provider value={{ currentTheme, currentThemeKey, setTheme, confirmationMessage }}>
+    <ThemeContext.Provider 
+      value={{ 
+        currentTheme, 
+        currentThemeKey, 
+        setTheme, 
+        confirmationMessage,
+        isTransitioning: transitionState.isTransitioning,
+        transitionBanner: {
+          visible: transitionState.bannerVisible,
+          text: transitionState.bannerText,
+          theme: transitionState.bannerTheme
+        }
+      }}
+    >
+      {/* Theme transition overlay */}
+      {transitionState.isTransitioning && (
+        <div 
+          className={`theme-transition-overlay ${getTransitionClass()}`}
+          aria-hidden="true"
+        />
+      )}
+      
+      {/* Theme name banner */}
+      {transitionState.bannerVisible && (
+        <div 
+          className={`theme-banner ${transitionState.bannerTheme}`}
+          role="status"
+          aria-live="polite"
+        >
+          {transitionState.bannerText}
+        </div>
+      )}
+      
       {children}
     </ThemeContext.Provider>
   );

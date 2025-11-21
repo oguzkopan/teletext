@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Input Buffer Display Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Courier New', Courier, monospace;
+      background-color: #000;
+      color: #fff;
+    }
+    
+    .demo-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      color: #ffff00;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    
+    .demo-section {
+      margin-bottom: 60px;
+      padding: 20px;
+      background-color: #111;
+      border: 2px solid #333;
+      border-radius: 8px;
+    }
+    
+    .demo-section h2 {
+      color: #00ff00;
+      margin-top: 0;
+    }
+    
+    .demo-section p {
+      color: #ccc;
+      margin-bottom: 20px;
+    }
+    
+    .screen-container {
+      position: relative;
+      width: 100%;
+      height: 400px;
+      background-color: #000;
+      border: 4px solid #333;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .input-buffer-display {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 16px;
+      font-weight: bold;
+      padding: 4px 8px;
+      border-radius: 2px;
+      display: inline-block;
+      min-width: 120px;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    
+    /* Digit entry animation - fade in and scale up */
+    .digit-entry-animation {
+      animation: digitEntry 0.3s ease-out;
+    }
+    
+    @keyframes digitEntry {
+      0% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.1);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    
+    /* Buffer clear animation - fade out */
+    .buffer-clear-animation {
+      animation: bufferClear 0.2s ease-out;
+    }
+    
+    @keyframes bufferClear {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+    }
+    
+    /* Blinking cursor animation */
+    .input-buffer-display::after {
+      content: '';
+      display: inline-block;
+      width: 0;
+      animation: cursorBlink 1s step-end infinite;
+    }
+    
+    @keyframes cursorBlink {
+      0%, 50% {
+        opacity: 1;
+      }
+      51%, 100% {
+        opacity: 0;
+      }
+    }
+    
+    /* Theme-specific highlighting */
+    .input-buffer-ceefax {
+      background-color: rgba(255, 255, 0, 0.2);
+      color: #ffff00;
+      border: 1px solid #ffff00;
+    }
+    
+    .input-buffer-haunting {
+      background-color: rgba(255, 0, 0, 0.2);
+      color: #ff0000;
+      border: 1px solid #ff0000;
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+      animation: glitchPulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes glitchPulse {
+      0%, 100% {
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+      }
+      50% {
+        box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+      }
+    }
+    
+    .input-buffer-high-contrast {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      border: 2px solid #ffffff;
+    }
+    
+    .input-buffer-orf {
+      background-color: rgba(0, 255, 255, 0.2);
+      color: #00ffff;
+      border: 1px solid #00ffff;
+      animation: colorCycle 3s linear infinite;
+    }
+    
+    @keyframes colorCycle {
+      0% {
+        filter: hue-rotate(0deg);
+      }
+      100% {
+        filter: hue-rotate(360deg);
+      }
+    }
+    
+    /* Hint text styling */
+    .input-buffer-hint {
+      font-size: 12px;
+      opacity: 0.7;
+      font-style: italic;
+    }
+    
+    /* Position variants */
+    .position-header {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+    
+    .position-footer {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    button {
+      padding: 10px 20px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      background-color: #333;
+      color: #fff;
+      border: 2px solid #666;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    button:hover {
+      background-color: #444;
+      border-color: #888;
+    }
+    
+    button:active {
+      transform: scale(0.95);
+    }
+    
+    .info {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #1a1a1a;
+      border-left: 4px solid #00ff00;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-container">
+    <h1>Input Buffer Display Demo</h1>
+    
+    <!-- Demo 1: Basic Input Buffer -->
+    <div class="demo-section">
+      <h2>1. Basic Input Buffer (Ceefax Theme)</h2>
+      <p>Shows input buffer with blinking cursor and digit entry animation</p>
+      <div class="screen-container">
+        <div id="buffer1" class="input-buffer-display input-buffer-ceefax position-footer">
+          Enter 3-digit page number
+        </div>
+      </div>
+      <div class="controls">
+        <button onclick="addDigit('buffer1', '2')">Add "2"</button>
+        <button onclick="addDigit('buffer1', '0')">Add "0"</button>
+        <button onclick="addDigit('buffer1', '0')">Add "0"</button>
+        <button onclick="clearBuffer('buffer1')">Clear</button>
+      </div>
+      <div class="info">
+        <strong>Requirements:</strong> 15.1 - Display entered digits with highlighting, 6.5 - Blinking cursor
+      </div>
+    </div>
+    
+    <!-- Demo 2: Haunting Theme -->
+    <div class="demo-section">
+      <h2>2. Haunting Theme Input Buffer</h2>
+      <p>Shows input buffer with glitch pulse animation and red styling</p>
+      <div class="screen-container">
+        <div id="buffer2" class="input-buffer-display input-buffer-haunting position-footer">
+          Enter 3-digit page number
+        </div>
+      </div>
+      <div class="controls">
+        <button onclick="addDigit('buffer2', '6')">Add "6"</button>
+        <button onclick="addDigit('buffer2', '6')">Add "6"</button>
+        <button onclick="addDigit('buffer2', '6')">Add "6"</button>
+        <button onclick="clearBuffer('buffer2')">Clear</button>
+      </div>
+      <div class="info">
+        <strong>Theme:</strong> Haunting Mode with glitch pulse and red glow
+      </div>
+    </div>
+    
+    <!-- Demo 3: Header Position -->
+    <div class="demo-section">
+      <h2>3. Header Position (High Contrast Theme)</h2>
+      <p>Shows input buffer in header position with high contrast styling</p>
+      <div class="screen-container">
+        <div id="buffer3" class="input-buffer-display input-buffer-high-contrast position-header">
+          Enter 3-digit page number
+        </div>
+      </div>
+      <div class="controls">
+        <button onclick="addDigit('buffer3', '1')">Add "1"</button>
+        <button onclick="addDigit('buffer3', '0')">Add "0"</button>
+        <button onclick="addDigit('buffer3', '0')">Add "0"</button>
+        <button onclick="clearBuffer('buffer3')">Clear</button>
+      </div>
+      <div class="info">
+        <strong>Position:</strong> Top-right corner (header position)
+      </div>
+    </div>
+    
+    <!-- Demo 4: ORF Theme -->
+    <div class="demo-section">
+      <h2>4. ORF Theme with Color Cycling</h2>
+      <p>Shows input buffer with color cycling animation</p>
+      <div class="screen-container">
+        <div id="buffer4" class="input-buffer-display input-buffer-orf position-footer">
+          Enter 3-digit page number
+        </div>
+      </div>
+      <div class="controls">
+        <button onclick="addDigit('buffer4', '7')">Add "7"</button>
+        <button onclick="addDigit('buffer4', '0')">Add "0"</button>
+        <button onclick="addDigit('buffer4', '0')">Add "0"</button>
+        <button onclick="clearBuffer('buffer4')">Clear</button>
+      </div>
+      <div class="info">
+        <strong>Theme:</strong> ORF with color cycling animation
+      </div>
+    </div>
+    
+    <!-- Demo 5: Single Digit Input -->
+    <div class="demo-section">
+      <h2>5. Single Digit Input Mode</h2>
+      <p>Shows input buffer for single digit selection (menu options)</p>
+      <div class="screen-container">
+        <div id="buffer5" class="input-buffer-display input-buffer-ceefax position-footer">
+          Enter 1 digit
+        </div>
+      </div>
+      <div class="controls">
+        <button onclick="setSingleDigit('buffer5', '1')">Option 1</button>
+        <button onclick="setSingleDigit('buffer5', '2')">Option 2</button>
+        <button onclick="setSingleDigit('buffer5', '3')">Option 3</button>
+        <button onclick="clearBuffer('buffer5', 1)">Clear</button>
+      </div>
+      <div class="info">
+        <strong>Requirements:</strong> 8.4 - Display input format hint
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Track buffer state for each demo
+    const bufferStates = {
+      buffer1: { content: '', maxLength: 3 },
+      buffer2: { content: '', maxLength: 3 },
+      buffer3: { content: '', maxLength: 3 },
+      buffer4: { content: '', maxLength: 3 },
+      buffer5: { content: '', maxLength: 1 }
+    };
+    
+    function addDigit(bufferId, digit) {
+      const state = bufferStates[bufferId];
+      if (state.content.length < state.maxLength) {
+        state.content += digit;
+        updateDisplay(bufferId);
+      }
+    }
+    
+    function setSingleDigit(bufferId, digit) {
+      const state = bufferStates[bufferId];
+      state.content = digit;
+      updateDisplay(bufferId);
+      
+      // Auto-clear after 1 second for single digit
+      setTimeout(() => clearBuffer(bufferId, 1), 1000);
+    }
+    
+    function clearBuffer(bufferId, maxLength = 3) {
+      const element = document.getElementById(bufferId);
+      const state = bufferStates[bufferId];
+      
+      // Add clear animation
+      element.classList.add('buffer-clear-animation');
+      
+      setTimeout(() => {
+        state.content = '';
+        state.maxLength = maxLength;
+        element.classList.remove('buffer-clear-animation');
+        updateDisplay(bufferId);
+      }, 200);
+    }
+    
+    function updateDisplay(bufferId) {
+      const element = document.getElementById(bufferId);
+      const state = bufferStates[bufferId];
+      
+      // Add entry animation
+      element.classList.add('digit-entry-animation');
+      setTimeout(() => {
+        element.classList.remove('digit-entry-animation');
+      }, 300);
+      
+      // Update text
+      if (state.content.length === 0) {
+        // Show hint
+        element.classList.add('input-buffer-hint');
+        if (state.maxLength === 1) {
+          element.textContent = 'Enter 1 digit';
+        } else if (state.maxLength === 2) {
+          element.textContent = 'Enter 2 digits';
+        } else {
+          element.textContent = 'Enter 3-digit page number';
+        }
+      } else {
+        element.classList.remove('input-buffer-hint');
+        // Show content with cursor
+        if (state.content.length < state.maxLength) {
+          element.textContent = state.content + '_';
+        } else {
+          element.textContent = state.content;
+        }
+      }
+    }
+  </script>
+</body>
+</html>

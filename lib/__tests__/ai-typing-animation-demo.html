@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Typing Animation Demo</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #000;
+            color: #0f0;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .demo-container {
+            border: 2px solid #0f0;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 200px;
+        }
+        
+        .controls {
+            margin: 20px 0;
+        }
+        
+        button {
+            background-color: #0f0;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background-color: #0a0;
+        }
+        
+        .status {
+            margin: 10px 0;
+            color: #ff0;
+        }
+        
+        .hint {
+            color: #0ff;
+            font-size: 12px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        .cursor {
+            animation: blink 0.5s step-end infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        h1 {
+            color: #0ff;
+            text-align: center;
+        }
+        
+        .info {
+            color: #fff;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI Typing Animation Demo</h1>
+    
+    <div class="info">
+        <p>This demo showcases the AI typing animation features:</p>
+        <ul>
+            <li>Character-by-character text reveal (75 chars/sec)</li>
+            <li>Blinking cursor during typing</li>
+            <li>"Thinking..." animation with animated dots</li>
+            <li>Skip functionality (press any key)</li>
+            <li>Progress tracking</li>
+        </ul>
+    </div>
+    
+    <div class="controls">
+        <button onclick="startThinking()">Start Thinking</button>
+        <button onclick="startTyping()">Start Typing</button>
+        <button onclick="skipAnimation()">Skip Animation</button>
+        <button onclick="stopAnimation()">Stop</button>
+    </div>
+    
+    <div class="status" id="status">Ready</div>
+    
+    <div class="demo-container" id="output"></div>
+    
+    <div class="hint" id="hint" style="display: none;">
+        Press any key to skip
+    </div>
+
+    <script>
+        // Simple implementation of the typing animation for demo purposes
+        class SimpleTypingAnimation {
+            constructor() {
+                this.fullText = '';
+                this.currentIndex = 0;
+                this.typingInterval = null;
+                this.cursorInterval = null;
+                this.cursorVisible = true;
+                this.isTyping = false;
+                this.isThinking = false;
+                this.speed = 75; // chars per second
+                this.keyListener = null;
+            }
+            
+            startThinking() {
+                this.stop();
+                this.isThinking = true;
+                this.updateStatus('Thinking...');
+                
+                let dotCount = 0;
+                this.typingInterval = setInterval(() => {
+                    dotCount = (dotCount + 1) % 4;
+                    const dots = '.'.repeat(dotCount);
+                    this.updateOutput(`Thinking${dots}`);
+                }, 500);
+                
+                this.startCursorBlink();
+            }
+            
+            startTyping() {
+                this.stop();
+                
+                this.fullText = `This is an example of AI-generated content being revealed character-by-character. The typing animation creates a more natural and engaging experience for users. You can press any key to skip this animation and see the full text immediately. The animation runs at 75 characters per second, which is within the recommended range of 50-100 characters per second for optimal readability.`;
+                
+                this.currentIndex = 0;
+                this.isTyping = true;
+                this.updateStatus('Typing... (Press any key to skip)');
+                document.getElementById('hint').style.display = 'block';
+                
+                const delayMs = 1000 / this.speed;
+                
+                this.typingInterval = setInterval(() => {
+                    if (this.currentIndex < this.fullText.length) {
+                        this.currentIndex++;
+                        const revealed = this.fullText.substring(0, this.currentIndex);
+                        const progress = Math.round((this.currentIndex / this.fullText.length) * 100);
+                        this.updateOutput(revealed);
+                        this.updateStatus(`Typing... ${progress}% (Press any key to skip)`);
+                    } else {
+                        this.complete();
+                    }
+                }, delayMs);
+                
+                this.startCursorBlink();
+                this.setupSkipListener();
+            }
+            
+            startCursorBlink() {
+                if (this.cursorInterval) {
+                    clearInterval(this.cursorInterval);
+                }
+                
+                this.cursorVisible = true;
+                this.cursorInterval = setInterval(() => {
+                    this.cursorVisible = !this.cursorVisible;
+                    this.updateCursor();
+                }, 500);
+            }
+            
+            setupSkipListener() {
+                this.removeSkipListener();
+                
+                this.keyListener = (e) => {
+                    this.skip();
+                };
+                
+                window.addEventListener('keydown', this.keyListener);
+            }
+            
+            removeSkipListener() {
+                if (this.keyListener) {
+                    window.removeEventListener('keydown', this.keyListener);
+                    this.keyListener = null;
+                }
+            }
+            
+            skip() {
+                if (!this.isTyping) return;
+                
+                this.stop();
+                this.updateOutput(this.fullText);
+                this.updateStatus('Animation skipped - Complete!');
+                document.getElementById('hint').style.display = 'none';
+            }
+            
+            complete() {
+                this.stop();
+                this.updateStatus('Typing complete!');
+                document.getElementById('hint').style.display = 'none';
+            }
+            
+            stop() {
+                if (this.typingInterval) {
+                    clearInterval(this.typingInterval);
+                    this.typingInterval = null;
+                }
+                
+                if (this.cursorInterval) {
+                    clearInterval(this.cursorInterval);
+                    this.cursorInterval = null;
+                }
+                
+                this.removeSkipListener();
+                this.isTyping = false;
+                this.isThinking = false;
+                this.cursorVisible = false;
+                this.updateCursor();
+            }
+            
+            updateOutput(text) {
+                const output = document.getElementById('output');
+                output.textContent = text;
+                this.updateCursor();
+            }
+            
+            updateCursor() {
+                const output = document.getElementById('output');
+                if ((this.isTyping || this.isThinking) && this.cursorVisible) {
+                    output.innerHTML = output.textContent + '<span class="cursor">█</span>';
+                }
+            }
+            
+            updateStatus(text) {
+                document.getElementById('status').textContent = text;
+            }
+        }
+        
+        const animation = new SimpleTypingAnimation();
+        
+        function startThinking() {
+            animation.startThinking();
+        }
+        
+        function startTyping() {
+            animation.startTyping();
+        }
+        
+        function skipAnimation() {
+            animation.skip();
+        }
+        
+        function stopAnimation() {
+            animation.stop();
+            animation.updateStatus('Stopped');
+            animation.updateOutput('');
+        }
+    </script>
+</body>
+</html>

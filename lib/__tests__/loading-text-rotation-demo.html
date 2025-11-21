@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loading Text Rotation Demo</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background-color: #000;
+      color: #0f0;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: #0ff;
+      text-align: center;
+      border-bottom: 2px solid #0ff;
+      padding-bottom: 10px;
+    }
+
+    h2 {
+      color: #ff0;
+      margin-top: 30px;
+    }
+
+    .demo-section {
+      margin: 20px 0;
+      padding: 20px;
+      border: 1px solid #0f0;
+      background-color: #001100;
+    }
+
+    .loading-display {
+      font-size: 24px;
+      font-weight: bold;
+      padding: 20px;
+      text-align: center;
+      background-color: #000;
+      border: 2px solid #0f0;
+      margin: 10px 0;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ceefax { color: #0f0; }
+    .haunting { color: #f0f; }
+    .high-contrast { color: #fff; }
+    .orf { color: #ff0; }
+
+    .controls {
+      margin: 20px 0;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background-color: #0f0;
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background-color: #0ff;
+    }
+
+    button:active {
+      background-color: #ff0;
+    }
+
+    button.active {
+      background-color: #f0f;
+      color: #fff;
+    }
+
+    .info {
+      color: #888;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .stat {
+      padding: 10px;
+      background-color: #002200;
+      border: 1px solid #0f0;
+    }
+
+    .stat-label {
+      color: #888;
+      font-size: 12px;
+    }
+
+    .stat-value {
+      color: #0ff;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .message-list {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #000;
+      border: 1px solid #0f0;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    .message-item {
+      padding: 5px;
+      border-bottom: 1px solid #003300;
+    }
+
+    .message-item:last-child {
+      border-bottom: none;
+    }
+
+    code {
+      background-color: #002200;
+      padding: 2px 6px;
+      border: 1px solid #0f0;
+      color: #0ff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⏳ Loading Text Rotation Demo ⏳</h1>
+    
+    <div class="demo-section">
+      <h2>Theme-Specific Loading Messages</h2>
+      <p>Each theme has its own set of loading messages that rotate every 2 seconds.</p>
+      
+      <div class="controls">
+        <button onclick="setTheme('ceefax')" id="btn-ceefax" class="active">Ceefax</button>
+        <button onclick="setTheme('haunting')" id="btn-haunting">Haunting</button>
+        <button onclick="setTheme('high-contrast')" id="btn-high-contrast">High Contrast</button>
+        <button onclick="setTheme('orf')" id="btn-orf">ORF</button>
+      </div>
+
+      <div id="loading-display" class="loading-display ceefax">
+        LOADING...
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label">Current Theme</div>
+          <div class="stat-value" id="current-theme">ceefax</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Elapsed Time</div>
+          <div class="stat-value" id="elapsed-time">0s</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Rotation Count</div>
+          <div class="stat-value" id="rotation-count">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Current Index</div>
+          <div class="stat-value" id="current-index">0</div>
+        </div>
+      </div>
+
+      <div class="info">
+        Messages rotate automatically every 2 seconds. Switch themes to see different messages.
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Available Messages by Theme</h2>
+      
+      <h3 style="color: #0f0;">Ceefax Theme</h3>
+      <div class="message-list">
+        <div class="message-item">LOADING...</div>
+        <div class="message-item">FETCHING DATA...</div>
+        <div class="message-item">ALMOST THERE...</div>
+        <div class="message-item">PLEASE WAIT...</div>
+        <div class="message-item">RETRIEVING PAGE...</div>
+      </div>
+
+      <h3 style="color: #f0f;">Haunting Theme</h3>
+      <div class="message-list">
+        <div class="message-item">SUMMONING...</div>
+        <div class="message-item">AWAKENING SPIRITS...</div>
+        <div class="message-item">CONJURING DATA...</div>
+        <div class="message-item">ENTERING THE VOID...</div>
+        <div class="message-item">CHANNELING...</div>
+        <div class="message-item">MANIFESTING...</div>
+      </div>
+
+      <h3 style="color: #fff;">High Contrast Theme</h3>
+      <div class="message-list">
+        <div class="message-item">LOADING...</div>
+        <div class="message-item">FETCHING...</div>
+        <div class="message-item">PROCESSING...</div>
+        <div class="message-item">PLEASE WAIT...</div>
+      </div>
+
+      <h3 style="color: #ff0;">ORF Theme</h3>
+      <div class="message-list">
+        <div class="message-item">LADEN...</div>
+        <div class="message-item">DATEN ABRUFEN...</div>
+        <div class="message-item">BITTE WARTEN...</div>
+        <div class="message-item">VERARBEITUNG...</div>
+        <div class="message-item">FAST FERTIG...</div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Custom Configuration</h2>
+      
+      <div class="controls">
+        <button onclick="setInterval(500)">Fast (0.5s)</button>
+        <button onclick="setInterval(1000)">Medium (1s)</button>
+        <button onclick="setInterval(2000)" class="active" id="btn-interval">Normal (2s)</button>
+        <button onclick="setInterval(3000)">Slow (3s)</button>
+      </div>
+
+      <div class="info">
+        Adjust the rotation interval to see messages change at different speeds.
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Controls</h2>
+      
+      <div class="controls">
+        <button onclick="startRotation()" id="btn-start">▶ Start</button>
+        <button onclick="stopRotation()" id="btn-stop">⏸ Stop</button>
+        <button onclick="resetRotation()" id="btn-reset">↻ Reset</button>
+      </div>
+
+      <div class="info">
+        Control the loading text rotation manually.
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Implementation</h2>
+      <p>This demo showcases the Loading Text Rotation system for Modern Teletext.</p>
+      
+      <h3>React Hook Usage:</h3>
+      <pre style="background-color: #002200; padding: 15px; border: 1px solid #0f0; overflow-x: auto;"><code>const { currentMessage } = useLoadingTextRotation({
+  theme: 'ceefax',
+  enabled: isLoading
+});
+
+return &lt;div&gt;{currentMessage}&lt;/div&gt;;</code></pre>
+
+      <h3>Class Usage:</h3>
+      <pre style="background-color: #002200; padding: 15px; border: 1px solid #0f0; overflow-x: auto;"><code>const rotation = new LoadingTextRotation(
+  { theme: 'ceefax' },
+  (message) => console.log(message)
+);
+
+rotation.start();</code></pre>
+
+      <h3>Features:</h3>
+      <ul>
+        <li>✅ Automatic message rotation every 2 seconds</li>
+        <li>✅ Theme-specific loading messages</li>
+        <li>✅ Customizable rotation interval</li>
+        <li>✅ Custom message arrays</li>
+        <li>✅ Elapsed time tracking</li>
+        <li>✅ React hook for easy integration</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // Theme messages
+    const MESSAGES = {
+      ceefax: ['LOADING...', 'FETCHING DATA...', 'ALMOST THERE...', 'PLEASE WAIT...', 'RETRIEVING PAGE...'],
+      haunting: ['SUMMONING...', 'AWAKENING SPIRITS...', 'CONJURING DATA...', 'ENTERING THE VOID...', 'CHANNELING...', 'MANIFESTING...'],
+      'high-contrast': ['LOADING...', 'FETCHING...', 'PROCESSING...', 'PLEASE WAIT...'],
+      orf: ['LADEN...', 'DATEN ABRUFEN...', 'BITTE WARTEN...', 'VERARBEITUNG...', 'FAST FERTIG...']
+    };
+
+    const THEME_COLORS = {
+      ceefax: 'ceefax',
+      haunting: 'haunting',
+      'high-contrast': 'high-contrast',
+      orf: 'orf'
+    };
+
+    // State
+    let currentTheme = 'ceefax';
+    let currentIndex = 0;
+    let rotationInterval = 2000;
+    let intervalId = null;
+    let startTime = Date.now();
+    let rotationCount = 0;
+    let elapsedIntervalId = null;
+
+    // Elements
+    const loadingDisplay = document.getElementById('loading-display');
+    const currentThemeEl = document.getElementById('current-theme');
+    const elapsedTimeEl = document.getElementById('elapsed-time');
+    const rotationCountEl = document.getElementById('rotation-count');
+    const currentIndexEl = document.getElementById('current-index');
+
+    function updateDisplay() {
+      const messages = MESSAGES[currentTheme];
+      const message = messages[currentIndex];
+      loadingDisplay.textContent = message;
+      loadingDisplay.className = `loading-display ${THEME_COLORS[currentTheme]}`;
+      currentIndexEl.textContent = currentIndex;
+    }
+
+    function rotate() {
+      const messages = MESSAGES[currentTheme];
+      currentIndex = (currentIndex + 1) % messages.length;
+      rotationCount++;
+      updateDisplay();
+      rotationCountEl.textContent = rotationCount;
+    }
+
+    function updateElapsedTime() {
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      elapsedTimeEl.textContent = `${elapsed}s`;
+    }
+
+    function setTheme(theme) {
+      currentTheme = theme;
+      currentIndex = 0;
+      currentThemeEl.textContent = theme;
+      updateDisplay();
+
+      // Update button states
+      document.querySelectorAll('.controls button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.getElementById(`btn-${theme}`).classList.add('active');
+    }
+
+    function setInterval(interval) {
+      rotationInterval = interval;
+      
+      // Restart with new interval
+      if (intervalId) {
+        stopRotation();
+        startRotation();
+      }
+
+      // Update button states
+      document.querySelectorAll('#btn-interval').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+    }
+
+    function startRotation() {
+      if (intervalId) return;
+
+      startTime = Date.now();
+      rotationCount = 0;
+      
+      intervalId = window.setInterval(rotate, rotationInterval);
+      elapsedIntervalId = window.setInterval(updateElapsedTime, 100);
+      
+      updateDisplay();
+      updateElapsedTime();
+    }
+
+    function stopRotation() {
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+      if (elapsedIntervalId) {
+        clearInterval(elapsedIntervalId);
+        elapsedIntervalId = null;
+      }
+    }
+
+    function resetRotation() {
+      stopRotation();
+      currentIndex = 0;
+      rotationCount = 0;
+      startTime = Date.now();
+      updateDisplay();
+      elapsedTimeEl.textContent = '0s';
+      rotationCountEl.textContent = '0';
+      startRotation();
+    }
+
+    // Start on load
+    startRotation();
+  </script>
+</body>
+</html>

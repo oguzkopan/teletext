@@ -3,6 +3,21 @@
 import { ContentAdapter, TeletextPage } from '../types';
 import { VertexAI } from '@google-cloud/vertexai';
 
+// Keyboard shortcuts for tip generation
+// Requirements: 30.3, 30.4
+const SHORTCUT_TIPS = [
+  'TIP: Press [🔴 R] for quick NEWS access',
+  'TIP: Press [🟢 G] for quick SPORT access',
+  'TIP: Press [🟡 Y] for quick WEATHER',
+  'TIP: Press [🔵 B] for quick AI access',
+  'TIP: Press 100 to return to index',
+  'TIP: Press 999 for help anytime',
+  'TIP: Press 720 for keyboard shortcuts',
+  'TIP: Use [←] to go back to previous',
+  'TIP: Use [↑][↓] to scroll content',
+  'TIP: Press [⌫] to delete last digit'
+];
+
 /**
  * StaticAdapter serves static system pages (100-199)
  * Includes main index, help pages, emergency bulletins, and about pages
@@ -31,6 +46,9 @@ export class StaticAdapter implements ContentAdapter {
       case 120:
         return this.getEmergencyBulletinsPage();
       
+      case 198:
+        return this.getScrollingCreditsPage();
+      
       case 199:
         return this.getAboutCreditsPage();
       
@@ -39,6 +57,9 @@ export class StaticAdapter implements ContentAdapter {
       
       case 666:
         return this.getPage666(params);
+      
+      case 720:
+        return this.getKeyboardShortcutsPage();
       
       case 999:
         return this.getHelpPage();
@@ -56,8 +77,8 @@ export class StaticAdapter implements ContentAdapter {
 
 
   /**
-   * Creates the main index page (100)
-   * Requirements: 3.1, 3.2, 32.1, 34.1, 34.2, 34.3, 34.4, 34.5
+   * Creates the main index page (100) with visual enhancements
+   * Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 9.1, 9.2, 9.3, 9.4, 9.5, 29.3
    */
   private getIndexPage(): TeletextPage {
     const now = new Date();
@@ -71,33 +92,41 @@ export class StaticAdapter implements ContentAdapter {
       minute: '2-digit' 
     });
     
-    // Full-width layout with centered titles and specific page numbers
-    // Requirements 34.1, 34.2, 34.3, 34.4, 34.5
+    // Get random tip of the day
+    // Requirements: 30.3
+    const randomTip = SHORTCUT_TIPS[Math.floor(Math.random() * SHORTCUT_TIPS.length)];
+    
+    // ASCII art logo banner and full-width layout
+    // Requirements: 4.1, 4.2, 9.1, 9.3, 9.4, 29.3, 30.3
     const rows = [
-      this.centerText('MODERN TELETEXT', 32) + '    P100',
-      '════════════════════════════════════════',
+      '╔══════════════════════════════════╗P100',
+      '║  MODERN TELETEXT  ░▒▓█▓▒░       ║',
+      '╚══════════════════════════════════╝',
       this.centerText(`${dateStr} ${timeStr}`, 40),
       '',
-      this.centerText('★ MAIN INDEX ★', 40),
+      // Magazine sections with icons and visual separation
+      // Requirements: 4.2, 4.3, 4.4, 9.2
+      '▓▓▓▓ INFORMATION & SYSTEM ▓▓▓▓▓▓▓▓▓▓',
+      '  101  ℹ️  System Info & How It Works',
+      '  110  📋 System Pages Index',
+      '▓▓▓▓ NEWS & CURRENT AFFAIRS ▓▓▓▓▓▓▓▓',
+      '  ►200 📰 News Headlines & Stories',
+      '▓▓▓▓ SPORT & LIVE SCORES ▓▓▓▓▓▓▓▓▓▓▓',
+      '  ►300 ⚽ Sport Results & Fixtures',
+      '▓▓▓▓ MARKETS & FINANCE ▓▓▓▓▓▓▓▓▓▓▓▓▓',
+      '  ►400 📈 Markets, Stocks & Crypto',
+      '  ►420 🌤️  Weather Forecasts',
+      '▓▓▓▓ INTERACTIVE SERVICES ▓▓▓▓▓▓▓▓▓▓',
+      '  ►500 🤖 AI Oracle  ►600 🎮 Games',
+      '  ►700 ⚙️  Settings  ►800 🔧 Dev Tools',
       '',
-      '  101  System Info & Help',
-      '  110  System Pages Index',
-      '  200  News Headlines',
-      '  300  Sport & Live Scores',
-      '  400  Markets & Finance',
-      '  420  Weather Forecasts',
-      '  500  AI Oracle Assistant',
-      '  600  Games & Entertainment',
-      '  700  Settings & Themes',
-      '  800  Developer Tools',
-      '',
-      this.centerText('NAVIGATION EXAMPLES', 40),
-      '  Enter 200 for latest news',
-      '  Enter 500 to chat with AI',
-      '  Enter 999 for help guide',
-      '',
-      this.centerText('Use remote or keyboard', 40),
-      'NEWS    SPORT   WEATHER AI'
+      this.centerText('★ WHAT\'S NEW ★', 40),
+      '  Enhanced UX with visual indicators!',
+      randomTip, // Random tip of the day
+      // Navigation legend
+      // Requirements: 4.5, 9.5
+      '────────────────────────────────────────',
+      '🔴NEWS 🟢SPORT 🟡WEATHER 🔵AI  999=HELP'
     ];
 
     return {
@@ -113,6 +142,8 @@ export class StaticAdapter implements ContentAdapter {
       meta: {
         source: 'StaticAdapter',
         lastUpdated: new Date().toISOString(),
+        animatedLogo: true, // Signal to frontend to use animated logo
+        logoAnimation: 'logo-reveal' // Animation type to use
       }
     };
   }
@@ -277,7 +308,58 @@ export class StaticAdapter implements ContentAdapter {
   }
 
   /**
-   * Creates the about/credits page (199)
+   * Creates the scrolling credits page (198)
+   * Requirements: 29.4
+   */
+  private getScrollingCreditsPage(): TeletextPage {
+    // Initial frame of scrolling credits
+    const rows = [
+      'CREDITS                      P198',
+      '════════════════════════════════════',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '         MODERN TELETEXT',
+      '            Version 1.0',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      'Press any key to start scrolling...',
+      '',
+      'INDEX   BACK'
+    ];
+
+    return {
+      id: '198',
+      title: 'Credits',
+      rows: this.padRows(rows),
+      links: [
+        { label: 'INDEX', targetPage: '100', color: 'red' },
+        { label: 'BACK', targetPage: '199', color: 'green' }
+      ],
+      meta: {
+        source: 'StaticAdapter',
+        lastUpdated: new Date().toISOString(),
+        scrollingCredits: true, // Signal to frontend to use scrolling animation
+        creditsAnimation: 'scrolling-credits'
+      }
+    };
+  }
+
+  /**
+   * Creates the about/credits page (199) with scrolling credits
+   * Requirements: 29.4, 29.5
    */
   private getAboutCreditsPage(): TeletextPage {
     const rows = [
@@ -300,10 +382,9 @@ export class StaticAdapter implements ContentAdapter {
       'Inspired by BBC Ceefax (1974-2012)',
       'and other classic teletext services.',
       '',
-      'Source code & documentation:',
-      'github.com/your-repo/modern-teletext',
+      this.centerText('⚡ Powered by Kiro ⚡', 40),
       '',
-      'INDEX   HELP',
+      'INDEX   HELP   CREDITS',
       ''
     ];
 
@@ -313,11 +394,67 @@ export class StaticAdapter implements ContentAdapter {
       rows: this.padRows(rows),
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
-        { label: 'HELP', targetPage: '999', color: 'green' }
+        { label: 'HELP', targetPage: '999', color: 'green' },
+        { label: 'CREDITS', targetPage: '198', color: 'yellow' }
       ],
       meta: {
         source: 'StaticAdapter',
         lastUpdated: new Date().toISOString(),
+        kiroBadge: true, // Signal to frontend to animate Kiro badge
+        kiroBadgeAnimation: 'kiro-badge-pulse'
+      }
+    };
+  }
+
+  /**
+   * Creates the keyboard shortcuts page (720)
+   * Requirements: 30.1, 30.2, 30.3
+   */
+  private getKeyboardShortcutsPage(): TeletextPage {
+    const rows = [
+      'KEYBOARD SHORTCUTS           P720',
+      '════════════════════════════════════',
+      '',
+      '┌─────────────────────────────────┐',
+      '│  NUMBER KEYS (Page Navigation)  │',
+      '└─────────────────────────────────┘',
+      '[0][1][2][3][4][5][6][7][8][9]',
+      'Enter 3-digit page numbers',
+      '',
+      '┌─────────────────────────────────┐',
+      '│  COLORED BUTTONS (Quick Links)  │',
+      '└─────────────────────────────────┘',
+      '[🔴 R] [🟢 G] [🟡 Y] [🔵 B]',
+      'Context-sensitive quick navigation',
+      '',
+      '┌─────────────────────────────────┐',
+      '│  ARROW KEYS (Navigation)        │',
+      '└─────────────────────────────────┘',
+      '    [↑] Scroll up / Previous',
+      '[←] [↓] [→] Back / Down / Forward',
+      '',
+      '[⏎ Enter] Go to page  [⌫] Back/Del',
+      '',
+      'TIP: Press 100 for main index',
+      'TIP: Press 999 for help',
+      '',
+      'INDEX   HELP   BACK'
+    ];
+
+    return {
+      id: '720',
+      title: 'Keyboard Shortcuts',
+      rows: this.padRows(rows),
+      links: [
+        { label: 'INDEX', targetPage: '100', color: 'red' },
+        { label: 'HELP', targetPage: '999', color: 'green' },
+        { label: 'BACK', targetPage: '700', color: 'yellow' }
+      ],
+      meta: {
+        source: 'StaticAdapter',
+        lastUpdated: new Date().toISOString(),
+        keyboardVisualization: true, // Signal to frontend for special highlighting
+        highlightedKeys: ['0-9', 'R', 'G', 'Y', 'B', 'Enter', 'Backspace', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']
       }
     };
   }
@@ -355,10 +492,11 @@ export class StaticAdapter implements ContentAdapter {
       '700-799: Settings',
       '800-899: Developer tools',
       '',
+      'See page 720 for full keyboard guide',
       'Press 100 for main index',
       '',
       '',
-      'INDEX',
+      'INDEX   SHORTCUTS',
       ''
     ];
 
@@ -367,7 +505,8 @@ export class StaticAdapter implements ContentAdapter {
       title: 'Help',
       rows: this.padRows(rows),
       links: [
-        { label: 'INDEX', targetPage: '100', color: 'red' }
+        { label: 'INDEX', targetPage: '100', color: 'red' },
+        { label: 'SHORTCUTS', targetPage: '720', color: 'green' }
       ],
       meta: {
         source: 'StaticAdapter',
@@ -377,10 +516,12 @@ export class StaticAdapter implements ContentAdapter {
   }
 
   /**
-   * Creates a 404 error page with horror-themed ASCII art and glitch effects
-   * Requirements: 13.1
+   * Creates a 404 error page with animated glitching ASCII art of broken TV
+   * Requirements: 17.1, 17.4, 17.5
    */
   private getErrorPage(): TeletextPage {
+    // Frame-by-frame ASCII animation of a broken/glitching TV
+    // This will be animated on the frontend using the animation engine
     const rows = [
       'ERROR                        P404',
       '════════════════════════════════════',
@@ -409,6 +550,26 @@ export class StaticAdapter implements ContentAdapter {
       ''
     ];
 
+    // Define frame-by-frame animation for broken TV
+    const brokenTVFrames = [
+      // Frame 1: Normal broken TV
+      '    ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄\n    █░░░░░░░░░░░░░░░░░░░░░░█\n    █░ P̷A̷G̷E̷ ░N̷O̷T̷ ░F̷O̷U̷N̷D̷ ░█\n    █░░░░░░░░░░░░░░░░░░░░░░█\n    ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀',
+      // Frame 2: Glitch effect 1
+      '    ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄\n    █▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓█\n    █▓ P̷A̷G̷E̷ ░N̷O̷T̷ ░F̷O̷U̷N̷D̷ ▓█\n    █▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓█\n    ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀',
+      // Frame 3: Glitch effect 2
+      '    ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄\n    █▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█\n    █▒ P̷A̷G̷E̷ ░N̷O̷T̷ ░F̷O̷U̷N̷D̷ ▒█\n    █▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█\n    ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀',
+      // Frame 4: Static/noise
+      '    ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄\n    █▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒█\n    █░ P̷A̷G̷E̷ ░N̷O̷T̷ ░F̷O̷U̷N̷D̷ ░█\n    █▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░█\n    ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀',
+      // Frame 5: Distorted
+      '    ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄\n    █░░░░░░░░░░░░░░░░░░░░░░█\n    █░ P̴̷A̴̷G̴̷E̴̷ N̴̷O̴̷T̴̷ F̴̷O̴̷U̴̷N̴̷D̴̷ █\n    █░░░░░░░░░░░░░░░░░░░░░░█\n    ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀',
+      // Frame 6: Back to normal
+      '    ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄\n    █░░░░░░░░░░░░░░░░░░░░░░█\n    █░ P̷A̷G̷E̷ ░N̷O̷T̷ ░F̷O̷U̷N̷D̷ ░█\n    █░░░░░░░░░░░░░░░░░░░░░░█\n    ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀',
+      // Frame 7: Flicker
+      '    ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄\n    █                      █\n    █  P̷A̷G̷E̷ ░N̷O̷T̷ ░F̷O̷U̷N̷D̷  █\n    █                      █\n    ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀',
+      // Frame 8: Back to normal
+      '    ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄\n    █░░░░░░░░░░░░░░░░░░░░░░█\n    █░ P̷A̷G̷E̷ ░N̷O̷T̷ ░F̷O̷U̷N̷D̷ ░█\n    █░░░░░░░░░░░░░░░░░░░░░░█\n    ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀'
+    ];
+
     return {
       id: '404',
       title: 'Page Not Found',
@@ -421,7 +582,16 @@ export class StaticAdapter implements ContentAdapter {
       meta: {
         source: 'StaticAdapter',
         lastUpdated: new Date().toISOString(),
-        haunting: true // Signal to frontend to apply glitch effects
+        haunting: true, // Signal to frontend to apply glitch effects
+        maxVisualEffects: true, // Apply maximum visual effects regardless of user settings
+        specialPageAnimation: {
+          type: 'ascii-frames',
+          name: 'broken-tv-glitch',
+          targetRows: [4, 5, 6, 7, 8], // Rows containing the TV ASCII art
+          frames: brokenTVFrames,
+          duration: 2400, // 300ms per frame × 8 frames
+          loop: true
+        }
       }
     };
   }
@@ -472,8 +642,8 @@ export class StaticAdapter implements ContentAdapter {
   }
 
   /**
-   * Creates the cursed page 666 with AI-generated horror content
-   * Requirements: 13.5
+   * Creates the cursed page 666 with animated demonic ASCII art and pulsing effects
+   * Requirements: 17.2, 17.3, 17.4, 17.5
    */
   private async getPage666(params?: Record<string, any>): Promise<TeletextPage> {
     // Check if we have cached horror content
@@ -545,6 +715,48 @@ export class StaticAdapter implements ContentAdapter {
       ''
     ];
 
+    // Define frame-by-frame animation for demonic ASCII art
+    const demonicFrames = [
+      // Frame 1: Normal demonic face
+      '         ▄▄▄  ▄▄▄  ▄▄▄\n        █ 6 ██ 6 ██ 6 █\n         ▀▀▀  ▀▀▀  ▀▀▀',
+      // Frame 2: Eyes glow
+      '         ▄▄▄  ▄▄▄  ▄▄▄\n        █▓6▓██▓6▓██▓6▓█\n         ▀▀▀  ▀▀▀  ▀▀▀',
+      // Frame 3: Intense glow
+      '         ▄▄▄  ▄▄▄  ▄▄▄\n        █▒6▒██▒6▒██▒6▒█\n         ▀▀▀  ▀▀▀  ▀▀▀',
+      // Frame 4: Maximum intensity
+      '         ▄▄▄  ▄▄▄  ▄▄▄\n        █░6░██░6░██░6░█\n         ▀▀▀  ▀▀▀  ▀▀▀',
+      // Frame 5: Pulsing back
+      '         ▄▄▄  ▄▄▄  ▄▄▄\n        █▒6▒██▒6▒██▒6▒█\n         ▀▀▀  ▀▀▀  ▀▀▀',
+      // Frame 6: Back to glow
+      '         ▄▄▄  ▄▄▄  ▄▄▄\n        █▓6▓██▓6▓██▓6▓█\n         ▀▀▀  ▀▀▀  ▀▀▀',
+      // Frame 7: Normal
+      '         ▄▄▄  ▄▄▄  ▄▄▄\n        █ 6 ██ 6 ██ 6 █\n         ▀▀▀  ▀▀▀  ▀▀▀',
+      // Frame 8: Distorted
+      '         ▄▄▄  ▄▄▄  ▄▄▄\n        █ 6̴ ██ 6̴ ██ 6̴ █\n         ▀▀▀  ▀▀▀  ▀▀▀',
+      // Frame 9: More distorted
+      '         ▄▄▄  ▄▄▄  ▄▄▄\n        █ 6̷ ██ 6̷ ██ 6̷ █\n         ▀▀▀  ▀▀▀  ▀▀▀',
+      // Frame 10: Back to normal
+      '         ▄▄▄  ▄▄▄  ▄▄▄\n        █ 6 ██ 6 ██ 6 █\n         ▀▀▀  ▀▀▀  ▀▀▀'
+    ];
+
+    // Define animation for the pentagram borders
+    const pentagramFrames = [
+      '⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸',
+      '⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸',
+      '⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸',
+      '⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸',
+      '⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸⸸'
+    ];
+
+    // Define animation for the warning text
+    const warningFrames = [
+      '    ░▒▓█ YOU HAVE BEEN WARNED █▓▒░',
+      '    ▒▓█░ YOU HAVE BEEN WARNED ░█▓▒',
+      '    ▓█░▒ YOU HAVE BEEN WARNED ▒░█▓',
+      '    █░▒▓ YOU HAVE BEEN WARNED ▓▒░█',
+      '    ░▒▓█ YOU HAVE BEEN WARNED █▓▒░'
+    ];
+
     return {
       id: '666',
       title: 'The Cursed Page',
@@ -558,7 +770,34 @@ export class StaticAdapter implements ContentAdapter {
         source: 'StaticAdapter',
         lastUpdated: new Date().toISOString(),
         haunting: true, // Signal to frontend to apply maximum glitch effects
-        aiGenerated: useAI
+        maxVisualEffects: true, // Apply maximum visual effects regardless of user settings
+        aiGenerated: useAI,
+        specialPageAnimations: [
+          {
+            type: 'ascii-frames',
+            name: 'demonic-666-pulse',
+            targetRows: [1, 2, 3], // The 666 ASCII art
+            frames: demonicFrames,
+            duration: 3000, // 300ms per frame × 10 frames
+            loop: true
+          },
+          {
+            type: 'ascii-frames',
+            name: 'pentagram-pulse',
+            targetRows: [0, 4], // Top and bottom pentagram borders
+            frames: pentagramFrames,
+            duration: 1500, // 300ms per frame × 5 frames
+            loop: true
+          },
+          {
+            type: 'ascii-frames',
+            name: 'warning-shimmer',
+            targetRows: [13], // The warning text
+            frames: warningFrames,
+            duration: 1500, // 300ms per frame × 5 frames
+            loop: true
+          }
+        ]
       }
     };
   }

@@ -4,6 +4,8 @@ import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { TeletextPage, createOfflinePage } from '@/types/teletext';
 import { useRequestCancellation } from '@/hooks/useRequestCancellation';
 import { performanceMonitor } from '@/lib/performance-monitor';
+import { pageLayoutProcessor } from '@/lib/page-layout-processor';
+import { useTimestampUpdateCheck } from '@/hooks/useTimestampUpdates';
 
 interface PageRouterProps {
   initialPage?: TeletextPage;
@@ -27,6 +29,7 @@ export interface PageRouterState {
   isOnline: boolean;
   isCached: boolean;
   expectedInputLength: number; // 1, 2, or 3 digits expected
+  highlightBreadcrumb: boolean; // Visual feedback for back navigation
 }
 
 /**
@@ -50,6 +53,8 @@ export default function PageRouter({
   const [historyIndex, setHistoryIndex] = useState(initialPage ? 0 : -1);
   const [isCached, setIsCached] = useState(false);
   const [isOnline] = useState(true); // Always online now that caching is removed
+  const [breadcrumbs, setBreadcrumbs] = useState<string[]>(initialPage ? [initialPage.id] : []);
+  const [highlightBreadcrumb, setHighlightBreadcrumb] = useState(false);
   
   // Requirement: 15.5 - Request cancellation
   const { createCancellableRequest, clearRequest, isRequestActive } = useRequestCancellation();
@@ -68,6 +73,31 @@ export default function PageRouter({
     '',    // Not set
     ''     // Not set
   ]);
+
+  // Requirement: 18.4 - Update timestamps every minute without page refresh
+  // Get content type from current page
+  const contentType = currentPage?.meta?.source === 'NewsAdapter' ? 'NEWS' :
+                      currentPage?.meta?.source === 'SportsAdapter' ? 'SPORT' :
+                      currentPage?.meta?.source === 'MarketsAdapter' ? 'MARKETS' :
+                      currentPage?.meta?.source === 'WeatherAdapter' ? 'WEATHER' :
+                      undefined;
+  
+  const { shouldUpdate, currentTime } = useTimestampUpdateCheck(
+    currentPage?.meta?.lastUpdated,
+    contentType
+  );
+
+  // Re-process page when timestamp updates (every minute)
+  useEffect(() => {
+    if (shouldUpdate && currentPage && !loading) {
+      const processedPage = pageLayoutProcessor.processPage(currentPage, {
+        breadcrumbs: currentPage.id === '100' ? [] : breadcrumbs,
+        enableFullScreen: true,
+        contentAlignment: 'left'
+      });
+      setCurrentPage(processedPage);
+    }
+  }, [currentTime, shouldUpdate, currentPage?.id, breadcrumbs, loading]);
 
   /**
    * Validates page number is in valid range (100-899)
@@ -184,25 +214,43 @@ export default function PageRouter({
       performanceMonitor.recordPageLoad(pageId, loadTime, fromCache);
       
       if (page) {
-        setCurrentPage(page);
-        setIsCached(fromCache);
-        
-        // Update history - remove any forward history and add new page
+        // Update history and breadcrumbs
         // Requirement 33.2: Treat page 100 as home
+        // Requirement 16.1, 16.2, 16.3, 16.4, 16.5: Breadcrumb navigation
         const newHistory = history.slice(0, historyIndex + 1);
         
         // If navigating to page 100, clear history and start fresh
         if (pageId === '100') {
           setHistory(['100']);
           setHistoryIndex(0);
+          setBreadcrumbs([]);
         } else {
           newHistory.push(pageId);
           setHistory(newHistory);
           setHistoryIndex(newHistory.length - 1);
+          
+          // Update breadcrumbs to reflect the navigation trail
+          // Build breadcrumbs from history, excluding page 100 if it's the first page
+          const newBreadcrumbs = newHistory.filter(id => id !== '100' || newHistory.length === 1);
+          setBreadcrumbs(newBreadcrumbs);
         }
         
+        // Clear breadcrumb highlight
+        setHighlightBreadcrumb(false);
+        
+        // Process page with layout manager to apply full-screen layout
+        // Requirements: 1.1, 1.2, 1.3, 1.4, 8.1, 8.2, 8.3, 8.4, 11.1, 11.2, 11.3, 11.4
+        const processedPage = pageLayoutProcessor.processPage(page, {
+          breadcrumbs: pageId === '100' ? [] : breadcrumbs,
+          enableFullScreen: true,
+          contentAlignment: 'left'
+        });
+        
+        setCurrentPage(processedPage);
+        setIsCached(fromCache);
+        
         if (onPageChange) {
-          onPageChange(page);
+          onPageChange(processedPage);
         }
       } else {
         // No page available
@@ -223,7 +271,7 @@ export default function PageRouter({
       console.error('Navigation error:', error);
       setLoading(false);
     }
-  }, [history, historyIndex, onPageChange, createCancellableRequest, clearRequest, isRequestActive, fetchPage]);
+  }, [history, historyIndex, breadcrumbs, onPageChange, createCancellableRequest, clearRequest, isRequestActive, fetchPage]);
 
   /**
    * Handles digit press for page number input with variable length support
@@ -247,10 +295,19 @@ export default function PageRouter({
       // For single-digit input mode, check if it's a valid option and navigate immediately
       if (inputMode === 'single' && validOptions.includes(digitStr)) {
         // Navigate based on the option mapping
-        // The page should have links that correspond to these options
+        // The links array has color button links first (red, green, yellow, blue)
+        // followed by the numbered option links
+        // Count how many color button links have non-empty labels
+        const colorButtonCount = currentPage?.links?.filter(link => 
+          link.label && link.label.trim() !== ''
+        ).length || 0;
+        
+        // The option links start after the color button links
         const optionIndex = validOptions.indexOf(digitStr);
-        if (currentPage?.links && currentPage.links[optionIndex]) {
-          const targetPage = currentPage.links[optionIndex].targetPage;
+        const linkIndex = colorButtonCount + optionIndex;
+        
+        if (currentPage?.links && currentPage.links[linkIndex]) {
+          const targetPage = currentPage.links[linkIndex].targetPage;
           if (targetPage) {
             setTimeout(() => {
               navigateToPage(targetPage);
@@ -292,10 +349,14 @@ export default function PageRouter({
       case 'back':
         // Requirement 1.4: Navigate to previously viewed page
         // Requirement 33.3: When history is empty, navigate to page 100
+        // Requirement 16.4: Highlight breadcrumb on back button press
         if (historyIndex > 0) {
           const newIndex = historyIndex - 1;
           const pageId = history[newIndex];
           setHistoryIndex(newIndex);
+          
+          // Highlight breadcrumb briefly before navigation
+          setHighlightBreadcrumb(true);
           
           const abortController = createCancellableRequest(pageId);
           setLoading(true);
@@ -303,11 +364,26 @@ export default function PageRouter({
           
           fetchPage(pageId, abortController.signal).then(({ page, fromCache }) => {
             if (isRequestActive(pageId) && page) {
-              setCurrentPage(page);
+              // Update breadcrumbs for back navigation
+              // Build breadcrumbs from history up to the new index
+              const newBreadcrumbs = history.slice(0, newIndex + 1).filter(id => id !== '100' || history.slice(0, newIndex + 1).length === 1);
+              setBreadcrumbs(newBreadcrumbs);
+              
+              // Process page with layout manager
+              const processedPage = pageLayoutProcessor.processPage(page, {
+                breadcrumbs: pageId === '100' ? [] : newBreadcrumbs,
+                enableFullScreen: true,
+                contentAlignment: 'left'
+              });
+              
+              setCurrentPage(processedPage);
               setIsCached(fromCache);
               if (onPageChange) {
-                onPageChange(page);
+                onPageChange(processedPage);
               }
+              
+              // Clear highlight after navigation
+              setTimeout(() => setHighlightBreadcrumb(false), 300);
             }
             setLoading(false);
           }).catch(error => {
@@ -315,6 +391,7 @@ export default function PageRouter({
               console.error('Navigation error:', error);
             }
             setLoading(false);
+            setHighlightBreadcrumb(false);
           });
         } else if (currentPage && currentPage.id !== '100') {
           // At the beginning of history but not on page 100
@@ -336,10 +413,22 @@ export default function PageRouter({
           
           fetchPage(pageId, abortController.signal).then(({ page, fromCache }) => {
             if (isRequestActive(pageId) && page) {
-              setCurrentPage(page);
+              // Update breadcrumbs for forward navigation
+              // Build breadcrumbs from history up to the new index
+              const newBreadcrumbs = history.slice(0, newIndex + 1).filter(id => id !== '100' || history.slice(0, newIndex + 1).length === 1);
+              setBreadcrumbs(newBreadcrumbs);
+              
+              // Process page with layout manager
+              const processedPage = pageLayoutProcessor.processPage(page, {
+                breadcrumbs: pageId === '100' ? [] : newBreadcrumbs,
+                enableFullScreen: true,
+                contentAlignment: 'left'
+              });
+              
+              setCurrentPage(processedPage);
               setIsCached(fromCache);
               if (onPageChange) {
-                onPageChange(page);
+                onPageChange(processedPage);
               }
             }
             setLoading(false);
@@ -370,7 +459,7 @@ export default function PageRouter({
         // No fallback - down arrow only works for multi-page navigation
         break;
     }
-  }, [currentPage, history, historyIndex, navigateToPage, onPageChange, createCancellableRequest, isRequestActive, fetchPage]);
+  }, [currentPage, history, historyIndex, breadcrumbs, navigateToPage, onPageChange, createCancellableRequest, isRequestActive, fetchPage]);
 
   /**
    * Handles colored Fastext button navigation
@@ -424,7 +513,8 @@ export default function PageRouter({
         canGoForward,
         isOnline,
         isCached,
-        expectedInputLength
+        expectedInputLength,
+        highlightBreadcrumb
       })}
     </>
   );

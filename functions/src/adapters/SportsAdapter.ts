@@ -4,6 +4,22 @@
 import axios from 'axios';
 import { ContentAdapter, TeletextPage } from '../types';
 import { getApiKey } from '../utils/config';
+import {
+  getMatchStatusInfo,
+  formatScoreLine,
+  createLiveIndicator,
+  getLiveIndicatorClass,
+  getScoreFlashClass,
+  getFullTimeAnimationClass,
+  ScoreChangeTracker
+} from '../../../lib/sports-live-indicators';
+import {
+  applyAdapterLayout,
+  createSimpleHeader,
+  createSeparator,
+  truncateText,
+  padRows
+} from '../utils/adapter-layout-helper';
 
 /**
  * SportsAdapter serves sports pages (300-399)
@@ -12,10 +28,12 @@ import { getApiKey } from '../utils/config';
 export class SportsAdapter implements ContentAdapter {
   private apiKey: string;
   private baseUrl: string = 'https://v3.football.api-sports.io';
+  private scoreTracker: ScoreChangeTracker;
 
   constructor() {
     // Get API key from environment variable or Firebase config
     this.apiKey = getApiKey('SPORTS_API_KEY', 'sports.api_key');
+    this.scoreTracker = new ScoreChangeTracker();
   }
 
   /**
@@ -48,18 +66,19 @@ export class SportsAdapter implements ContentAdapter {
 
   /**
    * Creates the sports index page (300)
+   * Uses layout manager for full-screen utilization
    */
   private getSportsIndex(): TeletextPage {
-    const rows = [
-      'SPORT INDEX                  P300',
-      '════════════════════════════════════',
+    const contentRows = [
+      createSimpleHeader('SPORT INDEX', '300'),
+      createSeparator(),
       '',
       'LIVE COVERAGE',
-      '301 Live Scores',
-      '302 League Tables',
+      '301 ⚽ Live Scores',
+      '302 📊 League Tables',
       '',
       'MY TEAMS',
-      '310 Configure Watchlist',
+      '310 ⚙️  Configure Watchlist',
       '311 Team 1 (Not configured)',
       '312 Team 2 (Not configured)',
       '313 Team 3 (Not configured)',
@@ -71,15 +90,14 @@ export class SportsAdapter implements ContentAdapter {
       '',
       '',
       '',
-      '',
-      'INDEX   LIVE    TABLES  CONFIG',
-      ''
+      createSeparator('─'),
+      'INDEX   LIVE    TABLES  CONFIG'
     ];
 
-    return {
-      id: '300',
+    return applyAdapterLayout({
+      pageId: '300',
       title: 'Sport Index',
-      rows: this.padRows(rows),
+      contentRows,
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'LIVE', targetPage: '301', color: 'green' },
@@ -89,8 +107,9 @@ export class SportsAdapter implements ContentAdapter {
       meta: {
         source: 'SportsAdapter',
         lastUpdated: new Date().toISOString(),
+        contentType: 'SPORT'
       }
-    };
+    });
   }
 
   /**
@@ -151,7 +170,7 @@ export class SportsAdapter implements ContentAdapter {
     return {
       id: '310',
       title: 'Team Watchlist Config',
-      rows: this.padRows(rows),
+      rows: padRows(rows),
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'SPORT', targetPage: '300', color: 'green' }
@@ -200,7 +219,7 @@ export class SportsAdapter implements ContentAdapter {
     return {
       id: pageNumber.toString(),
       title: `Team ${teamSlot}`,
-      rows: this.padRows(rows),
+      rows: padRows(rows),
       links: [
         { label: 'INDEX', targetPage: '300', color: 'red' },
         { label: 'CONFIG', targetPage: '310', color: 'green' }
@@ -271,7 +290,9 @@ export class SportsAdapter implements ContentAdapter {
   }
 
   /**
-   * Formats live scores into a teletext page
+   * Formats live scores into a teletext page with animations
+   * Requirements: 22.1, 22.2, 22.3, 22.4, 22.5
+   * Uses layout manager with live indicators
    */
   private formatLiveScoresPage(fixtures: any[]): TeletextPage {
     const now = new Date();
@@ -280,38 +301,106 @@ export class SportsAdapter implements ContentAdapter {
       minute: '2-digit'
     });
 
-    const rows = [
-      `LIVE SCORES                  P301`,
-      '════════════════════════════════════',
+    const contentRows = [
+      createSimpleHeader('LIVE SCORES', '301'),
+      createSeparator(),
       `Updated: ${timeStr}`,
       ''
     ];
 
+    // Track if we have any live matches for the indicator
+    const hasLiveMatches = fixtures.some(f => {
+      const statusInfo = getMatchStatusInfo(
+        f.fixture?.status?.short || '',
+        f.fixture?.status?.elapsed
+      );
+      return statusInfo.isLive;
+    });
+
     if (fixtures.length === 0) {
-      rows.push('');
-      rows.push('No live matches at this time.');
-      rows.push('');
-      rows.push('Check back later for live scores.');
+      contentRows.push('');
+      contentRows.push('No live matches at this time.');
+      contentRows.push('');
+      contentRows.push('Check back later for live scores.');
     } else {
-      // Display up to 8 fixtures
-      fixtures.slice(0, 8).forEach((fixture) => {
-        const homeTeam = this.truncateTeamName(fixture.teams?.home?.name || 'HOME', 12);
-        const awayTeam = this.truncateTeamName(fixture.teams?.away?.name || 'AWAY', 12);
+      // Add live indicator if there are live matches
+      // Requirements: 22.1 - Pulsing LIVE indicator
+      if (hasLiveMatches) {
+        contentRows.push(createLiveIndicator() + ' MATCHES IN PROGRESS');
+        contentRows.push('');
+      }
+
+      // Display up to 8 fixtures with enhanced formatting
+      fixtures.slice(0, 8).forEach((fixture, index) => {
+        const homeTeam = fixture.teams?.home?.name || 'HOME';
+        const awayTeam = fixture.teams?.away?.name || 'AWAY';
         const homeScore = fixture.goals?.home ?? 0;
         const awayScore = fixture.goals?.away ?? 0;
-        const status = this.getMatchStatus(fixture);
+        const statusShort = fixture.fixture?.status?.short || '';
+        const elapsed = fixture.fixture?.status?.elapsed;
         
-        // Format: "MAN UTD  2 - 1  CHELSEA        87'"
-        const scoreLine = `${homeTeam.padEnd(9)} ${homeScore} - ${awayScore}  ${awayTeam.padEnd(12)} ${status}`;
-        rows.push(this.truncateText(scoreLine, 40));
-        rows.push('');
+        // Get match status info with color coding
+        // Requirements: 22.4 - Color coding for match status
+        const statusInfo = getMatchStatusInfo(statusShort, elapsed);
+        
+        // Check for score changes (for animation tracking)
+        // Requirements: 22.2 - Score change flash animation
+        const matchId = fixture.fixture?.id?.toString() || `match-${index}`;
+        const scoreChange = this.scoreTracker.checkScoreChange(matchId, homeScore, awayScore);
+        
+        // Format score line with proper spacing and status
+        // Requirements: 22.3 - Animated time indicators
+        const scoreLine = formatScoreLine(
+          homeTeam,
+          awayTeam,
+          homeScore,
+          awayScore,
+          statusInfo,
+          {
+            homeTeamWidth: 12,
+            awayTeamWidth: 12,
+            includeTimeIndicator: true
+          }
+        );
+        
+        // Add status indicator prefix for live/finished matches
+        let prefix = '';
+        if (statusInfo.isLive) {
+          prefix = '● '; // Live indicator
+        } else if (statusInfo.status === 'FT') {
+          prefix = '✓ '; // Finished indicator
+        } else if (statusInfo.status === 'HT') {
+          prefix = '◐ '; // Half-time indicator
+        }
+        
+        contentRows.push(prefix + scoreLine);
+        
+        // Add metadata for animations (stored in page meta)
+        if (scoreChange) {
+          contentRows.push(`[SCORE_FLASH:${matchId}]`);
+        }
+        if (statusInfo.isLive) {
+          contentRows.push(`[LIVE_PULSE:${matchId}]`);
+        }
+        if (statusInfo.status === 'FT' && elapsed && elapsed >= 90) {
+          contentRows.push(`[FULL_TIME:${matchId}]`);
+        }
+        
+        contentRows.push('');
       });
     }
 
-    return {
-      id: '301',
+    // Add footer
+    while (contentRows.length < 22) {
+      contentRows.push('');
+    }
+    contentRows.push(createSeparator('─'));
+    contentRows.push('INDEX   TABLES  REFRESH BACK');
+
+    return applyAdapterLayout({
+      pageId: '301',
       title: 'Live Scores',
-      rows: this.padRows(rows),
+      contentRows,
       links: [
         { label: 'INDEX', targetPage: '300', color: 'red' },
         { label: 'TABLES', targetPage: '302', color: 'green' },
@@ -321,8 +410,16 @@ export class SportsAdapter implements ContentAdapter {
       meta: {
         source: 'SportsAdapter',
         lastUpdated: new Date().toISOString(),
-      }
-    };
+        contentType: 'SPORT',
+        hasLiveMatches,
+        animationClasses: {
+          liveIndicator: getLiveIndicatorClass(),
+          scoreFlash: getScoreFlashClass(),
+          fullTime: getFullTimeAnimationClass()
+        }
+      },
+      showTimestamp: true
+    });
   }
 
   /**
@@ -357,14 +454,14 @@ export class SportsAdapter implements ContentAdapter {
         const points = team.points?.toString().padStart(3, ' ') || '---';
         
         const line = `${pos}  ${name.padEnd(14)} ${played} ${wins} ${draws} ${losses} ${points}`;
-        rows.push(this.truncateText(line, 40));
+        rows.push(truncateText(line, 40));
       });
     }
 
     return {
       id: '302',
       title: 'League Tables',
-      rows: this.padRows(rows),
+      rows: padRows(rows),
       links: [
         { label: 'INDEX', targetPage: '300', color: 'red' },
         { label: 'LIVE', targetPage: '301', color: 'green' },
@@ -379,25 +476,8 @@ export class SportsAdapter implements ContentAdapter {
   }
 
   /**
-   * Gets match status string (e.g., "FT", "87'", "HT")
-   */
-  private getMatchStatus(fixture: any): string {
-    const status = fixture.fixture?.status?.short || '';
-    const elapsed = fixture.fixture?.status?.elapsed;
-    
-    if (status === 'FT') return 'FT';
-    if (status === 'HT') return 'HT';
-    if (status === '1H' || status === '2H') {
-      return elapsed ? `${elapsed}'` : 'LIVE';
-    }
-    if (status === 'NS') return 'NS';
-    if (status === 'PST') return 'PST';
-    
-    return status || '';
-  }
-
-  /**
    * Truncates team name to fit within character limit
+   * @deprecated Use truncateTeamName from sports-live-indicators instead
    */
   private truncateTeamName(name: string, maxLength: number): string {
     if (!name || name.length <= maxLength) {
@@ -536,7 +616,7 @@ export class SportsAdapter implements ContentAdapter {
    */
   private getErrorPage(pageId: string, title: string, error: any): TeletextPage {
     const rows = [
-      `${this.truncateText(title.toUpperCase(), 28).padEnd(28, ' ')} P${pageId}`,
+      `${truncateText(title.toUpperCase(), 28).padEnd(28, ' ')} P${pageId}`,
       '════════════════════════════════════',
       '',
       'SERVICE UNAVAILABLE',
@@ -565,7 +645,7 @@ export class SportsAdapter implements ContentAdapter {
     return {
       id: pageId,
       title: title,
-      rows: this.padRows(rows),
+      rows: padRows(rows),
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'SPORT', targetPage: '300', color: 'green' }
@@ -610,7 +690,7 @@ export class SportsAdapter implements ContentAdapter {
     return {
       id: pageId,
       title: `Sport Page ${pageId}`,
-      rows: this.padRows(rows),
+      rows: padRows(rows),
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'SPORT', targetPage: '300', color: 'green' }
@@ -622,31 +702,4 @@ export class SportsAdapter implements ContentAdapter {
     };
   }
 
-  /**
-   * Truncates text to specified length with ellipsis
-   */
-  private truncateText(text: string, maxLength: number): string {
-    if (!text || text.length <= maxLength) {
-      return text || '';
-    }
-    return text.slice(0, maxLength - 3) + '...';
-  }
-
-  /**
-   * Pads rows array to exactly 24 rows, each max 40 characters
-   */
-  private padRows(rows: string[]): string[] {
-    const paddedRows = rows.map(row => {
-      if (row.length > 40) {
-        return row.substring(0, 40);
-      }
-      return row.padEnd(40, ' ');
-    });
-
-    while (paddedRows.length < 24) {
-      paddedRows.push(''.padEnd(40, ' '));
-    }
-
-    return paddedRows.slice(0, 24);
-  }
 }

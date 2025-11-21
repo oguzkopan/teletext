@@ -710,3 +710,51 @@ export function splitAIResponse(
     { ...meta, aiGenerated: true }
   );
 }
+
+/**
+ * Gets the emoji for a colored button.
+ * 
+ * @param color - Button color ('red', 'green', 'yellow', 'blue')
+ * @returns Color emoji
+ * 
+ * Requirements: 8.2, 26.1, 26.2, 26.3, 26.4, 26.5
+ */
+export function getColorEmoji(color: string): string {
+  const colorMap: Record<string, string> = {
+    red: '🔴',
+    green: '🟢',
+    yellow: '🟡',
+    blue: '🔵'
+  };
+
+  return colorMap[color.toLowerCase()] || '';
+}
+
+/**
+ * Formats colored button indicators for footer display.
+ * 
+ * @param buttons - Array of colored button configurations
+ * @param maxWidth - Maximum width for the indicator line (default: 40)
+ * @returns Formatted colored button indicator string
+ * 
+ * Requirements: 8.2, 26.1, 26.2, 26.3, 26.4, 26.5
+ */
+export function formatColoredButtonIndicators(
+  buttons: Array<{ color: string; label: string; page?: string }>,
+  maxWidth: number = 40
+): string {
+  if (!buttons || buttons.length === 0) {
+    return '';
+  }
+
+  // Create button indicators with emojis and labels
+  const buttonIndicators = buttons.map(btn => {
+    const colorEmoji = getColorEmoji(btn.color);
+    // Truncate label if too long (max 8 chars per button to fit 4 buttons)
+    const label = truncateText(btn.label.toUpperCase(), 8, false);
+    return `${colorEmoji}${label}`;
+  }).join(' ');
+
+  // Truncate if necessary
+  return truncateText(buttonIndicators, maxWidth, false);
+}

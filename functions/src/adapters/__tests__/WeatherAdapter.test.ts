@@ -36,7 +36,8 @@ describe('WeatherAdapter', () => {
       
       const content = page.rows.join('\n');
       expect(content).toContain('CURRENT CONDITIONS');
-      expect(content).toContain('Temperature:');
+      // New format includes weather icons and temperature with symbols
+      expect(content).toMatch(/\d+°C/); // Temperature in Celsius
       expect(content).toContain('Humidity:');
       expect(content).toContain('Wind:');
     });
@@ -94,8 +95,8 @@ describe('WeatherAdapter', () => {
       const page = await adapter.getPage('421');
       const content = page.rows.join('\n');
       
-      // Should contain temperature in Celsius
-      expect(content).toMatch(/Temperature:\s+\d+°C/);
+      // Should contain temperature in Celsius with weather symbols
+      expect(content).toMatch(/\d+°C\s+[❄☀🔥]/);
     });
 
     it('should format wind speed correctly', async () => {

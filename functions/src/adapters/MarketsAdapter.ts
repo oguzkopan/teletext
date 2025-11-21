@@ -4,6 +4,17 @@
 import axios from 'axios';
 import { ContentAdapter, TeletextPage } from '../types';
 import { getApiKey } from '../utils/config';
+import {
+  applyAdapterLayout,
+  createSimpleHeader,
+  createSeparator,
+  truncateText,
+  padRows
+} from '../utils/adapter-layout-helper';
+import {
+  getTrendArrowFromChange,
+  formatTrendChange
+} from '../../../lib/market-trend-indicators';
 
 /**
  * MarketsAdapter serves market pages (400-499)
@@ -48,20 +59,21 @@ export class MarketsAdapter implements ContentAdapter {
 
   /**
    * Creates the markets index page (400)
+   * Uses layout manager for full-screen utilization
    */
   private getMarketsIndex(): TeletextPage {
-    const rows = [
-      'MARKETS INDEX                P400',
-      '════════════════════════════════════',
+    const contentRows = [
+      createSimpleHeader('MARKETS INDEX', '400'),
+      createSeparator(),
       '',
       'FINANCIAL MARKETS',
-      '401 Cryptocurrency Prices',
-      '402 Stock Market Data',
-      '410 Foreign Exchange Rates',
+      '401 💰 Cryptocurrency Prices',
+      '402 📊 Stock Market Data',
+      '410 💱 Foreign Exchange Rates',
       '',
       'COMING SOON',
-      '420 Commodities',
-      '430 Indices',
+      '420 🥇 Commodities',
+      '430 📈 Indices',
       '',
       '',
       '',
@@ -71,15 +83,14 @@ export class MarketsAdapter implements ContentAdapter {
       '',
       '',
       '',
-      '',
-      'INDEX   CRYPTO  STOCKS  FOREX',
-      ''
+      createSeparator('─'),
+      'INDEX   CRYPTO  STOCKS  FOREX'
     ];
 
-    return {
-      id: '400',
+    return applyAdapterLayout({
+      pageId: '400',
       title: 'Markets Index',
-      rows: this.padRows(rows),
+      contentRows,
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'CRYPTO', targetPage: '401', color: 'green' },
@@ -89,8 +100,9 @@ export class MarketsAdapter implements ContentAdapter {
       meta: {
         source: 'MarketsAdapter',
         lastUpdated: new Date().toISOString(),
+        contentType: 'MARKETS'
       }
-    };
+    });
   }
 
   /**
@@ -223,6 +235,7 @@ export class MarketsAdapter implements ContentAdapter {
 
   /**
    * Formats cryptocurrency prices into a teletext page
+   * Requirements: 23.1, 23.2, 23.3 - Trend indicators with color coding
    */
   private formatCryptoPricesPage(cryptoData: any[]): TeletextPage {
     const now = new Date();
@@ -231,42 +244,49 @@ export class MarketsAdapter implements ContentAdapter {
       minute: '2-digit'
     });
 
-    const rows = [
-      'CRYPTOCURRENCY PRICES        P401',
-      '════════════════════════════════════',
+    const contentRows = [
+      createSimpleHeader('CRYPTOCURRENCY PRICES', '401'),
+      createSeparator(),
       `Updated: ${timeStr}`,
       '',
       'COIN         PRICE       24H CHANGE',
-      '────────────────────────────────────'
+      createSeparator('─')
     ];
 
     if (cryptoData.length === 0) {
-      rows.push('');
-      rows.push('No cryptocurrency data available.');
-      rows.push('');
-      rows.push('Please try again later.');
+      contentRows.push('');
+      contentRows.push('No cryptocurrency data available.');
+      contentRows.push('');
+      contentRows.push('Please try again later.');
     } else {
       cryptoData.slice(0, 10).forEach((coin) => {
-        const symbol = this.truncateText(coin.symbol?.toUpperCase() || '???', 6);
+        const symbol = truncateText(coin.symbol?.toUpperCase() || '???', 6);
         const price = this.formatPrice(coin.current_price);
         const change = coin.price_change_percentage_24h || 0;
-        const changeStr = this.formatPercentage(change);
         
-        // Format: "BTC      $45,123.45    +2.34%"
-        const line = `${symbol.padEnd(8)} ${price.padStart(12)} ${changeStr.padStart(10)}`;
-        rows.push(this.truncateText(line, 40));
+        // Requirements: 23.1 - Trend arrows (▲ up, ▼ down, ► stable)
+        const trendArrow = getTrendArrowFromChange(change);
+        
+        // Requirements: 23.2, 23.3 - Color coding for price changes
+        const changeStr = formatTrendChange(change);
+        
+        // Format: "BTC      $45,123.45  ▲ +2.34%"
+        const line = `${symbol.padEnd(8)} ${price.padStart(12)} ${trendArrow} ${changeStr}`;
+        contentRows.push(line.substring(0, 40));
       });
     }
 
     // Add remaining empty rows
-    while (rows.length < 22) {
-      rows.push('');
+    while (contentRows.length < 22) {
+      contentRows.push('');
     }
+    contentRows.push(createSeparator('─'));
+    contentRows.push('INDEX   STOCKS  FOREX   BACK');
 
-    return {
-      id: '401',
+    return applyAdapterLayout({
+      pageId: '401',
       title: 'Cryptocurrency Prices',
-      rows: this.padRows(rows),
+      contentRows,
       links: [
         { label: 'INDEX', targetPage: '400', color: 'red' },
         { label: 'STOCKS', targetPage: '402', color: 'green' },
@@ -276,8 +296,11 @@ export class MarketsAdapter implements ContentAdapter {
       meta: {
         source: 'MarketsAdapter',
         lastUpdated: new Date().toISOString(),
-      }
-    };
+        contentType: 'MARKETS',
+        cacheStatus: 'cached'
+      },
+      showTimestamp: true
+    });
   }
 
   /**
@@ -306,17 +329,17 @@ export class MarketsAdapter implements ContentAdapter {
       rows.push('Please try again later.');
     } else {
       stockData.forEach((stock) => {
-        const symbol = this.truncateText(stock.symbol, 8);
+        const symbol = truncateText(stock.symbol, 8);
         const price = this.formatPrice(stock.price);
         const change = stock.change || 0;
         const changeStr = this.formatPercentage(change);
         
         // Format: "AAPL     $175.43      +1.23%"
         const line = `${symbol.padEnd(10)} ${price.padStart(10)} ${changeStr.padStart(10)}`;
-        rows.push(this.truncateText(line, 40));
+        rows.push(truncateText(line, 40));
         
         // Add company name on next line
-        const name = this.truncateText(stock.name, 40);
+        const name = truncateText(stock.name, 40);
         rows.push(name);
       });
     }
@@ -324,7 +347,7 @@ export class MarketsAdapter implements ContentAdapter {
     return {
       id: '402',
       title: 'Stock Market Data',
-      rows: this.padRows(rows),
+      rows: padRows(rows),
       links: [
         { label: 'INDEX', targetPage: '400', color: 'red' },
         { label: 'CRYPTO', targetPage: '401', color: 'green' },
@@ -370,14 +393,14 @@ export class MarketsAdapter implements ContentAdapter {
         
         // Format: "BTC/USD           45,123.45"
         const line = `${pair.padEnd(18)} ${rate.padStart(12)}`;
-        rows.push(this.truncateText(line, 40));
+        rows.push(truncateText(line, 40));
       });
     }
 
     return {
       id: '410',
       title: 'Foreign Exchange Rates',
-      rows: this.padRows(rows),
+      rows: padRows(rows),
       links: [
         { label: 'INDEX', targetPage: '400', color: 'red' },
         { label: 'CRYPTO', targetPage: '401', color: 'green' },
@@ -566,7 +589,7 @@ export class MarketsAdapter implements ContentAdapter {
    */
   private getErrorPage(pageId: string, title: string, error: any): TeletextPage {
     const rows = [
-      `${this.truncateText(title.toUpperCase(), 28).padEnd(28, ' ')} P${pageId}`,
+      `${truncateText(title.toUpperCase(), 28).padEnd(28, ' ')} P${pageId}`,
       '════════════════════════════════════',
       '',
       'SERVICE UNAVAILABLE',
@@ -595,7 +618,7 @@ export class MarketsAdapter implements ContentAdapter {
     return {
       id: pageId,
       title: title,
-      rows: this.padRows(rows),
+      rows: padRows(rows),
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'MARKETS', targetPage: '400', color: 'green' }
@@ -640,7 +663,7 @@ export class MarketsAdapter implements ContentAdapter {
     return {
       id: pageId,
       title: `Markets Page ${pageId}`,
-      rows: this.padRows(rows),
+      rows: padRows(rows),
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'MARKETS', targetPage: '400', color: 'green' }
@@ -652,31 +675,4 @@ export class MarketsAdapter implements ContentAdapter {
     };
   }
 
-  /**
-   * Truncates text to specified length with ellipsis
-   */
-  private truncateText(text: string, maxLength: number): string {
-    if (!text || text.length <= maxLength) {
-      return text || '';
-    }
-    return text.slice(0, maxLength - 3) + '...';
-  }
-
-  /**
-   * Pads rows array to exactly 24 rows, each max 40 characters
-   */
-  private padRows(rows: string[]): string[] {
-    const paddedRows = rows.map(row => {
-      if (row.length > 40) {
-        return row.substring(0, 40);
-      }
-      return row.padEnd(40, ' ');
-    });
-
-    while (paddedRows.length < 24) {
-      paddedRows.push(''.padEnd(40, ' '));
-    }
-
-    return paddedRows.slice(0, 24);
-  }
 }

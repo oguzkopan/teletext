@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Theme Transition Demo - Modern Teletext</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Courier New', monospace;
+      background: #000;
+      color: #0f0;
+      padding: 2rem;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+    }
+
+    .demo-section {
+      background: rgba(0, 255, 0, 0.1);
+      border: 2px solid #0f0;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .demo-section h2 {
+      margin-bottom: 1rem;
+      color: #ff0;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    button {
+      font-family: 'Courier New', monospace;
+      font-size: 1rem;
+      padding: 0.75rem 1.5rem;
+      border: 2px solid currentColor;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      transition: all 0.2s;
+    }
+
+    button:hover:not(:disabled) {
+      background: currentColor;
+      color: #000;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .theme-ceefax {
+      background: #0000AA;
+      color: #FFFF00;
+    }
+
+    .theme-haunting {
+      background: #000000;
+      color: #00FF00;
+    }
+
+    .theme-orf {
+      background: #000000;
+      color: #00FF00;
+    }
+
+    .theme-highcontrast {
+      background: #000000;
+      color: #FFFFFF;
+    }
+
+    .preview-box {
+      min-height: 300px;
+      border: 2px solid currentColor;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .status {
+      margin-top: 1rem;
+      padding: 1rem;
+      border: 1px solid currentColor;
+      font-size: 0.9rem;
+    }
+
+    /* Theme Transition Animations */
+    @keyframes theme-fade-out {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes theme-fade-in {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    .theme-transition-fade-out {
+      animation: theme-fade-out 500ms ease-out forwards;
+    }
+
+    .theme-transition-fade-in {
+      animation: theme-fade-in 500ms ease-in forwards;
+    }
+
+    @keyframes haunting-theme-transition {
+      0% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+        filter: none;
+      }
+      10% {
+        opacity: 0.9;
+        transform: translateX(-10px) scale(1.02);
+        filter: hue-rotate(90deg) brightness(1.2);
+      }
+      20% {
+        opacity: 0.7;
+        transform: translateX(10px) scale(0.98);
+        filter: hue-rotate(-90deg) brightness(0.8);
+      }
+      30% {
+        opacity: 0.5;
+        transform: translateX(-5px) scale(1.01);
+        filter: hue-rotate(45deg) brightness(1.5);
+      }
+      40% {
+        opacity: 0.3;
+        transform: translateX(5px) scale(0.99);
+        filter: hue-rotate(-45deg) brightness(0.6);
+      }
+      50% {
+        opacity: 0;
+        transform: translateX(0) scale(1.05);
+        filter: hue-rotate(180deg) brightness(2);
+      }
+      60% {
+        opacity: 0.3;
+        transform: translateX(-5px) scale(0.95);
+        filter: hue-rotate(-180deg) brightness(0.5);
+      }
+      70% {
+        opacity: 0.5;
+        transform: translateX(5px) scale(1.02);
+        filter: hue-rotate(90deg) brightness(1.3);
+      }
+      80% {
+        opacity: 0.7;
+        transform: translateX(-3px) scale(0.98);
+        filter: hue-rotate(-90deg) brightness(0.9);
+      }
+      90% {
+        opacity: 0.9;
+        transform: translateX(3px) scale(1.01);
+        filter: hue-rotate(45deg) brightness(1.1);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+        filter: none;
+      }
+    }
+
+    .haunting-theme-transition {
+      animation: haunting-theme-transition 1000ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+
+    @keyframes theme-banner-slide-in {
+      0% {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+      20% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      80% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+    }
+
+    .theme-banner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 9999;
+      background: rgba(0, 0, 0, 0.9);
+      color: #00ff00;
+      text-align: center;
+      padding: 1rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      border-bottom: 2px solid currentColor;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      animation: theme-banner-slide-in 2000ms ease-in-out forwards;
+    }
+
+    .theme-banner.haunting {
+      color: #ff0000;
+      text-shadow: 
+        0 0 10px rgba(255, 0, 0, 0.8),
+        0 0 20px rgba(255, 0, 0, 0.6),
+        0 0 30px rgba(255, 0, 0, 0.4);
+      border-bottom-color: #ff0000;
+    }
+
+    .theme-banner.ceefax {
+      color: #ffff00;
+      background: rgba(0, 0, 170, 0.95);
+      border-bottom-color: #ffff00;
+    }
+
+    .theme-banner.orf {
+      color: #00ff00;
+      background: rgba(0, 0, 0, 0.95);
+      border-bottom-color: #00ff00;
+    }
+
+    .theme-banner.highcontrast {
+      color: #ffffff;
+      background: rgba(0, 0, 0, 1);
+      border-bottom-color: #ffffff;
+    }
+
+    .transition-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 9998;
+      pointer-events: none;
+      background: rgba(0, 0, 0, 0.8);
+    }
+
+    .code-block {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid currentColor;
+      padding: 1rem;
+      margin: 1rem 0;
+      overflow-x: auto;
+      font-size: 0.9rem;
+    }
+
+    .info-box {
+      background: rgba(255, 255, 0, 0.1);
+      border: 1px solid #ff0;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎃 Theme Transition Demo 🎃</h1>
+
+    <div class="demo-section">
+      <h2>Interactive Demo</h2>
+      <p>Click the buttons below to see theme transitions in action:</p>
+      
+      <div class="button-group" style="margin-top: 1rem;">
+        <button onclick="switchTheme('ceefax')" id="btn-ceefax">Ceefax</button>
+        <button onclick="switchTheme('haunting')" id="btn-haunting">Haunting Mode</button>
+        <button onclick="switchTheme('orf')" id="btn-orf">ORF</button>
+        <button onclick="switchTheme('highcontrast')" id="btn-highcontrast">High Contrast</button>
+      </div>
+
+      <div class="preview-box" id="preview">
+        <h3>Current Theme: <span id="current-theme">Ceefax</span></h3>
+        <p style="margin-top: 1rem;">
+          This is a preview of the theme transition system. When you click a theme button:
+        </p>
+        <ol style="margin-left: 2rem; margin-top: 0.5rem;">
+          <li>The current theme fades out (500ms or 1000ms for Haunting)</li>
+          <li>The theme switches instantly</li>
+          <li>The new theme fades in</li>
+          <li>A banner displays the theme name for 2 seconds</li>
+        </ol>
+      </div>
+
+      <div class="status" id="status">
+        Status: Ready
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Features</h2>
+      <div class="info-box">
+        <h3>✓ Smooth Transitions (500-1000ms)</h3>
+        <p>Standard themes use 500ms, Haunting Mode uses 1000ms for dramatic effect</p>
+      </div>
+      <div class="info-box">
+        <h3>✓ Color Fade Effects</h3>
+        <p>Fade-out and fade-in animations during theme changes</p>
+      </div>
+      <div class="info-box">
+        <h3>✓ Theme Name Banner</h3>
+        <p>Displays theme name during transition (e.g., "HAUNTING MODE ACTIVATED")</p>
+      </div>
+      <div class="info-box">
+        <h3>✓ Special Horror Transition</h3>
+        <p>Glitch effects with chromatic aberration for Haunting Mode</p>
+      </div>
+      <div class="info-box">
+        <h3>✓ Automatic Persistence</h3>
+        <p>Theme preference saved immediately after transition completes</p>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Usage Example</h2>
+      <div class="code-block">
+<pre>import { useTheme } from '@/lib/theme-context';
+
+function ThemeSelector() {
+  const { setTheme, isTransitioning } = useTheme();
+
+  return (
+    &lt;button 
+      onClick={() => setTheme('haunting')}
+      disabled={isTransitioning}
+    &gt;
+      Switch to Haunting Mode
+    &lt;/button&gt;
+  );
+}</pre>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Transition Phases</h2>
+      <ol style="margin-left: 2rem;">
+        <li><strong>Fade-Out</strong> (250-500ms) - Current theme fades out</li>
+        <li><strong>Switching</strong> (instant) - Theme state updated, Firestore save initiated</li>
+        <li><strong>Fade-In</strong> (250-500ms) - New theme fades in</li>
+        <li><strong>Banner</strong> (2 seconds) - Theme name banner slides in and out</li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    let currentTheme = 'ceefax';
+    let isTransitioning = false;
+
+    const themes = {
+      ceefax: {
+        name: 'Ceefax',
+        duration: 500,
+        banner: 'CEEFAX MODE ACTIVATED',
+        class: 'theme-ceefax'
+      },
+      haunting: {
+        name: 'Haunting Mode',
+        duration: 1000,
+        banner: '🎃 HAUNTING MODE ACTIVATED 🎃',
+        class: 'theme-haunting'
+      },
+      orf: {
+        name: 'ORF',
+        duration: 500,
+        banner: 'ORF MODE ACTIVATED',
+        class: 'theme-orf'
+      },
+      highcontrast: {
+        name: 'High Contrast',
+        duration: 500,
+        banner: 'HIGH CONTRAST MODE ACTIVATED',
+        class: 'theme-highcontrast'
+      }
+    };
+
+    function updateStatus(message) {
+      document.getElementById('status').textContent = `Status: ${message}`;
+    }
+
+    function disableButtons(disabled) {
+      const buttons = document.querySelectorAll('button');
+      buttons.forEach(btn => btn.disabled = disabled);
+    }
+
+    async function switchTheme(themeKey) {
+      if (isTransitioning || themeKey === currentTheme) return;
+
+      isTransitioning = true;
+      disableButtons(true);
+
+      const theme = themes[themeKey];
+      const preview = document.getElementById('preview');
+      const body = document.body;
+
+      updateStatus(`Transitioning to ${theme.name}...`);
+
+      // Phase 1: Fade out
+      const overlay = document.createElement('div');
+      overlay.className = 'transition-overlay';
+      overlay.classList.add(
+        themeKey === 'haunting' 
+          ? 'haunting-theme-transition' 
+          : 'theme-transition-fade-out'
+      );
+      document.body.appendChild(overlay);
+
+      await new Promise(resolve => setTimeout(resolve, theme.duration / 2));
+
+      // Phase 2: Switch theme
+      body.className = theme.class;
+      preview.className = `preview-box ${theme.class}`;
+      document.getElementById('current-theme').textContent = theme.name;
+      currentTheme = themeKey;
+
+      updateStatus(`Switched to ${theme.name}`);
+
+      // Phase 3: Fade in
+      overlay.classList.remove('theme-transition-fade-out', 'haunting-theme-transition');
+      overlay.classList.add('theme-transition-fade-in');
+
+      await new Promise(resolve => setTimeout(resolve, theme.duration / 2));
+
+      // Remove overlay
+      overlay.remove();
+
+      // Phase 4: Show banner
+      const banner = document.createElement('div');
+      banner.className = `theme-banner ${themeKey}`;
+      banner.textContent = theme.banner;
+      document.body.appendChild(banner);
+
+      updateStatus(`Displaying banner: ${theme.banner}`);
+
+      // Remove banner after animation
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      banner.remove();
+
+      // Complete
+      isTransitioning = false;
+      disableButtons(false);
+      updateStatus(`${theme.name} active`);
+    }
+
+    // Initialize
+    document.body.className = themes.ceefax.class;
+    document.getElementById('preview').className = `preview-box ${themes.ceefax.class}`;
+  </script>
+</body>
+</html>

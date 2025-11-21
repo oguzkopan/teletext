@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Haunting/Kiroween Theme Animations Demo</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background: #000;
+      color: #00ff00;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: #ff0000;
+      text-shadow: 0 0 10px #ff0000;
+    }
+
+    .demo-section {
+      margin: 40px 0;
+      padding: 20px;
+      border: 2px solid #ff0000;
+      background: rgba(255, 0, 0, 0.1);
+    }
+
+    .demo-section h2 {
+      color: #ff6600;
+      margin-top: 0;
+    }
+
+    .demo-box {
+      background: #111;
+      padding: 20px;
+      margin: 10px 0;
+      border: 1px solid #333;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      position: relative;
+    }
+
+    button {
+      background: #ff0000;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background: #cc0000;
+    }
+
+    /* ============================================================================
+       Haunting/Kiroween Theme Animations
+       ============================================================================ */
+
+    /* Horror flash button animation with red tint (200ms) */
+    @keyframes horror-flash-animation {
+      0%, 100% {
+        filter: brightness(1) hue-rotate(0deg);
+      }
+      50% {
+        filter: brightness(1.5) hue-rotate(-30deg) saturate(2);
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+      }
+    }
+
+    .horror-flash {
+      animation: horror-flash-animation 200ms ease-in-out;
+    }
+
+    /* Glitch cursor text entry animation (300ms) */
+    @keyframes glitch-cursor-animation {
+      0%, 100% {
+        opacity: 1;
+        text-shadow: 0 0 0 transparent;
+      }
+      25% {
+        opacity: 0.8;
+        text-shadow: -2px 0 0 rgba(255, 0, 0, 0.7), 2px 0 0 rgba(0, 255, 255, 0.7);
+      }
+      50% {
+        opacity: 0;
+      }
+      75% {
+        opacity: 0.8;
+        text-shadow: 2px 0 0 rgba(255, 0, 0, 0.7), -2px 0 0 rgba(0, 255, 255, 0.7);
+      }
+    }
+
+    .glitch-cursor {
+      animation: glitch-cursor-animation 300ms step-end infinite;
+    }
+
+    /* Floating ghosts background animation (10s loop) */
+    @keyframes ghost-float-animation {
+      0% {
+        transform: translateX(-100%) translateY(0) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.7;
+      }
+      90% {
+        opacity: 0.7;
+      }
+      100% {
+        transform: translateX(100vw) translateY(-20px) rotate(10deg);
+        opacity: 0;
+      }
+    }
+
+    .ghost-float {
+      position: relative;
+    }
+
+    .ghost-float::after {
+      content: '👻';
+      position: absolute;
+      top: 20%;
+      left: 0;
+      font-size: 2rem;
+      pointer-events: none;
+      z-index: 1;
+      animation: ghost-float-animation 10000ms linear infinite;
+    }
+
+    /* Screen flicker effect (5s loop) */
+    @keyframes screen-flicker-animation {
+      0%, 100% {
+        opacity: 1;
+      }
+      10% {
+        opacity: 0.95;
+      }
+      20% {
+        opacity: 0.9;
+      }
+      30% {
+        opacity: 1;
+      }
+      40% {
+        opacity: 0.85;
+      }
+      50% {
+        opacity: 1;
+      }
+      60% {
+        opacity: 0.92;
+      }
+      70% {
+        opacity: 1;
+      }
+      80% {
+        opacity: 0.88;
+      }
+      90% {
+        opacity: 1;
+      }
+    }
+
+    .screen-flicker {
+      animation: screen-flicker-animation 5000ms ease-in-out infinite;
+    }
+
+    /* Chromatic aberration CSS effect (continuous) */
+    .chromatic-aberration {
+      position: relative;
+    }
+
+    .chromatic-aberration::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: inherit;
+      mix-blend-mode: screen;
+      pointer-events: none;
+      z-index: 1;
+      animation: chromatic-aberration-animation 3s ease-in-out infinite;
+    }
+
+    @keyframes chromatic-aberration-animation {
+      0%, 100% {
+        transform: translateX(0);
+        filter: hue-rotate(0deg);
+      }
+      25% {
+        transform: translateX(-1px);
+        filter: hue-rotate(5deg);
+      }
+      50% {
+        transform: translateX(1px);
+        filter: hue-rotate(-5deg);
+      }
+      75% {
+        transform: translateX(-0.5px);
+        filter: hue-rotate(3deg);
+      }
+    }
+
+    /* Floating bat animation (8s loop) */
+    @keyframes bat-float-animation {
+      0% {
+        transform: translateX(100vw) translateY(0) scaleX(1);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.8;
+      }
+      50% {
+        transform: translateX(50vw) translateY(-30px) scaleX(1);
+      }
+      51% {
+        transform: translateX(50vw) translateY(-30px) scaleX(-1);
+      }
+      90% {
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateX(-100%) translateY(0) scaleX(-1);
+        opacity: 0;
+      }
+    }
+
+    .bat-float {
+      position: relative;
+    }
+
+    .bat-float::after {
+      content: '🦇';
+      position: absolute;
+      top: 10%;
+      right: 0;
+      font-size: 1.5rem;
+      pointer-events: none;
+      z-index: 1;
+      animation: bat-float-animation 8000ms linear infinite;
+    }
+
+    /* Glitch transition for page animation */
+    @keyframes glitch-transition-animation {
+      0% {
+        transform: translateX(0);
+        filter: none;
+      }
+      25% {
+        transform: translateX(-5px);
+        filter: hue-rotate(90deg);
+      }
+      50% {
+        transform: translateX(5px);
+        filter: hue-rotate(-90deg);
+      }
+      75% {
+        transform: translateX(-2px);
+        filter: hue-rotate(45deg);
+      }
+      100% {
+        transform: translateX(0);
+        filter: none;
+      }
+    }
+
+    .glitch-transition {
+      animation: glitch-transition-animation 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .combined-effects {
+      position: relative;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎃 Haunting/Kiroween Theme Animations Demo 👻</h1>
+
+    <div class="demo-section">
+      <h2>1. Glitch Transition (400ms)</h2>
+      <p>Page transition animation with chromatic aberration effect</p>
+      <div class="demo-box" id="glitch-demo">
+        <span>Page Content</span>
+      </div>
+      <button onclick="triggerGlitch()">Trigger Glitch Transition</button>
+    </div>
+
+    <div class="demo-section">
+      <h2>2. Pulsing Skull Loading Indicator (800ms loop)</h2>
+      <p>Emoji frames: 💀 → 👻 → 💀 → 🎃</p>
+      <div class="demo-box" id="loading-demo">
+        <span id="loading-frame">💀</span>
+      </div>
+      <button onclick="toggleLoading()">Toggle Loading Animation</button>
+    </div>
+
+    <div class="demo-section">
+      <h2>3. Horror Flash Button Animation (200ms)</h2>
+      <p>Button press animation with red tint and glow</p>
+      <div class="demo-box" id="button-demo">
+        <button id="horror-button" onclick="triggerHorrorFlash()">Click Me! 🎃</button>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>4. Glitch Cursor Text Entry (300ms loop)</h2>
+      <p>Blinking cursor with chromatic aberration glitch effect</p>
+      <div class="demo-box">
+        <span>Type here: </span><span class="glitch-cursor">█</span>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>5. Floating Ghosts Background (10s loop)</h2>
+      <p>Ghost emoji floating across the screen</p>
+      <div class="demo-box ghost-float" style="min-height: 100px;">
+        <span>Watch for floating ghosts...</span>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>6. Screen Flicker Effect (5s loop)</h2>
+      <p>Subtle screen flickering for horror atmosphere</p>
+      <div class="demo-box screen-flicker">
+        <span>Flickering screen effect</span>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>7. Chromatic Aberration (continuous)</h2>
+      <p>RGB channel separation effect</p>
+      <div class="demo-box chromatic-aberration">
+        <span style="color: #ff00ff;">Chromatic Aberration Effect</span>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>8. Floating Bat Animation (8s loop)</h2>
+      <p>Bat emoji flying across the screen</p>
+      <div class="demo-box bat-float" style="min-height: 100px;">
+        <span>Watch for flying bats...</span>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>9. Combined Effects</h2>
+      <p>All background effects combined</p>
+      <div class="demo-box ghost-float bat-float screen-flicker chromatic-aberration combined-effects" style="min-height: 150px;">
+        <span>🎃 Full Haunting Experience 👻</span>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>10. Jack-o'-Lantern Decorative Element</h2>
+      <p>Flickering pumpkin animation (1s loop)</p>
+      <div class="demo-box" id="pumpkin-demo">
+        <span id="pumpkin-frame">🎃</span>
+      </div>
+      <button onclick="togglePumpkin()">Toggle Pumpkin Animation</button>
+    </div>
+  </div>
+
+  <script>
+    // Glitch transition
+    function triggerGlitch() {
+      const demo = document.getElementById('glitch-demo');
+      demo.classList.remove('glitch-transition');
+      void demo.offsetWidth; // Force reflow
+      demo.classList.add('glitch-transition');
+      setTimeout(() => demo.classList.remove('glitch-transition'), 400);
+    }
+
+    // Loading indicator
+    let loadingInterval = null;
+    const loadingFrames = ['💀', '👻', '💀', '🎃'];
+    let loadingFrameIndex = 0;
+
+    function toggleLoading() {
+      const frame = document.getElementById('loading-frame');
+      if (loadingInterval) {
+        clearInterval(loadingInterval);
+        loadingInterval = null;
+        frame.textContent = '💀';
+      } else {
+        loadingInterval = setInterval(() => {
+          loadingFrameIndex = (loadingFrameIndex + 1) % loadingFrames.length;
+          frame.textContent = loadingFrames[loadingFrameIndex];
+        }, 200); // 800ms / 4 frames
+      }
+    }
+
+    // Horror flash
+    function triggerHorrorFlash() {
+      const button = document.getElementById('horror-button');
+      button.classList.remove('horror-flash');
+      void button.offsetWidth; // Force reflow
+      button.classList.add('horror-flash');
+      setTimeout(() => button.classList.remove('horror-flash'), 200);
+    }
+
+    // Pumpkin animation
+    let pumpkinInterval = null;
+    const pumpkinFrames = ['🎃', '🎃', '🎃']; // Flickering effect
+    let pumpkinFrameIndex = 0;
+
+    function togglePumpkin() {
+      const frame = document.getElementById('pumpkin-frame');
+      if (pumpkinInterval) {
+        clearInterval(pumpkinInterval);
+        pumpkinInterval = null;
+        frame.textContent = '🎃';
+      } else {
+        pumpkinInterval = setInterval(() => {
+          pumpkinFrameIndex = (pumpkinFrameIndex + 1) % pumpkinFrames.length;
+          frame.textContent = pumpkinFrames[pumpkinFrameIndex];
+        }, 333); // 1000ms / 3 frames
+      }
+    }
+
+    // Auto-start some animations
+    window.addEventListener('load', () => {
+      toggleLoading();
+      togglePumpkin();
+    });
+  </script>
+</body>
+</html>

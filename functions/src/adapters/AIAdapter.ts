@@ -279,6 +279,8 @@ export class AIAdapter implements ContentAdapter {
     const rows = [
       'Q&A ASSISTANT                P510',
       '════════════════════════════════════',
+      this.centerText('Step 1 of 2'),
+      this.centerText('▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░'),
       '',
       'SELECT A TOPIC:',
       '',
@@ -294,8 +296,6 @@ export class AIAdapter implements ContentAdapter {
       'You will then be asked to provide',
       'additional details to help the AI',
       'provide a relevant response.',
-      '',
-      '',
       '',
       '',
       '',
@@ -321,9 +321,27 @@ export class AIAdapter implements ContentAdapter {
         source: 'AIAdapter',
         lastUpdated: new Date().toISOString(),
         inputMode: 'single',
-        inputOptions: ['1', '2', '3', '4', '5']
+        inputOptions: ['1', '2', '3', '4', '5'],
+        progress: {
+          current: 1,
+          total: 2,
+          label: 'Step'
+        }
       }
     };
+  }
+
+  /**
+   * Centers text within a given width
+   */
+  private centerText(text: string, width: number = 40): string {
+    if (text.length >= width) {
+      return text.substring(0, width);
+    }
+    
+    const leftPadding = Math.floor((width - text.length) / 2);
+    const rightPadding = width - text.length - leftPadding;
+    return ' '.repeat(leftPadding) + text + ' '.repeat(rightPadding);
   }
 
   /**
@@ -335,6 +353,8 @@ export class AIAdapter implements ContentAdapter {
     const rows = [
       `${this.truncateText(topicName.toUpperCase(), 28).padEnd(28)} P${pageNumber}`,
       '════════════════════════════════════',
+      this.centerText('Step 2 of 2'),
+      this.centerText('▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓'),
       '',
       'ASK YOUR QUESTION:',
       '',
@@ -351,8 +371,6 @@ export class AIAdapter implements ContentAdapter {
       '{green}GREEN:{white} View example questions',
       '{yellow}YELLOW:{white} Return to topic selection',
       '{blue}BLUE:{white} Return to AI index',
-      '',
-      '',
       '',
       'INDEX   EXAMPLES TOPICS  AI',
       ''
@@ -371,6 +389,11 @@ export class AIAdapter implements ContentAdapter {
       meta: {
         source: 'AIAdapter',
         lastUpdated: new Date().toISOString(),
+        progress: {
+          current: 2,
+          total: 2,
+          label: 'Step'
+        }
       }
     };
   }

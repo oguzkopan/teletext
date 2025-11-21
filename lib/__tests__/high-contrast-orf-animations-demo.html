@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>High Contrast & ORF Theme Animations Demo</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background: #000;
+      color: #fff;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1, h2 {
+      color: #0f0;
+      border-bottom: 2px solid #0f0;
+      padding-bottom: 10px;
+    }
+
+    .theme-section {
+      margin: 40px 0;
+      padding: 20px;
+      border: 2px solid #0f0;
+      background: #111;
+    }
+
+    .demo-box {
+      display: inline-block;
+      padding: 20px;
+      margin: 10px;
+      background: #222;
+      border: 1px solid #0f0;
+      min-width: 200px;
+      text-align: center;
+    }
+
+    .controls {
+      margin: 20px 0;
+    }
+
+    button {
+      background: #0f0;
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #0ff;
+    }
+
+    .animation-description {
+      color: #888;
+      font-size: 0.9em;
+      margin-top: 10px;
+    }
+
+    /* ============================================================================
+       High Contrast Theme Animations
+       ============================================================================ */
+
+    /* Simple fade transition (250ms) */
+    @keyframes fade-transition-animation {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+
+    .fade-transition {
+      animation: fade-transition-animation 250ms ease forwards;
+    }
+
+    /* Simple flash for button press (150ms) */
+    @keyframes simple-flash-animation {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    .simple-flash {
+      animation: simple-flash-animation 150ms ease-in-out;
+    }
+
+    /* Steady cursor for text entry (500ms) */
+    @keyframes steady-cursor-animation {
+      0%, 50% {
+        opacity: 1;
+      }
+      51%, 100% {
+        opacity: 0;
+      }
+    }
+
+    .steady-cursor {
+      animation: steady-cursor-animation 500ms step-end infinite;
+    }
+
+    /* ============================================================================
+       ORF Theme Animations
+       ============================================================================ */
+
+    /* Slide transition (300ms) */
+    @keyframes slide-transition-animation {
+      0% {
+        transform: translateX(100%);
+      }
+      100% {
+        transform: translateX(0);
+      }
+    }
+
+    .slide-transition {
+      animation: slide-transition-animation 300ms ease-in-out forwards;
+    }
+
+    /* Color flash for button press (150ms) */
+    @keyframes color-flash-animation {
+      0%, 100% {
+        filter: brightness(1);
+      }
+      50% {
+        filter: brightness(1.5) saturate(1.5);
+      }
+    }
+
+    .color-flash {
+      animation: color-flash-animation 150ms ease-in-out;
+    }
+
+    /* Color cursor for text entry (500ms) */
+    @keyframes color-cursor-animation {
+      0%, 50% {
+        opacity: 1;
+        filter: hue-rotate(0deg);
+      }
+      51%, 100% {
+        opacity: 0;
+        filter: hue-rotate(180deg);
+      }
+    }
+
+    .color-cursor {
+      animation: color-cursor-animation 500ms step-end infinite;
+    }
+
+    /* Color cycling header animation (5s loop) */
+    @keyframes color-cycle-animation {
+      0% {
+        filter: hue-rotate(0deg);
+      }
+      25% {
+        filter: hue-rotate(90deg);
+      }
+      50% {
+        filter: hue-rotate(180deg);
+      }
+      75% {
+        filter: hue-rotate(270deg);
+      }
+      100% {
+        filter: hue-rotate(360deg);
+      }
+    }
+
+    .color-cycle {
+      animation: color-cycle-animation 5000ms linear infinite;
+    }
+  </style>
+</head>
+<body>
+  <h1>High Contrast & ORF Theme Animations Demo</h1>
+  <p>This demo showcases the animation sets for the High Contrast and ORF themes.</p>
+
+  <!-- HIGH CONTRAST THEME -->
+  <div class="theme-section">
+    <h2>High Contrast Theme</h2>
+    <p>Simple, accessible animations with smooth transitions</p>
+
+    <div class="controls">
+      <h3>1. Page Transition: Simple Fade (250ms)</h3>
+      <div class="demo-box" id="hc-fade">
+        <div>Content appears smoothly</div>
+        <div class="animation-description">Opacity: 0 → 1</div>
+      </div>
+      <button onclick="playHighContrastFade()">Play Fade Transition</button>
+    </div>
+
+    <div class="controls">
+      <h3>2. Loading Indicator: Smooth Loading (1000ms)</h3>
+      <div class="demo-box">
+        <div id="hc-loading" style="font-size: 2em;">⠋</div>
+        <div class="animation-description">Braille spinner</div>
+      </div>
+      <button onclick="toggleHighContrastLoading()">Toggle Loading</button>
+    </div>
+
+    <div class="controls">
+      <h3>3. Button Press: Simple Flash (150ms)</h3>
+      <div class="demo-box" id="hc-button">
+        <div>Click Me!</div>
+        <div class="animation-description">Opacity pulse</div>
+      </div>
+      <button onclick="playHighContrastFlash()">Play Button Flash</button>
+    </div>
+
+    <div class="controls">
+      <h3>4. Text Entry: Steady Cursor (500ms)</h3>
+      <div class="demo-box">
+        <span>Type here</span><span id="hc-cursor" class="steady-cursor">_</span>
+        <div class="animation-description">Blinking cursor</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORF THEME -->
+  <div class="theme-section">
+    <h2>ORF Theme</h2>
+    <p>Colorful, dynamic animations with color-cycling effects</p>
+
+    <div class="controls">
+      <h3>1. Page Transition: Slide Transition (300ms)</h3>
+      <div class="demo-box" id="orf-slide">
+        <div>Content slides in</div>
+        <div class="animation-description">Horizontal slide</div>
+      </div>
+      <button onclick="playOrfSlide()">Play Slide Transition</button>
+    </div>
+
+    <div class="controls">
+      <h3>2. Loading Indicator: Rotating Dots (1000ms)</h3>
+      <div class="demo-box">
+        <div id="orf-loading" style="font-size: 2em;">⣾</div>
+        <div class="animation-description">Braille dot spinner</div>
+      </div>
+      <button onclick="toggleOrfLoading()">Toggle Loading</button>
+    </div>
+
+    <div class="controls">
+      <h3>3. Button Press: Color Flash (150ms)</h3>
+      <div class="demo-box" id="orf-button" style="background: linear-gradient(45deg, #f00, #0f0, #00f);">
+        <div>Click Me!</div>
+        <div class="animation-description">Brightness & saturation boost</div>
+      </div>
+      <button onclick="playOrfFlash()">Play Color Flash</button>
+    </div>
+
+    <div class="controls">
+      <h3>4. Text Entry: Color Cursor (500ms)</h3>
+      <div class="demo-box">
+        <span>Type here</span><span id="orf-cursor" class="color-cursor" style="color: #0f0;">_</span>
+        <div class="animation-description">Blinking cursor with hue rotation</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <h3>5. Background Effect: Color Cycling Header (5000ms)</h3>
+      <div class="demo-box color-cycle" style="background: linear-gradient(45deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f);">
+        <div style="font-size: 1.5em; font-weight: bold;">MODERN TELETEXT</div>
+        <div class="animation-description">Continuous hue rotation</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // High Contrast animations
+    let hcLoadingInterval = null;
+    const hcLoadingFrames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+    let hcLoadingIndex = 0;
+
+    function playHighContrastFade() {
+      const element = document.getElementById('hc-fade');
+      element.style.opacity = '0';
+      element.classList.remove('fade-transition');
+      
+      setTimeout(() => {
+        element.classList.add('fade-transition');
+      }, 10);
+    }
+
+    function toggleHighContrastLoading() {
+      const element = document.getElementById('hc-loading');
+      
+      if (hcLoadingInterval) {
+        clearInterval(hcLoadingInterval);
+        hcLoadingInterval = null;
+        element.textContent = '⠋';
+      } else {
+        hcLoadingInterval = setInterval(() => {
+          hcLoadingIndex = (hcLoadingIndex + 1) % hcLoadingFrames.length;
+          element.textContent = hcLoadingFrames[hcLoadingIndex];
+        }, 100);
+      }
+    }
+
+    function playHighContrastFlash() {
+      const element = document.getElementById('hc-button');
+      element.classList.remove('simple-flash');
+      
+      setTimeout(() => {
+        element.classList.add('simple-flash');
+      }, 10);
+      
+      setTimeout(() => {
+        element.classList.remove('simple-flash');
+      }, 160);
+    }
+
+    // ORF animations
+    let orfLoadingInterval = null;
+    const orfLoadingFrames = ['⣾', '⣽', '⣻', '⢿', '⡿', '⣟', '⣯', '⣷'];
+    let orfLoadingIndex = 0;
+
+    function playOrfSlide() {
+      const element = document.getElementById('orf-slide');
+      element.style.transform = 'translateX(100%)';
+      element.classList.remove('slide-transition');
+      
+      setTimeout(() => {
+        element.classList.add('slide-transition');
+      }, 10);
+    }
+
+    function toggleOrfLoading() {
+      const element = document.getElementById('orf-loading');
+      
+      if (orfLoadingInterval) {
+        clearInterval(orfLoadingInterval);
+        orfLoadingInterval = null;
+        element.textContent = '⣾';
+      } else {
+        orfLoadingInterval = setInterval(() => {
+          orfLoadingIndex = (orfLoadingIndex + 1) % orfLoadingFrames.length;
+          element.textContent = orfLoadingFrames[orfLoadingIndex];
+        }, 125);
+      }
+    }
+
+    function playOrfFlash() {
+      const element = document.getElementById('orf-button');
+      element.classList.remove('color-flash');
+      
+      setTimeout(() => {
+        element.classList.add('color-flash');
+      }, 10);
+      
+      setTimeout(() => {
+        element.classList.remove('color-flash');
+      }, 160);
+    }
+
+    // Auto-play some animations on load
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        playHighContrastFade();
+      }, 500);
+      
+      setTimeout(() => {
+        playOrfSlide();
+      }, 1000);
+    });
+  </script>
+</body>
+</html>

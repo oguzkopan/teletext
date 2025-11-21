@@ -4,6 +4,20 @@
 import axios from 'axios';
 import { ContentAdapter, TeletextPage } from '../types';
 import { getApiKey } from '../utils/config';
+import {
+  mapWeatherCondition,
+  formatWeatherIcon,
+  formatTemperature,
+  getTemperatureTrend,
+  getTemperatureColor
+} from '../../../lib/weather-icons';
+import {
+  applyAdapterLayout,
+  createSimpleHeader,
+  createSeparator,
+  truncateText,
+  padRows
+} from '../utils/adapter-layout-helper';
 
 interface CityConfig {
   name: string;
@@ -74,11 +88,12 @@ export class WeatherAdapter implements ContentAdapter {
 
   /**
    * Creates the weather index page (420)
+   * Uses layout manager for full-screen utilization
    */
   private getWeatherIndex(): TeletextPage {
-    const rows = [
-      'WEATHER INDEX                P420',
-      '════════════════════════════════════',
+    const contentRows = [
+      createSimpleHeader('WEATHER INDEX', '420'),
+      createSeparator(),
       '',
       'SELECT A CITY:',
       ''
@@ -94,20 +109,22 @@ export class WeatherAdapter implements ContentAdapter {
       const rightText = rightCity ? `${rightCity.pageId} ${rightCity.name}` : '';
       
       const line = `${leftText.padEnd(20)}${rightText}`;
-      rows.push(this.truncateText(line, 40));
+      contentRows.push(truncateText(line, 40));
     }
 
     // Fill remaining rows
-    while (rows.length < 22) {
-      rows.push('');
+    while (contentRows.length < 21) {
+      contentRows.push('');
     }
 
-    rows.push('Updated every 30 minutes');
+    contentRows.push('Updated every 30 minutes');
+    contentRows.push(createSeparator('─'));
+    contentRows.push('INDEX   LONDON  NYC     TOKYO');
 
-    return {
-      id: '420',
+    return applyAdapterLayout({
+      pageId: '420',
       title: 'Weather Index',
-      rows: this.padRows(rows),
+      contentRows,
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'LONDON', targetPage: '421', color: 'green' },
@@ -117,8 +134,9 @@ export class WeatherAdapter implements ContentAdapter {
       meta: {
         source: 'WeatherAdapter',
         lastUpdated: new Date().toISOString(),
+        contentType: 'WEATHER'
       }
-    };
+    });
   }
 
   /**
@@ -184,6 +202,7 @@ export class WeatherAdapter implements ContentAdapter {
 
   /**
    * Formats weather data into a teletext page
+   * Requirements: 20.1, 20.2, 20.3, 20.4, 20.5 - Animated weather icons with color coding
    */
   private formatWeatherPage(city: CityConfig, weatherData: any): TeletextPage {
     const now = new Date();
@@ -195,35 +214,49 @@ export class WeatherAdapter implements ContentAdapter {
     const current = weatherData.current;
     const forecast = weatherData.forecast;
 
-    const rows = [
-      `${this.truncateText(city.name.toUpperCase(), 28).padEnd(28, ' ')} P${city.pageId}`,
-      '════════════════════════════════════',
+    const contentRows = [
+      createSimpleHeader(city.name.toUpperCase(), city.pageId),
+      createSeparator(),
       `Updated: ${timeStr}`,
       ''
     ];
 
-    // Current conditions
-    rows.push('CURRENT CONDITIONS');
-    rows.push('');
+    // Current conditions with animated icon
+    // Requirements: 20.1, 20.2 - ASCII art weather icons with animations
+    contentRows.push('CURRENT CONDITIONS');
+    contentRows.push('');
     
     const temp = Math.round(current.main?.temp || 0);
     const feelsLike = Math.round(current.main?.feels_like || 0);
-    const condition = this.capitalizeWords(current.weather?.[0]?.description || 'Unknown');
+    const conditionDesc = current.weather?.[0]?.description || 'Unknown';
+    const condition = mapWeatherCondition(conditionDesc);
     const humidity = Math.round(current.main?.humidity || 0);
     const windSpeed = Math.round((current.wind?.speed || 0) * 3.6); // m/s to km/h
     
-    rows.push(`Temperature:     ${temp}°C`);
-    rows.push(`Feels like:      ${feelsLike}°C`);
-    rows.push(`Conditions:      ${this.truncateText(condition, 20)}`);
-    rows.push(`Humidity:        ${humidity}%`);
-    rows.push(`Wind:            ${windSpeed} km/h`);
-    rows.push('');
+    // Add animated weather icon (use frame 0 for static display)
+    // Requirements: 20.2 - Weather icon animations (falling rain, moving clouds)
+    const iconLines = formatWeatherIcon(condition, 0);
+    
+    // Requirements: 20.3 - Color coding for temperature
+    const tempDisplay = formatTemperature(temp, true);
+    
+    // Display icon alongside current conditions
+    contentRows.push(`${iconLines[0]}  ${tempDisplay}`);
+    contentRows.push(`${iconLines[1]}  ${this.capitalizeWords(conditionDesc)}`);
+    contentRows.push(`${iconLines[2]}`);
+    contentRows.push(`${iconLines[3]}  Feels like: ${feelsLike}°C`);
+    contentRows.push(`${iconLines[4]}  Humidity: ${humidity}%`);
+    contentRows.push(`               Wind: ${windSpeed} km/h`);
+    contentRows.push('');
 
-    // Forecast
-    rows.push('FORECAST (3-HOUR INTERVALS)');
-    rows.push('');
+    // Forecast with visual timeline
+    // Requirements: 20.4 - Visual timeline for multi-day forecasts
+    contentRows.push('FORECAST (3-HOUR INTERVALS)');
+    contentRows.push(createSeparator('─'));
     
     if (forecast?.list && forecast.list.length > 0) {
+      let previousTemp = temp;
+      
       forecast.list.slice(0, 4).forEach((item: any) => {
         const forecastTime = new Date(item.dt * 1000);
         const timeStr = forecastTime.toLocaleTimeString('en-GB', {
@@ -231,21 +264,37 @@ export class WeatherAdapter implements ContentAdapter {
           minute: '2-digit'
         });
         const forecastTemp = Math.round(item.main?.temp || 0);
-        const forecastCondition = this.truncateText(
-          this.capitalizeWords(item.weather?.[0]?.description || ''),
-          15
-        );
+        const forecastConditionDesc = item.weather?.[0]?.description || '';
+        const forecastCondition = mapWeatherCondition(forecastConditionDesc);
         
-        rows.push(`${timeStr}  ${forecastTemp}°C  ${forecastCondition}`);
+        // Get mini icon (just one line from the icon)
+        const miniIcon = formatWeatherIcon(forecastCondition, 0)[2].trim().substring(0, 12);
+        
+        // Temperature with color coding
+        const tempStr = formatTemperature(forecastTemp, false);
+        const { symbol: tempSymbol } = getTemperatureColor(forecastTemp);
+        
+        // Requirements: 20.5 - Animated temperature change indicators
+        const trend = getTemperatureTrend(forecastTemp, previousTemp);
+        previousTemp = forecastTemp;
+        
+        contentRows.push(`${timeStr} ${miniIcon} ${tempStr} ${tempSymbol} ${trend}`);
       });
     } else {
-      rows.push('Forecast not available');
+      contentRows.push('Forecast not available');
     }
 
-    return {
-      id: city.pageId,
+    // Add footer
+    while (contentRows.length < 22) {
+      contentRows.push('');
+    }
+    contentRows.push(createSeparator('─'));
+    contentRows.push('INDEX   REFRESH NEXT    BACK');
+
+    return applyAdapterLayout({
+      pageId: city.pageId,
       title: `Weather - ${city.name}`,
-      rows: this.padRows(rows),
+      contentRows,
       links: [
         { label: 'INDEX', targetPage: '420', color: 'red' },
         { label: 'REFRESH', targetPage: city.pageId, color: 'green' },
@@ -255,8 +304,12 @@ export class WeatherAdapter implements ContentAdapter {
       meta: {
         source: 'WeatherAdapter',
         lastUpdated: new Date().toISOString(),
-      }
-    };
+        contentType: 'WEATHER',
+        weatherCondition: condition,
+        animatedIcon: true
+      },
+      showTimestamp: true
+    });
   }
 
   /**
@@ -347,7 +400,7 @@ export class WeatherAdapter implements ContentAdapter {
    */
   private getErrorPage(pageId: string, cityName: string, error: any): TeletextPage {
     const rows = [
-      `${this.truncateText(cityName.toUpperCase(), 28).padEnd(28, ' ')} P${pageId}`,
+      `${truncateText(cityName.toUpperCase(), 28).padEnd(28, ' ')} P${pageId}`,
       '════════════════════════════════════',
       '',
       'SERVICE UNAVAILABLE',
@@ -376,7 +429,7 @@ export class WeatherAdapter implements ContentAdapter {
     return {
       id: pageId,
       title: `Weather - ${cityName}`,
-      rows: this.padRows(rows),
+      rows: padRows(rows),
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'WEATHER', targetPage: '420', color: 'green' }
@@ -421,7 +474,7 @@ export class WeatherAdapter implements ContentAdapter {
     return {
       id: pageId,
       title: `Weather Page ${pageId}`,
-      rows: this.padRows(rows),
+      rows: padRows(rows),
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'WEATHER', targetPage: '420', color: 'green' }
@@ -433,31 +486,4 @@ export class WeatherAdapter implements ContentAdapter {
     };
   }
 
-  /**
-   * Truncates text to specified length with ellipsis
-   */
-  private truncateText(text: string, maxLength: number): string {
-    if (!text || text.length <= maxLength) {
-      return text || '';
-    }
-    return text.slice(0, maxLength - 3) + '...';
-  }
-
-  /**
-   * Pads rows array to exactly 24 rows, each max 40 characters
-   */
-  private padRows(rows: string[]): string[] {
-    const paddedRows = rows.map(row => {
-      if (row.length > 40) {
-        return row.substring(0, 40);
-      }
-      return row.padEnd(40, ' ');
-    });
-
-    while (paddedRows.length < 24) {
-      paddedRows.push(''.padEnd(40, ' '));
-    }
-
-    return paddedRows.slice(0, 24);
-  }
 }

@@ -436,4 +436,37 @@ describe('PageRouter', () => {
       expect(screen.getByTestId('page-id')).toHaveTextContent('100');
     });
   });
+
+  it('should highlight breadcrumb on back navigation', async () => {
+    render(
+      <PageRouter initialPage={mockPage100}>
+        {(state) => (
+          <div>
+            <div data-testid="page-id">{state.currentPage?.id}</div>
+            <div data-testid="highlight-breadcrumb">{state.highlightBreadcrumb.toString()}</div>
+            <button onClick={() => state.navigateToPage('200')}>Go to 200</button>
+            <button onClick={() => state.handleNavigate('back')}>Back</button>
+          </div>
+        )}
+      </PageRouter>
+    );
+
+    // Initially no highlight
+    expect(screen.getByTestId('highlight-breadcrumb')).toHaveTextContent('false');
+    
+    // Navigate to page 200
+    fireEvent.click(screen.getByText('Go to 200'));
+    await waitFor(() => expect(screen.getByTestId('page-id')).toHaveTextContent('200'));
+    
+    // Navigate back - should highlight breadcrumb
+    fireEvent.click(screen.getByText('Back'));
+    
+    // Should briefly show highlight
+    expect(screen.getByTestId('highlight-breadcrumb')).toHaveTextContent('true');
+    
+    // Wait for navigation to complete and highlight to clear
+    await waitFor(() => {
+      expect(screen.getByTestId('page-id')).toHaveTextContent('100');
+    }, { timeout: 1000 });
+  });
 });

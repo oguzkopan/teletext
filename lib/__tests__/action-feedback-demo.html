@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Action Feedback Demo - Modern Teletext</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Courier New', monospace;
+      background: #000;
+      color: #00ff00;
+    }
+
+    .demo-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: #ffff00;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+    }
+
+    .demo-section {
+      margin: 30px 0;
+      padding: 20px;
+      border: 2px solid #00ff00;
+      background: rgba(0, 100, 0, 0.1);
+    }
+
+    .demo-section h2 {
+      color: #00ffff;
+      margin-top: 0;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 15px 0;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      font-weight: bold;
+      text-transform: uppercase;
+      border: 2px solid;
+      background: rgba(0, 0, 0, 0.8);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    button.success {
+      color: #00ff00;
+      border-color: #00ff00;
+    }
+
+    button.success:hover {
+      background: rgba(0, 255, 0, 0.2);
+    }
+
+    button.error {
+      color: #ff0000;
+      border-color: #ff0000;
+    }
+
+    button.error:hover {
+      background: rgba(255, 0, 0, 0.2);
+    }
+
+    button.warning {
+      color: #ffff00;
+      border-color: #ffff00;
+    }
+
+    button.warning:hover {
+      background: rgba(255, 255, 0, 0.2);
+    }
+
+    button.info {
+      color: #00ffff;
+      border-color: #00ffff;
+    }
+
+    button.info:hover {
+      background: rgba(0, 255, 255, 0.2);
+    }
+
+    /* Feedback Container */
+    .feedback-container {
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10000;
+      pointer-events: none;
+      text-align: center;
+      font-family: 'Courier New', monospace;
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 1rem 2rem;
+      border-radius: 4px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .feedback-success {
+      color: #00ff00;
+      background: rgba(0, 100, 0, 0.9);
+      border: 2px solid #00ff00;
+    }
+
+    .feedback-error {
+      color: #ff0000;
+      background: rgba(100, 0, 0, 0.9);
+      border: 2px solid #ff0000;
+    }
+
+    .feedback-warning {
+      color: #ffff00;
+      background: rgba(100, 100, 0, 0.9);
+      border: 2px solid #ffff00;
+    }
+
+    .feedback-info {
+      color: #00ffff;
+      background: rgba(0, 100, 100, 0.9);
+      border: 2px solid #00ffff;
+    }
+
+    /* Animations */
+    @keyframes feedback-checkmark-animation {
+      0% {
+        transform: scale(0);
+        opacity: 0;
+      }
+      50% {
+        transform: scale(1.2);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .feedback-checkmark {
+      animation: feedback-checkmark-animation 300ms ease-out forwards;
+    }
+
+    @keyframes feedback-cross-animation {
+      0% {
+        transform: scale(0) rotate(-90deg);
+        opacity: 0;
+      }
+      50% {
+        transform: scale(1.2) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+      }
+    }
+
+    .feedback-cross {
+      animation: feedback-cross-animation 300ms ease-out forwards;
+    }
+
+    @keyframes feedback-flash-animation {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      25% {
+        opacity: 0.3;
+        transform: scale(1.1);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      75% {
+        opacity: 0.3;
+        transform: scale(1.1);
+      }
+    }
+
+    .feedback-flash {
+      animation: feedback-flash-animation 400ms ease-in-out;
+    }
+
+    @keyframes feedback-celebration-bounce {
+      0% {
+        transform: translateY(-50px) scale(0.5);
+        opacity: 0;
+      }
+      50% {
+        transform: translateY(10px) scale(1.1);
+        opacity: 1;
+      }
+      70% {
+        transform: translateY(-5px) scale(0.95);
+      }
+      100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+    }
+
+    .feedback-celebration {
+      animation: feedback-celebration-bounce 600ms ease-out forwards;
+    }
+
+    @keyframes feedback-fade-out {
+      0% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+    }
+
+    .feedback-fade-out {
+      animation: feedback-fade-out 200ms ease-in forwards;
+    }
+
+    @keyframes feedback-confetti-fall {
+      0% {
+        transform: translateY(-20px);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh);
+        opacity: 0;
+      }
+    }
+
+    .confetti-particle {
+      position: fixed;
+      font-size: 1.5rem;
+      pointer-events: none;
+      z-index: 10001;
+      animation: feedback-confetti-fall 2000ms ease-in forwards;
+    }
+
+    .feedback-line {
+      margin: 5px 0;
+    }
+
+    .description {
+      color: #888;
+      font-size: 0.9em;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-container">
+    <h1>Action Feedback Demo</h1>
+    
+    <div class="demo-section">
+      <h2>Success Messages</h2>
+      <p class="description">Green checkmark animations for successful operations</p>
+      <div class="button-group">
+        <button class="success" onclick="showSuccess('Settings saved!')">Save Settings</button>
+        <button class="success" onclick="showSuccess('Profile updated!')">Update Profile</button>
+        <button class="success" onclick="showSuccess('Operation completed!')">Complete Operation</button>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Error Messages</h2>
+      <p class="description">Red X animations for failed operations</p>
+      <div class="button-group">
+        <button class="error" onclick="showError('Failed to save')">Save Error</button>
+        <button class="error" onclick="showError('Connection lost')">Connection Error</button>
+        <button class="error" onclick="showError('Invalid input')">Validation Error</button>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Saved Indicators</h2>
+      <p class="description">Flash animations for save confirmations</p>
+      <div class="button-group">
+        <button class="success" onclick="showSaved()">Quick Save</button>
+        <button class="success" onclick="showSaved('Theme preferences')">Save Theme</button>
+        <button class="success" onclick="showSaved('User settings')">Save Settings</button>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Celebration Messages</h2>
+      <p class="description">Confetti animations for achievements</p>
+      <div class="button-group">
+        <button class="success" onclick="showCelebration('Quiz Complete!')">Complete Quiz</button>
+        <button class="success" onclick="showCelebration('Level Up!')">Level Up</button>
+        <button class="success" onclick="showCelebration('Achievement Unlocked!')">Achievement</button>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Warning & Info Messages</h2>
+      <p class="description">Yellow warnings and cyan info messages</p>
+      <div class="button-group">
+        <button class="warning" onclick="showWarning('Check your input')">Show Warning</button>
+        <button class="info" onclick="showInfo('Loading data...')">Show Info</button>
+        <button class="warning" onclick="showWarning('Low disk space')">Disk Warning</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentFeedback = null;
+    let hideTimeout = null;
+
+    function clearFeedback() {
+      if (currentFeedback) {
+        currentFeedback.classList.add('feedback-fade-out');
+        setTimeout(() => {
+          if (currentFeedback && currentFeedback.parentNode) {
+            currentFeedback.parentNode.removeChild(currentFeedback);
+          }
+          currentFeedback = null;
+        }, 200);
+      }
+      if (hideTimeout) {
+        clearTimeout(hideTimeout);
+        hideTimeout = null;
+      }
+    }
+
+    function showFeedback(lines, colorClass, animationClass, duration = 2500) {
+      clearFeedback();
+
+      const container = document.createElement('div');
+      container.className = `feedback-container ${colorClass} ${animationClass}`;
+      
+      lines.forEach(line => {
+        const lineDiv = document.createElement('div');
+        lineDiv.className = 'feedback-line';
+        lineDiv.textContent = line;
+        container.appendChild(lineDiv);
+      });
+
+      document.body.appendChild(container);
+      currentFeedback = container;
+
+      hideTimeout = setTimeout(() => {
+        clearFeedback();
+      }, duration);
+    }
+
+    function showSuccess(message) {
+      showFeedback(
+        [`✓ ${message}`],
+        'feedback-success',
+        'feedback-checkmark',
+        2500
+      );
+    }
+
+    function showError(message) {
+      showFeedback(
+        [`✗ ${message}`],
+        'feedback-error',
+        'feedback-cross',
+        2500
+      );
+    }
+
+    function showSaved(itemName) {
+      const message = itemName ? `✓ ${itemName} SAVED` : '✓ SAVED';
+      showFeedback(
+        [message],
+        'feedback-success',
+        'feedback-flash',
+        2000
+      );
+    }
+
+    function showCelebration(message) {
+      clearFeedback();
+
+      // Create confetti
+      const confettiSymbols = ['*', '·', '✦', '✧', '★', '☆', '◆', '◇', '○'];
+      confettiSymbols.forEach((symbol, index) => {
+        const particle = document.createElement('div');
+        particle.className = 'confetti-particle';
+        particle.textContent = symbol;
+        particle.style.left = `${(index + 1) * 10}%`;
+        particle.style.animationDelay = `${index * 100}ms`;
+        document.body.appendChild(particle);
+
+        setTimeout(() => {
+          if (particle.parentNode) {
+            particle.parentNode.removeChild(particle);
+          }
+        }, 2000);
+      });
+
+      // Show celebration message
+      showFeedback(
+        [
+          '    *  ·  *  ·  *  ·  *  ·  *    ',
+          '  ·  *  ·  *  ·  *  ·  *  ·  *  ',
+          '    *  ·  *  ·  *  ·  *  ·  *    ',
+          '',
+          `🎉 ${message} 🎉`,
+          '✓ CONGRATULATIONS!'
+        ],
+        'feedback-success',
+        'feedback-celebration',
+        3000
+      );
+    }
+
+    function showWarning(message) {
+      showFeedback(
+        [`⚠ ${message}`],
+        'feedback-warning',
+        'feedback-flash',
+        2500
+      );
+    }
+
+    function showInfo(message) {
+      showFeedback(
+        [`ℹ ${message}`],
+        'feedback-info',
+        'feedback-checkmark',
+        2500
+      );
+    }
+  </script>
+</body>
+</html>

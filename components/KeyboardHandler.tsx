@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { PageRouterState } from './PageRouter';
 import { useTheme } from '@/lib/theme-context';
+import { useAnimationSettings } from '@/hooks/useAnimationSettings';
 
 interface KeyboardHandlerProps {
   routerState: PageRouterState;
@@ -13,15 +14,21 @@ interface KeyboardHandlerProps {
  * 
  * Handles keyboard input for teletext navigation
  * Requirements: 37.1, 37.2 - Theme selection on page 700
+ * Requirements: 12.5 - Animation settings controls on page 701
  */
 export default function KeyboardHandler({ routerState }: KeyboardHandlerProps) {
   const { setTheme } = useTheme();
+  const animationSettings = useAnimationSettings();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Check if we're on page 700 (theme selection page)
       const isThemeSelectionPage = routerState.currentPage?.id === '700' && 
                                    routerState.currentPage?.meta?.themeSelectionPage;
+
+      // Check if we're on page 701 (animation settings page)
+      const isSettingsPage = routerState.currentPage?.id === '701' && 
+                             routerState.currentPage?.meta?.settingsPage;
 
       // On page 700, handle theme selection with number keys 1-4
       // Requirement: 37.1, 37.2
@@ -38,6 +45,63 @@ export default function KeyboardHandler({ routerState }: KeyboardHandlerProps) {
           setTheme(themeKey);
         }
         return;
+      }
+
+      // On page 701, handle animation settings controls
+      // Requirement: 12.5 - Animation intensity controls
+      if (isSettingsPage) {
+        // Arrow keys to adjust intensity
+        if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          animationSettings.adjustIntensity(5);
+          return;
+        }
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          animationSettings.adjustIntensity(-5);
+          return;
+        }
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          animationSettings.adjustIntensity(-10);
+          return;
+        }
+        if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          animationSettings.adjustIntensity(10);
+          return;
+        }
+
+        // Number keys to toggle animation types
+        if (e.key === '1') {
+          e.preventDefault();
+          animationSettings.toggleAnimations();
+          return;
+        }
+        if (e.key === '2') {
+          e.preventDefault();
+          animationSettings.toggleTransitions();
+          return;
+        }
+        if (e.key === '3') {
+          e.preventDefault();
+          animationSettings.toggleDecorations();
+          return;
+        }
+        if (e.key === '4') {
+          e.preventDefault();
+          animationSettings.toggleBackgrounds();
+          return;
+        }
+
+        // Green button (G) to reset to defaults
+        if (e.key.toLowerCase() === 'g') {
+          e.preventDefault();
+          animationSettings.resetToDefaults();
+          // Reload the page to show updated values
+          routerState.navigateToPage('701');
+          return;
+        }
       }
 
       // Digit keys (0-9) - normal page navigation

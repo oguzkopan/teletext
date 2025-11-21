@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASCII Logo Animation Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #000;
+      color: #0f0;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 16px;
+      line-height: 1.2;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: #0ff;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .demo-section {
+      margin: 40px 0;
+      padding: 20px;
+      border: 2px solid #0f0;
+      background: #001100;
+    }
+
+    .demo-title {
+      color: #ff0;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+
+    .demo-content {
+      white-space: pre;
+      background: #000;
+      padding: 15px;
+      border: 1px solid #0f0;
+      overflow-x: auto;
+    }
+
+    .controls {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      background: #0f0;
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #0ff;
+    }
+
+    button:active {
+      background: #ff0;
+    }
+
+    .status {
+      color: #0ff;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .logo-reveal {
+      animation: fade-in 0.1s ease-in forwards;
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .pulse {
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .badge-pulse {
+      animation: badge-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes badge-pulse {
+      0%, 100% { color: #0ff; }
+      25% { color: #ff0; }
+      50% { color: #f0f; }
+      75% { color: #0f0; }
+    }
+
+    .credits-scroll {
+      height: 400px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .credits-content {
+      position: absolute;
+      width: 100%;
+      animation: scroll-up 30s linear infinite;
+    }
+
+    @keyframes scroll-up {
+      from { transform: translateY(400px); }
+      to { transform: translateY(-100%); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ASCII Logo Animation Demo</h1>
+
+    <!-- Logo Reveal Animation -->
+    <div class="demo-section">
+      <div class="demo-title">1. Logo Reveal Animation (Letter by Letter)</div>
+      <div class="demo-content" id="logo-reveal"></div>
+      <div class="controls">
+        <button onclick="startLogoReveal()">Start Animation</button>
+        <button onclick="stopLogoReveal()">Stop</button>
+      </div>
+      <div class="status" id="reveal-status"></div>
+    </div>
+
+    <!-- Logo Pulse Animation -->
+    <div class="demo-section">
+      <div class="demo-title">2. Logo Pulse Animation</div>
+      <div class="demo-content pulse" id="logo-pulse">╔══════════════════════════════════╗
+║  MODERN TELETEXT  ░▒▓█▓▒░       ║
+╚══════════════════════════════════╝</div>
+      <div class="status">Continuously pulsing</div>
+    </div>
+
+    <!-- Kiro Badge Animation -->
+    <div class="demo-section">
+      <div class="demo-title">3. Kiro Badge Animation</div>
+      <div class="demo-content badge-pulse" id="kiro-badge">⚡ Powered by Kiro</div>
+      <div class="controls">
+        <button onclick="changeKiroBadge()">Change Badge</button>
+      </div>
+      <div class="status">Subtle color pulse animation</div>
+    </div>
+
+    <!-- Scrolling Credits -->
+    <div class="demo-section">
+      <div class="demo-title">4. Scrolling Credits</div>
+      <div class="demo-content credits-scroll">
+        <div class="credits-content" id="credits">════════════════════════════════════
+         MODERN TELETEXT
+            Version 1.0
+════════════════════════════════════
+
+
+         CREATED BY
+
+      The Modern Teletext Team
+
+
+════════════════════════════════════
+           BUILT WITH
+════════════════════════════════════
+
+         Next.js & React
+      TypeScript & Tailwind CSS
+
+         Firebase Platform
+    Hosting • Functions • Firestore
+
+        Google Gemini AI
+      Vertex AI • Generative AI
+
+         External APIs
+    News • Sports • Weather • Markets
+
+
+════════════════════════════════════
+        INSPIRED BY
+════════════════════════════════════
+
+       BBC Ceefax (1974-2012)
+      ITV Oracle (1978-1992)
+      Channel 4 4-Tel (1982-1993)
+
+    Classic teletext services that
+    brought information to millions
+
+
+════════════════════════════════════
+       SPECIAL THANKS
+════════════════════════════════════
+
+    To the original teletext pioneers
+    who created this revolutionary
+    information delivery system
+
+    And to everyone who remembers
+    the joy of pressing 888 for
+    subtitles and 100 for the index
+
+
+════════════════════════════════════
+      ⚡ POWERED BY KIRO ⚡
+════════════════════════════════════
+
+    Built with Kiro AI Assistant
+    Designed for the Kiroween
+    Hackathon 2024
+
+
+════════════════════════════════════
+          THANK YOU
+════════════════════════════════════
+
+    For experiencing this nostalgic
+    journey through teletext history
+
+    Press 100 to return to index</div>
+      </div>
+      <div class="status">Automatically scrolling</div>
+    </div>
+
+    <!-- Boot Sequence -->
+    <div class="demo-section">
+      <div class="demo-title">5. Boot Sequence Animation</div>
+      <div class="demo-content" id="boot-sequence"></div>
+      <div class="controls">
+        <button onclick="startBootSequence()">Start Boot Sequence</button>
+      </div>
+      <div class="status" id="boot-status"></div>
+    </div>
+
+    <!-- Static Logos -->
+    <div class="demo-section">
+      <div class="demo-title">6. Static Logo Variants</div>
+      <div class="demo-content">╔══════════════════════════════════╗
+║  MODERN TELETEXT  ░▒▓█▓▒░       ║
+╚══════════════════════════════════╝
+
+▓▓▓ MODERN TELETEXT ▓▓▓
+
+┌────────────────────────────────────┐
+│    MODERN TELETEXT SYSTEM v1.0    │
+└────────────────────────────────────┘
+
+▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+█ MODERN █ TELETEXT █ SYSTEM █ v1.0 █
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀</div>
+      <div class="status">Various logo styles for different contexts</div>
+    </div>
+  </div>
+
+  <script>
+    // Logo Reveal Animation
+    const logoFrames = [
+      '╔══════════════════════════════════╗\n║                                  ║\n╚══════════════════════════════════╝',
+      '╔══════════════════════════════════╗\n║  M                               ║\n╚══════════════════════════════════╝',
+      '╔══════════════════════════════════╗\n║  MO                              ║\n╚══════════════════════════════════╝',
+      '╔══════════════════════════════════╗\n║  MOD                             ║\n╚══════════════════════════════════╝',
+      '╔══════════════════════════════════╗\n║  MODE                            ║\n╚══════════════════════════════════╝',
+      '╔══════════════════════════════════╗\n║  MODER                           ║\n╚══════════════════════════════════╝',
+      '╔══════════════════════════════════╗\n║  MODERN                          ║\n╚══════════════════════════════════╝',
+      '╔══════════════════════════════════╗\n║  MODERN T                        ║\n╚══════════════════════════════════╝',
+      '╔══════════════════════════════════╗\n║  MODERN TE                       ║\n╚══════════════════════════════════╝',
+      '╔══════════════════════════════════╗\n║  MODERN TEL                      ║\n╚══════════════════════════════════╝',
+      '╔══════════════════════════════════╗\n║  MODERN TELE                     ║\n╚══════════════════════════════════╝',
+      '╔══════════════════════════════════╗\n║  MODERN TELET                    ║\n╚══════════════════════════════════╝',
+      '╔══════════════════════════════════╗\n║  MODERN TELETE                   ║\n╚══════════════════════════════════╝',
+      '╔══════════════════════════════════╗\n║  MODERN TELETEX                  ║\n╚══════════════════════════════════╝',
+      '╔══════════════════════════════════╗\n║  MODERN TELETEXT                 ║\n╚══════════════════════════════════╝',
+      '╔══════════════════════════════════╗\n║  MODERN TELETEXT  ░              ║\n╚══════════════════════════════════╝',
+      '╔══════════════════════════════════╗\n║  MODERN TELETEXT  ░▒             ║\n╚══════════════════════════════════╝',
+      '╔══════════════════════════════════╗\n║  MODERN TELETEXT  ░▒▓            ║\n╚══════════════════════════════════╝',
+      '╔══════════════════════════════════╗\n║  MODERN TELETEXT  ░▒▓█           ║\n╚══════════════════════════════════╝',
+      '╔══════════════════════════════════╗\n║  MODERN TELETEXT  ░▒▓█▓          ║\n╚══════════════════════════════════╝',
+      '╔══════════════════════════════════╗\n║  MODERN TELETEXT  ░▒▓█▓▒         ║\n╚══════════════════════════════════╝',
+      '╔══════════════════════════════════╗\n║  MODERN TELETEXT  ░▒▓█▓▒░        ║\n╚══════════════════════════════════╝',
+      '╔══════════════════════════════════╗\n║  MODERN TELETEXT  ░▒▓█▓▒░       ║\n╚══════════════════════════════════╝'
+    ];
+
+    let revealInterval = null;
+    let currentFrame = 0;
+
+    function startLogoReveal() {
+      stopLogoReveal();
+      currentFrame = 0;
+      const element = document.getElementById('logo-reveal');
+      const status = document.getElementById('reveal-status');
+      
+      status.textContent = 'Animating...';
+      
+      revealInterval = setInterval(() => {
+        element.textContent = logoFrames[currentFrame];
+        currentFrame++;
+        
+        if (currentFrame >= logoFrames.length) {
+          stopLogoReveal();
+          status.textContent = 'Animation complete!';
+        }
+      }, 100);
+    }
+
+    function stopLogoReveal() {
+      if (revealInterval) {
+        clearInterval(revealInterval);
+        revealInterval = null;
+      }
+    }
+
+    // Kiro Badge Variants
+    const kiroBadges = [
+      '⚡ Powered by Kiro',
+      '✨ Built with Kiro',
+      '🚀 Made with Kiro',
+      '💫 Created with Kiro'
+    ];
+    let currentBadge = 0;
+
+    function changeKiroBadge() {
+      currentBadge = (currentBadge + 1) % kiroBadges.length;
+      document.getElementById('kiro-badge').textContent = kiroBadges[currentBadge];
+    }
+
+    // Boot Sequence
+    function startBootSequence() {
+      const element = document.getElementById('boot-sequence');
+      const status = document.getElementById('boot-status');
+      
+      status.textContent = 'Booting...';
+      element.textContent = '';
+      
+      // Simulate boot sequence
+      setTimeout(() => {
+        element.textContent = '╔══════════════════════════════════╗\n║                                  ║\n╚══════════════════════════════════╝';
+      }, 100);
+      
+      setTimeout(() => {
+        element.textContent = '╔══════════════════════════════════╗\n║  MODERN TELETEXT  ░▒▓█▓▒░       ║\n╚══════════════════════════════════╝\n\nSYSTEM READY';
+      }, 1000);
+      
+      setTimeout(() => {
+        element.textContent = '╔══════════════════════════════════╗\n║  MODERN TELETEXT  ░▒▓█▓▒░       ║\n╚══════════════════════════════════╝\n\nSYSTEM READY\n\n⚡ Powered by Kiro\n\n▶ PRESS ANY KEY TO ENTER ◀';
+        status.textContent = 'Boot complete!';
+      }, 2000);
+    }
+
+    // Auto-start logo reveal on page load
+    window.addEventListener('load', () => {
+      setTimeout(startLogoReveal, 500);
+    });
+  </script>
+</body>
+</html>
+

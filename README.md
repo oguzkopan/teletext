@@ -6,6 +6,7 @@ A nostalgic web application that faithfully recreates the 40×24 character grid 
 
 ## ✨ Features
 
+### Core Features
 - **Authentic Teletext Experience**: 40×24 character grid with monospaced font and classic color palette
 - **Three-Digit Navigation**: Navigate using page numbers (100-899) via keyboard or on-screen remote
 - **Live Content Integration**: Real-time news, sports scores, market data, and weather
@@ -16,6 +17,19 @@ A nostalgic web application that faithfully recreates the 40×24 character grid 
 - **Offline Support**: Service worker caching for previously viewed pages
 - **Easter Eggs**: Hidden horror-themed pages (404, 666) with AI-generated content
 - **Performance Optimized**: Page preloading, request cancellation, and lazy-loaded adapters
+
+### UX Redesign Features (New!)
+- **Full-Screen Layout**: 90%+ screen utilization with optimized spacing and minimal padding
+- **Theme-Specific Animations**: Unique animations for each theme (glitch, wipe, fade, slide)
+- **Enhanced Navigation**: Breadcrumb trails, page position indicators, arrow indicators, contextual help
+- **Visual Feedback**: Input buffer display, button press animations, loading indicators, success/error feedback
+- **Content Type Indicators**: Visual icons for NEWS (📰), SPORT (⚽), MARKETS (📈), AI (🤖), GAMES (🎮)
+- **Animated Content**: Weather icons, sports live indicators, market trends, AI typing animation
+- **Kiroween Theme**: Halloween decorations (🎃👻🦇), glitch effects, floating sprites, chromatic aberration
+- **Accessibility Features**: Reduced motion support, animation controls, keyboard navigation, screen reader optimization
+- **Interactive Elements**: Visual highlighting with brackets, colors, and backgrounds for all clickable items
+
+See [UX_REDESIGN_OVERVIEW.md](./UX_REDESIGN_OVERVIEW.md) for complete details.
 
 ## 📖 Table of Contents
 
@@ -1249,6 +1263,16 @@ Kiro can integrate with external tools via MCP:
 - **[PAGE_DIRECTORY.md](./PAGE_DIRECTORY.md)** - All pages and their purposes
 - **[CONTRIBUTING.md](./CONTRIBUTING.md)** - Contribution guidelines
 - **[KIRO_USAGE_GUIDE.md](./KIRO_USAGE_GUIDE.md)** - How this project uses Kiro
+
+### UX Redesign Documentation
+
+- **[UX_REDESIGN_OVERVIEW.md](./UX_REDESIGN_OVERVIEW.md)** - Complete UX redesign overview
+- **[UX_REDESIGN_VISUAL_GUIDE.md](./UX_REDESIGN_VISUAL_GUIDE.md)** - Visual examples with ASCII art
+- **[LAYOUT_MANAGER_API.md](./LAYOUT_MANAGER_API.md)** - Layout Manager API reference
+- **[ANIMATION_ENGINE_API.md](./ANIMATION_ENGINE_API.md)** - Animation Engine API reference
+- **[THEME_CONFIGURATION.md](./THEME_CONFIGURATION.md)** - Theme configuration guide
+- **[ADDING_ANIMATIONS.md](./ADDING_ANIMATIONS.md)** - Guide for adding new animations
+- **[ACCESSIBILITY_FEATURES.md](./ACCESSIBILITY_FEATURES.md)** - Accessibility features and settings
 
 ### Setup & Deployment
 

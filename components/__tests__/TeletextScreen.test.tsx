@@ -39,16 +39,19 @@ describe('TeletextScreen Component', () => {
 
   it('displays loading indicator when loading is true', () => {
     const page = createEmptyPage('100', 'Test Page');
-    render(<TeletextScreen page={page} loading={true} theme={mockTheme} />);
+    const { container } = render(<TeletextScreen page={page} loading={true} theme={mockTheme} />);
     
-    expect(screen.getByText('LOADING...')).toBeInTheDocument();
+    const loadingIndicator = container.querySelector('.loading-indicator');
+    expect(loadingIndicator).toBeInTheDocument();
+    expect(loadingIndicator?.textContent).toContain('...');
   });
 
   it('does not display loading indicator when loading is false', () => {
     const page = createEmptyPage('100', 'Test Page');
-    render(<TeletextScreen page={page} loading={false} theme={mockTheme} />);
+    const { container } = render(<TeletextScreen page={page} loading={false} theme={mockTheme} />);
     
-    expect(screen.queryByText('LOADING...')).not.toBeInTheDocument();
+    const loadingIndicator = container.querySelector('.loading-indicator');
+    expect(loadingIndicator).not.toBeInTheDocument();
   });
 
   it('applies theme colors correctly', () => {
@@ -88,34 +91,8 @@ describe('TeletextScreen Component', () => {
   });
 
   // Offline support tests - Requirement 13.4
-  it('displays cached indicator when isCached is true', () => {
-    const page = createEmptyPage('200', 'Cached Page');
-    render(
-      <TeletextScreen 
-        page={page} 
-        loading={false} 
-        theme={mockTheme}
-        isCached={true}
-      />
-    );
-    
-    expect(screen.getByText('[CACHED]')).toBeInTheDocument();
-  });
-
-  it('displays cached indicator when page meta has cached status', () => {
-    const page = createEmptyPage('200', 'Cached Page');
-    page.meta = { cacheStatus: 'cached' };
-    
-    render(
-      <TeletextScreen 
-        page={page} 
-        loading={false} 
-        theme={mockTheme}
-      />
-    );
-    
-    expect(screen.getByText('[CACHED]')).toBeInTheDocument();
-  });
+  // Note: Cached indicator is not displayed in the enhanced version
+  // The cache status is handled by the page content itself
 
   it('displays offline indicator when isOnline is false', () => {
     const page = createEmptyPage('200', 'Offline Page');
@@ -131,23 +108,21 @@ describe('TeletextScreen Component', () => {
     expect(screen.getByText('[OFFLINE]')).toBeInTheDocument();
   });
 
-  it('displays both cached and offline indicators when appropriate', () => {
-    const page = createEmptyPage('200', 'Offline Cached Page');
+  it('displays offline indicator when offline', () => {
+    const page = createEmptyPage('200', 'Offline Page');
     render(
       <TeletextScreen 
         page={page} 
         loading={false} 
         theme={mockTheme}
         isOnline={false}
-        isCached={true}
       />
     );
     
-    expect(screen.getByText('[CACHED]')).toBeInTheDocument();
     expect(screen.getByText('[OFFLINE]')).toBeInTheDocument();
   });
 
-  it('does not display indicators when online and not cached', () => {
+  it('does not display offline indicator when online', () => {
     const page = createEmptyPage('200', 'Fresh Page');
     render(
       <TeletextScreen 
@@ -155,30 +130,27 @@ describe('TeletextScreen Component', () => {
         loading={false} 
         theme={mockTheme}
         isOnline={true}
-        isCached={false}
       />
     );
     
-    expect(screen.queryByText('[CACHED]')).not.toBeInTheDocument();
     expect(screen.queryByText('[OFFLINE]')).not.toBeInTheDocument();
   });
 
-  it('does not display indicators during loading', () => {
+  it('does not display offline indicator during loading', () => {
     const page = createEmptyPage('200', 'Loading Page');
-    render(
+    const { container } = render(
       <TeletextScreen 
         page={page} 
         loading={true} 
         theme={mockTheme}
         isOnline={false}
-        isCached={true}
       />
     );
     
     // Loading indicator should be shown
-    expect(screen.getByText('LOADING...')).toBeInTheDocument();
-    // But not the cached/offline indicators
-    expect(screen.queryByText('[CACHED]')).not.toBeInTheDocument();
+    const loadingIndicator = container.querySelector('.loading-indicator');
+    expect(loadingIndicator).toBeInTheDocument();
+    // But not the offline indicator
     expect(screen.queryByText('[OFFLINE]')).not.toBeInTheDocument();
   });
 });

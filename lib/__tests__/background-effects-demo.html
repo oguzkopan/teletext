@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Background Effects Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Courier New', monospace;
+      background: #000;
+      color: #0f0;
+    }
+
+    .demo-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: #0f0;
+      text-shadow: 0 0 10px #0f0;
+    }
+
+    .effect-demo {
+      margin: 40px 0;
+      padding: 20px;
+      border: 2px solid #0f0;
+      position: relative;
+      min-height: 200px;
+    }
+
+    .effect-demo h2 {
+      margin-top: 0;
+      color: #ff0;
+    }
+
+    .effect-demo p {
+      line-height: 1.6;
+      position: relative;
+      z-index: 10;
+    }
+
+    .controls {
+      margin: 20px 0;
+      padding: 10px;
+      background: rgba(0, 255, 0, 0.1);
+      border: 1px solid #0f0;
+    }
+
+    .controls label {
+      display: inline-block;
+      margin-right: 20px;
+    }
+
+    .controls select {
+      background: #000;
+      color: #0f0;
+      border: 1px solid #0f0;
+      padding: 5px;
+      font-family: 'Courier New', monospace;
+    }
+
+    /* Import background effect styles */
+    
+    /* Fog overlay effect */
+    .fog-overlay {
+      position: relative;
+    }
+
+    .fog-overlay::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(ellipse at 20% 30%, rgba(100, 100, 100, var(--fog-intensity, 0.15)) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 70%, rgba(100, 100, 100, var(--fog-intensity, 0.15)) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(80, 80, 80, var(--fog-intensity, 0.15)) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+      animation: fog-drift-animation 20s ease-in-out infinite;
+    }
+
+    @keyframes fog-drift-animation {
+      0%, 100% {
+        transform: translateX(0) translateY(0);
+        opacity: 1;
+      }
+      25% {
+        transform: translateX(-10px) translateY(5px);
+        opacity: 0.8;
+      }
+      50% {
+        transform: translateX(10px) translateY(-5px);
+        opacity: 1;
+      }
+      75% {
+        transform: translateX(-5px) translateY(10px);
+        opacity: 0.9;
+      }
+    }
+
+    .fog-overlay.intensity-low {
+      --fog-intensity: 0.08;
+    }
+
+    .fog-overlay.intensity-medium {
+      --fog-intensity: 0.15;
+    }
+
+    .fog-overlay.intensity-high {
+      --fog-intensity: 0.25;
+    }
+
+    /* Screen flicker effect */
+    @keyframes screen-flicker-animation {
+      0%, 100% {
+        opacity: 1;
+      }
+      10% {
+        opacity: calc(1 - var(--flicker-intensity, 0.05));
+      }
+      20% {
+        opacity: calc(1 - var(--flicker-intensity, 0.05) * 2);
+      }
+      30% {
+        opacity: 1;
+      }
+      40% {
+        opacity: calc(1 - var(--flicker-intensity, 0.05) * 3);
+      }
+      50% {
+        opacity: 1;
+      }
+      60% {
+        opacity: calc(1 - var(--flicker-intensity, 0.05) * 1.6);
+      }
+      70% {
+        opacity: 1;
+      }
+      80% {
+        opacity: calc(1 - var(--flicker-intensity, 0.05) * 2.4);
+      }
+      90% {
+        opacity: 1;
+      }
+    }
+
+    .screen-flicker {
+      animation: screen-flicker-animation 5000ms ease-in-out infinite;
+    }
+
+    .screen-flicker.intensity-low {
+      --flicker-intensity: 0.03;
+    }
+
+    .screen-flicker.intensity-medium {
+      --flicker-intensity: 0.05;
+    }
+
+    .screen-flicker.intensity-high {
+      --flicker-intensity: 0.08;
+    }
+
+    /* Chromatic aberration effect */
+    .chromatic-aberration {
+      position: relative;
+    }
+
+    .chromatic-aberration::before,
+    .chromatic-aberration::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      opacity: var(--chromatic-intensity, 0.3);
+    }
+
+    .chromatic-aberration::before {
+      background: rgba(255, 0, 0, 0.5);
+      mix-blend-mode: screen;
+      animation: chromatic-red-channel 3s ease-in-out infinite;
+    }
+
+    .chromatic-aberration::after {
+      background: rgba(0, 255, 255, 0.5);
+      mix-blend-mode: screen;
+      animation: chromatic-cyan-channel 3s ease-in-out infinite;
+    }
+
+    @keyframes chromatic-red-channel {
+      0%, 100% {
+        transform: translateX(-2px);
+      }
+      25% {
+        transform: translateX(-3px) translateY(-1px);
+      }
+      50% {
+        transform: translateX(-1px) translateY(1px);
+      }
+      75% {
+        transform: translateX(-2.5px) translateY(-0.5px);
+      }
+    }
+
+    @keyframes chromatic-cyan-channel {
+      0%, 100% {
+        transform: translateX(2px);
+      }
+      25% {
+        transform: translateX(1px) translateY(1px);
+      }
+      50% {
+        transform: translateX(3px) translateY(-1px);
+      }
+      75% {
+        transform: translateX(2.5px) translateY(0.5px);
+      }
+    }
+
+    .chromatic-aberration.intensity-low {
+      --chromatic-intensity: 0.15;
+    }
+
+    .chromatic-aberration.intensity-medium {
+      --chromatic-intensity: 0.3;
+    }
+
+    .chromatic-aberration.intensity-high {
+      --chromatic-intensity: 0.5;
+    }
+
+    /* Scanlines effect */
+    @keyframes scanlines-animation {
+      0% {
+        background-position: 0 0;
+      }
+      100% {
+        background-position: 0 4px;
+      }
+    }
+
+    .scanlines-overlay {
+      position: relative;
+    }
+
+    .scanlines-overlay::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, var(--scanlines-intensity, 0.15)) 0px,
+        transparent 1px,
+        transparent 2px,
+        rgba(0, 0, 0, var(--scanlines-intensity, 0.15)) 3px
+      );
+      pointer-events: none;
+      z-index: 1;
+      animation: scanlines-animation 8s linear infinite;
+    }
+
+    .scanlines-overlay.intensity-low {
+      --scanlines-intensity: 0.08;
+    }
+
+    .scanlines-overlay.intensity-medium {
+      --scanlines-intensity: 0.15;
+    }
+
+    .scanlines-overlay.intensity-high {
+      --scanlines-intensity: 0.25;
+    }
+
+    /* Combined effects demo */
+    .combined-effects {
+      background: #000;
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-container">
+    <h1>Background Effects Demo</h1>
+    <p style="text-align: center;">
+      Interactive demonstration of theme-specific background effects<br>
+      Requirements: 12.1, 12.2, 12.3, 12.4
+    </p>
+
+    <!-- Fog Overlay Demo -->
+    <div class="effect-demo fog-overlay intensity-medium" id="fog-demo">
+      <h2>1. Fog Overlay Effect (Haunting Mode)</h2>
+      <p>
+        This effect creates a drifting fog atmosphere using multiple radial gradients.
+        The fog slowly moves across the screen creating an eerie, haunted atmosphere.
+        Perfect for the Kiroween/Haunting theme.
+      </p>
+      <div class="controls">
+        <label>
+          Intensity:
+          <select onchange="updateIntensity('fog-demo', this.value)">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <!-- Screen Flicker Demo -->
+    <div class="effect-demo screen-flicker intensity-medium" id="flicker-demo">
+      <h2>2. Screen Flicker Effect</h2>
+      <p>
+        Simulates CRT screen flickering with variable opacity changes.
+        Creates an authentic retro television experience with subtle brightness variations.
+        The flicker pattern is randomized for a natural appearance.
+      </p>
+      <div class="controls">
+        <label>
+          Intensity:
+          <select onchange="updateIntensity('flicker-demo', this.value)">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <!-- Chromatic Aberration Demo -->
+    <div class="effect-demo chromatic-aberration intensity-medium" id="chromatic-demo">
+      <h2>3. Chromatic Aberration Effect</h2>
+      <p>
+        RGB channel separation creates a retro color distortion effect.
+        Red and cyan channels are offset and animated independently,
+        simulating the color fringing seen in old CRT displays and VHS tapes.
+      </p>
+      <div class="controls">
+        <label>
+          Intensity:
+          <select onchange="updateIntensity('chromatic-demo', this.value)">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <!-- Scanlines Demo -->
+    <div class="effect-demo scanlines-overlay intensity-medium" id="scanlines-demo">
+      <h2>4. Scanlines Overlay (Ceefax Theme)</h2>
+      <p>
+        Classic CRT scanline effect with scrolling animation.
+        Horizontal lines move slowly down the screen, recreating the look
+        of traditional teletext displays and vintage computer monitors.
+      </p>
+      <div class="controls">
+        <label>
+          Intensity:
+          <select onchange="updateIntensity('scanlines-demo', this.value)">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <!-- Combined Effects Demo -->
+    <div class="effect-demo combined-effects fog-overlay screen-flicker chromatic-aberration intensity-medium" id="combined-demo">
+      <h2>5. Combined Effects (Haunting Theme)</h2>
+      <p>
+        All Haunting Mode effects combined: fog overlay, screen flicker, and chromatic aberration.
+        This creates the full immersive horror atmosphere for the Kiroween theme.
+        Effects are layered with proper z-indexing to maintain text readability.
+      </p>
+      <div class="controls">
+        <label>
+          Intensity:
+          <select onchange="updateCombinedIntensity(this.value)">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <div style="margin-top: 40px; padding: 20px; border: 2px solid #0f0; background: rgba(0, 255, 0, 0.05);">
+      <h2>Implementation Notes</h2>
+      <ul>
+        <li><strong>GPU Accelerated:</strong> All effects use transform and opacity for optimal performance</li>
+        <li><strong>Configurable Intensity:</strong> Three levels (low, medium, high) for each effect</li>
+        <li><strong>Text Readability:</strong> Effects use semi-transparent overlays and proper z-indexing</li>
+        <li><strong>Accessibility:</strong> Respects prefers-reduced-motion and user settings</li>
+        <li><strong>Theme-Specific:</strong> Different effects for Ceefax, Haunting, ORF, and High Contrast themes</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    function updateIntensity(elementId, intensity) {
+      const element = document.getElementById(elementId);
+      element.classList.remove('intensity-low', 'intensity-medium', 'intensity-high');
+      element.classList.add('intensity-' + intensity);
+    }
+
+    function updateCombinedIntensity(intensity) {
+      const element = document.getElementById('combined-demo');
+      element.classList.remove('intensity-low', 'intensity-medium', 'intensity-high');
+      element.classList.add('intensity-' + intensity);
+    }
+  </script>
+</body>
+</html>

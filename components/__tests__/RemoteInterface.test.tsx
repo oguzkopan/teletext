@@ -9,8 +9,35 @@ describe('RemoteInterface Component', () => {
   const mockOnColorButton = jest.fn();
   const mockOnEnter = jest.fn();
 
+  const mockPage = {
+    id: '200',
+    title: 'News',
+    rows: Array(24).fill(''),
+    links: [
+      { label: 'INDEX', targetPage: '100', color: 'red' as const },
+      { label: 'SPORT', targetPage: '300', color: 'green' as const },
+      { label: 'MARKETS', targetPage: '400', color: 'yellow' as const },
+      { label: 'AI', targetPage: '500', color: 'blue' as const }
+    ],
+    meta: {
+      continuation: {
+        currentPage: '200',
+        nextPage: '201',
+        previousPage: '199',
+        totalPages: 3,
+        currentIndex: 1
+      }
+    }
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
   });
 
   it('renders numeric keypad with digits 0-9', () => {
@@ -274,5 +301,202 @@ describe('RemoteInterface Component', () => {
     fireEvent(window, event);
     
     expect(preventDefaultSpy).toHaveBeenCalled();
+  });
+
+  // Visual feedback tests
+  it('shows button press animation when digit is clicked', () => {
+    const { container } = render(
+      <RemoteInterface
+        onDigitPress={mockOnDigitPress}
+        onNavigate={mockOnNavigate}
+        onColorButton={mockOnColorButton}
+        onEnter={mockOnEnter}
+        currentInput=""
+      />
+    );
+
+    const button5 = screen.getByText('5');
+    fireEvent.click(button5);
+    
+    expect(button5).toHaveClass('pressed');
+    expect(button5).toHaveClass('flashing');
+  });
+
+  it('displays dynamic button labels based on page context', () => {
+    const { container } = render(
+      <RemoteInterface
+        onDigitPress={mockOnDigitPress}
+        onNavigate={mockOnNavigate}
+        onColorButton={mockOnColorButton}
+        onEnter={mockOnEnter}
+        currentInput=""
+        currentPage={mockPage}
+      />
+    );
+
+    expect(screen.getByText('INDEX')).toBeInTheDocument();
+    expect(screen.getByText('SPORT')).toBeInTheDocument();
+    expect(screen.getByText('MARKETS')).toBeInTheDocument();
+    expect(screen.getByText('AI')).toBeInTheDocument();
+  });
+
+  it('highlights available colored buttons with glow effect', () => {
+    const { container } = render(
+      <RemoteInterface
+        onDigitPress={mockOnDigitPress}
+        onNavigate={mockOnNavigate}
+        onColorButton={mockOnColorButton}
+        onEnter={mockOnEnter}
+        currentInput=""
+        currentPage={mockPage}
+      />
+    );
+
+    const redButton = container.querySelector('.color-button.red');
+    const greenButton = container.querySelector('.color-button.green');
+    
+    expect(redButton).toHaveClass('available');
+    expect(greenButton).toHaveClass('available');
+  });
+
+  it('highlights navigation buttons when they are available', () => {
+    const { container } = render(
+      <RemoteInterface
+        onDigitPress={mockOnDigitPress}
+        onNavigate={mockOnNavigate}
+        onColorButton={mockOnColorButton}
+        onEnter={mockOnEnter}
+        currentInput=""
+        currentPage={mockPage}
+        canGoBack={true}
+        canGoForward={true}
+      />
+    );
+
+    const buttons = container.querySelectorAll('.nav-button');
+    const backButton = Array.from(buttons).find(btn => btn.textContent === '◄');
+    const forwardButton = Array.from(buttons).find(btn => btn.textContent === '►');
+    const upButton = Array.from(buttons).find(btn => btn.textContent === '▲');
+    const downButton = Array.from(buttons).find(btn => btn.textContent === '▼');
+    
+    expect(backButton).toHaveClass('available');
+    expect(forwardButton).toHaveClass('available');
+    expect(upButton).toHaveClass('available'); // Has previousPage
+    expect(downButton).toHaveClass('available'); // Has nextPage
+  });
+
+  it('shows tooltips with dynamic content for colored buttons', () => {
+    const { container } = render(
+      <RemoteInterface
+        onDigitPress={mockOnDigitPress}
+        onNavigate={mockOnNavigate}
+        onColorButton={mockOnColorButton}
+        onEnter={mockOnEnter}
+        currentInput=""
+        currentPage={mockPage}
+      />
+    );
+
+    const redButton = container.querySelector('.color-button.red') as HTMLElement;
+    expect(redButton.title).toContain('INDEX');
+  });
+
+  it('updates button states when page changes', () => {
+    const { container, rerender } = render(
+      <RemoteInterface
+        onDigitPress={mockOnDigitPress}
+        onNavigate={mockOnNavigate}
+        onColorButton={mockOnColorButton}
+        onEnter={mockOnEnter}
+        currentInput=""
+        currentPage={mockPage}
+      />
+    );
+
+    expect(screen.getByText('INDEX')).toBeInTheDocument();
+
+    const newPage = {
+      ...mockPage,
+      links: [
+        { label: 'HOME', targetPage: '100', color: 'red' as const }
+      ]
+    };
+
+    rerender(
+      <RemoteInterface
+        onDigitPress={mockOnDigitPress}
+        onNavigate={mockOnNavigate}
+        onColorButton={mockOnColorButton}
+        onEnter={mockOnEnter}
+        currentInput=""
+        currentPage={newPage}
+      />
+    );
+
+    expect(screen.getByText('HOME')).toBeInTheDocument();
+    expect(screen.queryByText('INDEX')).not.toBeInTheDocument();
+  });
+
+  it('shows visual feedback for all button interactions', () => {
+    const { container } = render(
+      <RemoteInterface
+        onDigitPress={mockOnDigitPress}
+        onNavigate={mockOnNavigate}
+        onColorButton={mockOnColorButton}
+        onEnter={mockOnEnter}
+        currentInput=""
+        currentPage={mockPage}
+      />
+    );
+
+    // Test digit button
+    const button1 = screen.getByText('1');
+    fireEvent.click(button1);
+    expect(button1).toHaveClass('flashing');
+
+    // Test navigation button
+    const okButton = screen.getByText('OK');
+    fireEvent.click(okButton);
+    expect(okButton).toHaveClass('flashing');
+
+    // Test colored button
+    const redButton = container.querySelector('.color-button.red') as HTMLElement;
+    fireEvent.click(redButton);
+    expect(redButton).toHaveClass('flashing');
+  });
+
+  it('clears visual feedback after animation completes', async () => {
+    const { act } = await import('@testing-library/react');
+    const { container } = render(
+      <RemoteInterface
+        onDigitPress={mockOnDigitPress}
+        onNavigate={mockOnNavigate}
+        onColorButton={mockOnColorButton}
+        onEnter={mockOnEnter}
+        currentInput=""
+      />
+    );
+
+    const button5 = screen.getByText('5');
+    
+    act(() => {
+      fireEvent.click(button5);
+    });
+    
+    expect(button5).toHaveClass('pressed');
+    expect(button5).toHaveClass('flashing');
+
+    // Fast-forward past the pressed animation (150ms)
+    await act(async () => {
+      jest.advanceTimersByTime(150);
+    });
+    expect(button5).not.toHaveClass('pressed');
+    expect(button5).toHaveClass('flashing');
+
+    // Fast-forward past the flash animation (300ms total)
+    await act(async () => {
+      jest.advanceTimersByTime(150);
+    });
+    expect(button5).not.toHaveClass('flashing');
   });
 });

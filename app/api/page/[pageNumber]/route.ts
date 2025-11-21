@@ -46,6 +46,27 @@ export async function GET(
   } catch (error) {
     console.error('Error fetching page:', error);
     
+    // Check if this is a connection error (emulator not running)
+    const isConnectionError = error instanceof Error && 
+      (error.message.includes('ECONNREFUSED') || error.message.includes('fetch failed'));
+    
+    // In development, if emulator is not running, use fallback pages
+    if (process.env.NODE_ENV === 'development' && isConnectionError) {
+      const { getFallbackPage } = await import('@/lib/fallback-pages');
+      const fallbackPage = getFallbackPage(pageNumber);
+      
+      if (fallbackPage) {
+        return NextResponse.json(
+          { 
+            success: true, 
+            page: fallbackPage,
+            fallback: true
+          },
+          { status: 200 }
+        );
+      }
+    }
+    
     return NextResponse.json(
       { 
         success: false, 

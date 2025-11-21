@@ -114,7 +114,15 @@ export default function BootSequence({ onComplete, theme }: BootSequenceProps) {
                     className="boot-text"
                     style={{ color: theme.green }}
                   >
-                    <div className="boot-line glitch-text">MODERN TELETEXT</div>
+                    <div className="boot-line glitch-text logo-reveal">
+                      ╔══════════════════════════════════╗
+                    </div>
+                    <div className="boot-line glitch-text logo-reveal delay-0-5">
+                      ║  MODERN TELETEXT  ░▒▓█▓▒░       ║
+                    </div>
+                    <div className="boot-line glitch-text logo-reveal delay-0-7">
+                      ╚══════════════════════════════════╝
+                    </div>
                     <div className="boot-line delay-1 glitch-text">SYSTEM READY</div>
                     <div className="boot-line delay-2" style={{ fontSize: '18px', color: '#ffff00', marginTop: '40px' }}>
                       KEYBOARD CONTROLS:
@@ -130,6 +138,9 @@ export default function BootSequence({ onComplete, theme }: BootSequenceProps) {
                     </div>
                     <div className="boot-line delay-6" style={{ fontSize: '20px', color: '#ff0000', marginTop: '40px', fontWeight: 'bold' }}>
                       {phase === 'waiting' ? '▶ PRESS ANY KEY TO ENTER ◀' : 'LOADING...'}
+                    </div>
+                    <div className="boot-line delay-7" style={{ fontSize: '14px', color: '#00ffff', marginTop: '20px' }}>
+                      ⚡ Powered by Kiro
                     </div>
                   </div>
                 </div>
@@ -388,6 +399,14 @@ export default function BootSequence({ onComplete, theme }: BootSequenceProps) {
           margin: 10px 0;
         }
 
+        .boot-line.delay-0-5 {
+          animation-delay: 0.05s;
+        }
+
+        .boot-line.delay-0-7 {
+          animation-delay: 0.1s;
+        }
+
         .boot-line.delay-1 {
           animation-delay: 0.2s;
         }
@@ -411,6 +430,16 @@ export default function BootSequence({ onComplete, theme }: BootSequenceProps) {
         .boot-line.delay-6 {
           animation-delay: 1s;
           animation: fade-in 0.3s ease-in forwards, blink-text 1s ease-in-out infinite 1.3s;
+        }
+
+        .boot-line.delay-7 {
+          animation-delay: 1.2s;
+        }
+
+        .logo-reveal {
+          font-family: 'Courier New', Courier, monospace;
+          font-size: 16px;
+          letter-spacing: 0;
         }
 
         @keyframes fade-in {

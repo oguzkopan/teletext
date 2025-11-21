@@ -30,6 +30,14 @@ export interface PageMeta {
     curvature?: number;
     noiseLevel?: number;
   };
+  animationSettings?: {
+    animationsEnabled?: boolean;
+    animationIntensity?: number;
+    transitionsEnabled?: boolean;
+    decorationsEnabled?: boolean;
+    backgroundEffectsEnabled?: boolean;
+  };
+  settingsPage?: boolean;
   favoritePages?: string[];
   continuation?: {         // Multi-page navigation metadata
     currentPage: string;
@@ -41,6 +49,49 @@ export interface PageMeta {
   themeSelectionPage?: boolean; // Flag to enable special keyboard handling for theme selection
   inputMode?: 'single' | 'double' | 'triple'; // Expected input length: 1, 2, or 3 digits
   inputOptions?: string[];  // Valid single-digit options (e.g., ['1', '2', '3', '4', '5'])
+  progress?: {             // Progress indicator metadata for multi-step processes
+    current: number;
+    total: number;
+    label?: string;
+    percentage?: number;
+  };
+  completed?: boolean;     // Indicates a process has been completed
+  finalScore?: {           // Final score for completed quizzes/games
+    correct: number;
+    total: number;
+    percentage: number;
+  };
+  hasLiveMatches?: boolean; // Indicates if there are live sports matches
+  animationClasses?: {      // CSS classes for animations
+    liveIndicator?: string;
+    scoreFlash?: string;
+    fullTime?: string;
+  };
+  animatedLogo?: boolean;   // Enable animated logo on page
+  logoAnimation?: string;   // Animation type for logo (e.g., 'logo-reveal', 'logo-pulse')
+  scrollingCredits?: boolean; // Enable scrolling credits animation
+  creditsAnimation?: string; // Animation type for credits (e.g., 'scrolling-credits')
+  kiroBadge?: boolean;      // Enable Kiro badge animation
+  kiroBadgeAnimation?: string; // Animation type for Kiro badge (e.g., 'kiro-badge-pulse')
+  keyboardVisualization?: boolean; // Enable keyboard shortcut visualization
+  highlightedKeys?: string[];  // Keys to highlight on keyboard visualization page
+  maxVisualEffects?: boolean;  // Apply maximum visual effects regardless of user settings
+  specialPageAnimation?: {     // Special page animation configuration
+    type: 'ascii-frames' | 'css' | 'javascript';
+    name: string;
+    targetRows: number[];
+    frames: string[];
+    duration: number;
+    loop: boolean;
+  };
+  specialPageAnimations?: Array<{ // Multiple special page animations
+    type: 'ascii-frames' | 'css' | 'javascript';
+    name: string;
+    targetRows: number[];
+    frames: string[];
+    duration: number;
+    loop: boolean;
+  }>;
 }
 
 export interface ContentAdapter {

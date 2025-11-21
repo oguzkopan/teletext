@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market Trend Indicators Demo</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1, h2 {
+      color: #ffff00;
+      border-bottom: 2px solid #ffff00;
+      padding-bottom: 10px;
+    }
+
+    .demo-section {
+      margin: 30px 0;
+      padding: 20px;
+      background-color: #111;
+      border: 1px solid #333;
+    }
+
+    .market-row {
+      font-size: 14px;
+      letter-spacing: 0;
+      white-space: pre;
+      margin: 5px 0;
+    }
+
+    /* Market Trend Animations */
+    .market-trend-up {
+      animation: trend-up 0.5s ease-out;
+      color: #00ff00;
+    }
+
+    .market-trend-down {
+      animation: trend-down 0.5s ease-out;
+      color: #ff0000;
+    }
+
+    .market-trend-stable {
+      color: #ffffff;
+    }
+
+    @keyframes trend-up {
+      0% {
+        transform: translateY(0);
+        opacity: 0.5;
+      }
+      50% {
+        transform: translateY(-3px);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes trend-down {
+      0% {
+        transform: translateY(0);
+        opacity: 0.5;
+      }
+      50% {
+        transform: translateY(3px);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* Percentage counting animation */
+    .market-percentage-count {
+      animation: count-flash 0.3s ease-in-out;
+    }
+
+    @keyframes count-flash {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.7;
+        transform: scale(1.1);
+      }
+    }
+
+    /* Price change flash */
+    .market-price-flash {
+      animation: price-flash 0.5s ease-out;
+    }
+
+    @keyframes price-flash {
+      0% {
+        background-color: rgba(255, 255, 0, 0.3);
+      }
+      100% {
+        background-color: transparent;
+      }
+    }
+
+    /* Sparkline animation */
+    .market-sparkline {
+      display: inline-block;
+      letter-spacing: -1px;
+      animation: sparkline-draw 1s ease-out;
+    }
+
+    @keyframes sparkline-draw {
+      from {
+        opacity: 0;
+        transform: scaleX(0);
+        transform-origin: left;
+      }
+      to {
+        opacity: 1;
+        transform: scaleX(1);
+      }
+    }
+
+    .trend-up {
+      color: #00ff00;
+    }
+
+    .trend-down {
+      color: #ff0000;
+    }
+
+    .trend-stable {
+      color: #ffffff;
+    }
+
+    button {
+      background-color: #333;
+      color: #fff;
+      border: 1px solid #666;
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+    }
+
+    button:hover {
+      background-color: #555;
+    }
+
+    .sparkline-demo {
+      font-size: 16px;
+      letter-spacing: -1px;
+      margin: 10px 0;
+    }
+
+    .legend {
+      display: flex;
+      gap: 20px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .arrow-demo {
+      font-size: 24px;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Market Trend Indicators Demo</h1>
+    <p>Visual indicators and animations for market data display</p>
+
+    <div class="demo-section">
+      <h2>1. Trend Arrows</h2>
+      <div class="legend">
+        <div class="legend-item">
+          <span class="arrow-demo trend-up">▲</span>
+          <span>Up (gain)</span>
+        </div>
+        <div class="legend-item">
+          <span class="arrow-demo trend-down">▼</span>
+          <span>Down (loss)</span>
+        </div>
+        <div class="legend-item">
+          <span class="arrow-demo trend-stable">►</span>
+          <span>Stable (no change)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>2. Market Data with Trends</h2>
+      <div class="market-row">COIN     PRICE        CHANGE  TREND</div>
+      <div class="market-row">────────────────────────────────────</div>
+      <div class="market-row">BTC      $45,123.45  <span class="trend-up">▲ +2.34%</span></div>
+      <div class="market-row">ETH      $2,345.67   <span class="trend-down">▼ -1.23%</span></div>
+      <div class="market-row">USDT     $1.00       <span class="trend-stable">► +0.01%</span></div>
+      <div class="market-row">BNB      $312.45     <span class="trend-up">▲ +3.45%</span></div>
+      <div class="market-row">SOL      $98.76      <span class="trend-up">▲ +5.67%</span></div>
+      <div class="market-row">XRP      $0.6234     <span class="trend-down">▼ -2.34%</span></div>
+    </div>
+
+    <div class="demo-section">
+      <h2>3. ASCII Sparklines</h2>
+      <p>Visual representation of price history:</p>
+      <div class="sparkline-demo">
+        <span>BTC 7-day: </span>
+        <span class="market-sparkline">▁▂▃▄▅▆▇█</span>
+        <span class="trend-up"> ▲ Trending up</span>
+      </div>
+      <div class="sparkline-demo">
+        <span>ETH 7-day: </span>
+        <span class="market-sparkline">█▇▆▅▄▃▂▁</span>
+        <span class="trend-down"> ▼ Trending down</span>
+      </div>
+      <div class="sparkline-demo">
+        <span>USDT 7-day: </span>
+        <span class="market-sparkline">▄▄▄▄▄▄▄▄</span>
+        <span class="trend-stable"> ► Stable</span>
+      </div>
+      <div class="sparkline-demo">
+        <span>BNB 7-day: </span>
+        <span class="market-sparkline">▃▄▃▅▄▆▅▇</span>
+        <span class="trend-up"> ▲ Volatile up</span>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>4. Animated Trends</h2>
+      <p>Click to trigger animations:</p>
+      <button onclick="animateTrend('up')">Animate Up ▲</button>
+      <button onclick="animateTrend('down')">Animate Down ▼</button>
+      <button onclick="animateTrend('stable')">Animate Stable ►</button>
+      <div style="margin-top: 20px;">
+        <div class="market-row" id="animated-row">
+          BTC      $45,123.45  <span id="animated-change" class="trend-up">▲ +2.34%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>5. Complete Market Page Example</h2>
+      <div class="market-row">CRYPTOCURRENCY PRICES        P401</div>
+      <div class="market-row">════════════════════════════════════</div>
+      <div class="market-row">Updated: 14:23</div>
+      <div class="market-row"></div>
+      <div class="market-row">COIN     PRICE      CHANGE   TREND</div>
+      <div class="market-row">────────────────────────────────────</div>
+      <div class="market-row">BTC      $45,123.45 <span class="trend-up">▲ +2.34%</span> <span class="market-sparkline">▁▃▅▇█</span></div>
+      <div class="market-row">ETH      $2,345.67  <span class="trend-down">▼ -1.23%</span> <span class="market-sparkline">█▇▅▃▁</span></div>
+      <div class="market-row">USDT     $1.00      <span class="trend-stable">► +0.01%</span> <span class="market-sparkline">▄▄▄▄▄</span></div>
+      <div class="market-row">BNB      $312.45    <span class="trend-up">▲ +3.45%</span> <span class="market-sparkline">▂▄▅▆█</span></div>
+      <div class="market-row">SOL      $98.76     <span class="trend-up">▲ +5.67%</span> <span class="market-sparkline">▁▂▄▆█</span></div>
+      <div class="market-row">XRP      $0.6234    <span class="trend-down">▼ -2.34%</span> <span class="market-sparkline">▇▆▄▃▂</span></div>
+      <div class="market-row">ADA      $0.4567    <span class="trend-up">▲ +1.23%</span> <span class="market-sparkline">▃▄▄▅▆</span></div>
+      <div class="market-row">AVAX     $34.56     <span class="trend-up">▲ +4.56%</span> <span class="market-sparkline">▂▃▅▆█</span></div>
+      <div class="market-row"></div>
+      <div class="market-row">Market Summary: <span class="trend-up">▲5</span> <span class="trend-down">▼2</span> <span class="trend-stable">►1</span></div>
+    </div>
+
+    <div class="demo-section">
+      <h2>6. Price Flash Animation</h2>
+      <p>Simulates real-time price updates:</p>
+      <button onclick="flashPrice()">Simulate Price Update</button>
+      <div style="margin-top: 20px;">
+        <div class="market-row" id="flash-row">
+          BTC      $<span id="flash-price">45,123.45</span>  <span id="flash-change" class="trend-up">▲ +2.34%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>7. Trend Summary</h2>
+      <p>Quick overview of market sentiment:</p>
+      <div class="market-row">Total Assets: 10</div>
+      <div class="market-row">Gainers: <span class="trend-up">▲5</span></div>
+      <div class="market-row">Losers: <span class="trend-down">▼3</span></div>
+      <div class="market-row">Stable: <span class="trend-stable">►2</span></div>
+      <div class="market-row"></div>
+      <div class="market-row">Summary: <span class="trend-up">▲5</span> <span class="trend-down">▼3</span> <span class="trend-stable">►2</span></div>
+    </div>
+  </div>
+
+  <script>
+    function animateTrend(direction) {
+      const changeElement = document.getElementById('animated-change');
+      const rowElement = document.getElementById('animated-row');
+      
+      // Remove existing classes
+      changeElement.className = '';
+      
+      // Set new content and class
+      if (direction === 'up') {
+        changeElement.className = 'market-trend-up trend-up';
+        changeElement.textContent = '▲ +2.34%';
+      } else if (direction === 'down') {
+        changeElement.className = 'market-trend-down trend-down';
+        changeElement.textContent = '▼ -1.23%';
+      } else {
+        changeElement.className = 'market-trend-stable trend-stable';
+        changeElement.textContent = '► +0.05%';
+      }
+      
+      // Trigger reflow to restart animation
+      void changeElement.offsetWidth;
+    }
+
+    function flashPrice() {
+      const priceElement = document.getElementById('flash-price');
+      const changeElement = document.getElementById('flash-change');
+      const rowElement = document.getElementById('flash-row');
+      
+      // Simulate price increase
+      const oldPrice = 45123.45;
+      const newPrice = 45234.56;
+      const change = ((newPrice - oldPrice) / oldPrice * 100).toFixed(2);
+      
+      // Add flash animation
+      priceElement.className = 'market-price-flash';
+      changeElement.className = 'market-percentage-count market-trend-up trend-up';
+      
+      // Update values
+      priceElement.textContent = newPrice.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      changeElement.textContent = `▲ +${change}%`;
+      
+      // Remove animation class after completion
+      setTimeout(() => {
+        priceElement.className = '';
+      }, 500);
+    }
+
+    // Auto-refresh demo
+    let autoRefreshInterval;
+    
+    function startAutoRefresh() {
+      autoRefreshInterval = setInterval(() => {
+        const directions = ['up', 'down', 'stable'];
+        const randomDirection = directions[Math.floor(Math.random() * directions.length)];
+        animateTrend(randomDirection);
+      }, 3000);
+    }
+
+    // Uncomment to enable auto-refresh
+    // startAutoRefresh();
+  </script>
+</body>
+</html>

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sports Live Indicators Demo</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: #00ff00;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .section {
+      margin-bottom: 40px;
+      padding: 20px;
+      border: 2px solid #333;
+      border-radius: 5px;
+    }
+
+    .section h2 {
+      color: #ffff00;
+      margin-bottom: 15px;
+    }
+
+    .match-row {
+      padding: 10px;
+      margin: 10px 0;
+      background-color: #111;
+      border-radius: 3px;
+      transition: background-color 0.2s ease;
+    }
+
+    .match-row:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    /* Live Indicator Pulsing Animation */
+    .live-indicator-pulse {
+      animation: live-pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes live-pulse {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.7;
+        transform: scale(1.05);
+      }
+    }
+
+    /* Score Change Flash Animation */
+    .score-flash {
+      animation: score-flash-animation 0.5s ease-out;
+    }
+
+    @keyframes score-flash-animation {
+      0% {
+        background-color: transparent;
+        transform: scale(1);
+      }
+      25% {
+        background-color: rgba(255, 255, 0, 0.3);
+        transform: scale(1.1);
+      }
+      50% {
+        background-color: rgba(255, 255, 0, 0.5);
+        transform: scale(1.15);
+      }
+      75% {
+        background-color: rgba(255, 255, 0, 0.3);
+        transform: scale(1.1);
+      }
+      100% {
+        background-color: transparent;
+        transform: scale(1);
+      }
+    }
+
+    /* Match Status Color Coding */
+    .match-status-live {
+      color: #00ff00;
+    }
+
+    .match-status-halftime {
+      color: #ffff00;
+    }
+
+    .match-status-finished {
+      color: #ffffff;
+    }
+
+    .match-status-postponed {
+      color: #ff0000;
+    }
+
+    /* Full Time Animation */
+    .full-time-animation {
+      animation: full-time-reveal 1s ease-out;
+    }
+
+    @keyframes full-time-reveal {
+      0% {
+        opacity: 0;
+        transform: scale(0.5) translateY(-20px);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.2) translateY(0);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    /* Time Indicator Animation */
+    .time-indicator-animated {
+      animation: time-indicator-bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes time-indicator-bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-2px);
+      }
+    }
+
+    /* Live Badge */
+    .live-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      background-color: #00ff00;
+      color: #000000;
+      font-weight: bold;
+      border-radius: 3px;
+      animation: live-badge-pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes live-badge-pulse {
+      0%, 100% {
+        box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+      }
+      50% {
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.8);
+      }
+    }
+
+    .button {
+      background-color: #333;
+      color: #fff;
+      border: 1px solid #666;
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .button:hover {
+      background-color: #444;
+    }
+
+    .button:active {
+      background-color: #222;
+    }
+
+    .demo-controls {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .score {
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⚽ Sports Live Indicators Demo</h1>
+
+    <!-- Requirement 22.1: Pulsing LIVE Indicator -->
+    <div class="section">
+      <h2>Requirement 22.1: Pulsing "LIVE" Indicator</h2>
+      <div class="match-row">
+        <span class="live-indicator-pulse match-status-live">● LIVE</span>
+        <span> - Pulsing animation for ongoing matches</span>
+      </div>
+      <div class="match-row">
+        <span class="live-badge">LIVE</span>
+        <span> - Alternative badge style with glow effect</span>
+      </div>
+    </div>
+
+    <!-- Requirement 22.2: Score Change Flash -->
+    <div class="section">
+      <h2>Requirement 22.2: Score Change Flash Animation</h2>
+      <div class="match-row" id="scoreFlashDemo">
+        <span>MAN UTD</span>
+        <span class="score" id="scoreDisplay">2 - 1</span>
+        <span>CHELSEA</span>
+      </div>
+      <div class="demo-controls">
+        <button class="button" onclick="triggerScoreFlash()">Trigger Score Change</button>
+      </div>
+    </div>
+
+    <!-- Requirement 22.3: Animated Time Indicators -->
+    <div class="section">
+      <h2>Requirement 22.3: Animated Time Indicators</h2>
+      <div class="match-row">
+        <span>Arsenal 1 - 1 Liverpool</span>
+        <span class="time-indicator-animated match-status-live"> 87' ⚽</span>
+      </div>
+      <div class="match-row">
+        <span>Man City 3 - 0 Tottenham</span>
+        <span class="time-indicator-animated match-status-live"> 72' ⚽</span>
+      </div>
+    </div>
+
+    <!-- Requirement 22.4: Color Coding -->
+    <div class="section">
+      <h2>Requirement 22.4: Match Status Color Coding</h2>
+      <div class="match-row">
+        <span class="match-status-live">● LIVE</span>
+        <span> - Green for live matches (1H, 2H)</span>
+      </div>
+      <div class="match-row">
+        <span class="match-status-halftime">◐ HT</span>
+        <span> - Yellow for half-time</span>
+      </div>
+      <div class="match-row">
+        <span class="match-status-finished">✓ FT</span>
+        <span> - White for finished matches</span>
+      </div>
+      <div class="match-row">
+        <span class="match-status-postponed">✗ PST</span>
+        <span> - Red for postponed/cancelled</span>
+      </div>
+    </div>
+
+    <!-- Requirement 22.5: FULL TIME Animation -->
+    <div class="section">
+      <h2>Requirement 22.5: "FULL TIME" Animation</h2>
+      <div class="match-row" id="fullTimeDemo">
+        <span id="fullTimeText">Match in progress...</span>
+      </div>
+      <div class="demo-controls">
+        <button class="button" onclick="triggerFullTime()">Trigger Full Time</button>
+      </div>
+    </div>
+
+    <!-- Complete Match Display -->
+    <div class="section">
+      <h2>Complete Live Scores Display</h2>
+      <div style="background-color: #000; padding: 15px; border: 1px solid #333;">
+        <div style="margin-bottom: 10px;">
+          <span class="live-indicator-pulse match-status-live">● LIVE</span>
+          <span> MATCHES IN PROGRESS</span>
+        </div>
+        <div class="match-row">
+          <span class="match-status-live">●</span>
+          <span> MAN UTD      </span>
+          <span class="score">2 - 1</span>
+          <span>  Chelsea      </span>
+          <span class="time-indicator-animated match-status-live">87' ⚽</span>
+        </div>
+        <div class="match-row">
+          <span class="match-status-live">●</span>
+          <span> Arsenal      </span>
+          <span class="score">1 - 1</span>
+          <span>  Liverpool    </span>
+          <span class="time-indicator-animated match-status-live">72' ⚽</span>
+        </div>
+        <div class="match-row">
+          <span class="match-status-halftime">◐</span>
+          <span> MAN CITY     </span>
+          <span class="score">3 - 0</span>
+          <span>  TOTTENHAM    </span>
+          <span class="match-status-halftime">HT</span>
+        </div>
+        <div class="match-row">
+          <span class="match-status-finished">✓</span>
+          <span> Newcastle    </span>
+          <span class="score">2 - 2</span>
+          <span>  Brighton     </span>
+          <span class="match-status-finished">FT</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function triggerScoreFlash() {
+      const scoreDisplay = document.getElementById('scoreDisplay');
+      const demoRow = document.getElementById('scoreFlashDemo');
+      
+      // Remove class if it exists
+      demoRow.classList.remove('score-flash');
+      
+      // Trigger reflow
+      void demoRow.offsetWidth;
+      
+      // Add class to trigger animation
+      demoRow.classList.add('score-flash');
+      
+      // Update score
+      const currentScore = scoreDisplay.textContent;
+      if (currentScore === '2 - 1') {
+        scoreDisplay.textContent = '3 - 1';
+      } else {
+        scoreDisplay.textContent = '2 - 1';
+      }
+      
+      // Remove class after animation
+      setTimeout(() => {
+        demoRow.classList.remove('score-flash');
+      }, 500);
+    }
+
+    function triggerFullTime() {
+      const fullTimeText = document.getElementById('fullTimeText');
+      const demoRow = document.getElementById('fullTimeDemo');
+      
+      // Remove class if it exists
+      fullTimeText.classList.remove('full-time-animation');
+      
+      // Trigger reflow
+      void fullTimeText.offsetWidth;
+      
+      // Update text and add animation
+      fullTimeText.textContent = '✓ FULL TIME';
+      fullTimeText.classList.add('full-time-animation', 'match-status-finished');
+      
+      // Reset after 3 seconds
+      setTimeout(() => {
+        fullTimeText.textContent = 'Match in progress...';
+        fullTimeText.classList.remove('full-time-animation', 'match-status-finished');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

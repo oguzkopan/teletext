@@ -62,11 +62,25 @@ export interface PageMeta {
     curvature?: number;
     noiseLevel?: number;
   };
+  animationSettings?: {
+    animationsEnabled?: boolean;
+    animationIntensity?: number;
+    transitionsEnabled?: boolean;
+    decorationsEnabled?: boolean;
+    backgroundEffectsEnabled?: boolean;
+  };
+  settingsPage?: boolean; // Flag to enable settings page keyboard handling
   favoritePages?: string[]; // For keyboard shortcuts config page
   themeSelectionPage?: boolean; // Flag to enable theme selection keyboard handling
   continuation?: PageContinuation; // Multi-page navigation metadata
   inputMode?: 'single' | 'double' | 'triple'; // Expected input length: 1, 2, or 3 digits
   inputOptions?: string[];  // Valid single-digit options (e.g., ['1', '2', '3', '4', '5'])
+  animatedLogo?: boolean;   // Enable animated logo on page
+  logoAnimation?: string;   // Animation type for logo (e.g., 'logo-reveal', 'logo-pulse')
+  scrollingCredits?: boolean; // Enable scrolling credits animation
+  creditsAnimation?: string; // Animation type for credits (e.g., 'scrolling-credits')
+  kiroBadge?: boolean;      // Enable Kiro badge animation
+  kiroBadgeAnimation?: string; // Animation type for Kiro badge (e.g., 'kiro-badge-pulse')
 }
 
 export interface PageContinuation {
@@ -144,6 +158,13 @@ export interface UserPreferencesDocument {
     scanlinesIntensity: number;  // 0-100
     curvature: number;            // 0-10 (px)
     noiseLevel: number;           // 0-100
+  };
+  animationSettings?: {
+    animationsEnabled: boolean;
+    animationIntensity: number;  // 0-100
+    transitionsEnabled: boolean;
+    decorationsEnabled: boolean;
+    backgroundEffectsEnabled: boolean;
   };
   updatedAt: Date;
 }

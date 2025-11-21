@@ -54,7 +54,7 @@ export function createEmulatorOfflinePage(pageId: string): TeletextPage {
 }
 
 /**
- * Creates a fallback index page (100)
+ * Creates a fallback index page (100) with visual enhancements
  */
 export function createFallbackIndexPage(): TeletextPage {
   const now = new Date();
@@ -69,31 +69,30 @@ export function createFallbackIndexPage(): TeletextPage {
   });
   
   const rows = [
-    centerText('MODERN TELETEXT', 32) + '    P100',
-    '════════════════════════════════════════',
+    '╔══════════════════════════════════╗P100',
+    '║  MODERN TELETEXT  ░▒▓█▓▒░       ║',
+    '╚══════════════════════════════════╝',
     centerText(`${dateStr} ${timeStr}`, 40),
+    centerText('⚠ OFFLINE MODE ⚠', 40),
     '',
-    centerText('MAIN INDEX (OFFLINE)', 40),
+    '▓▓▓▓ AVAILABLE OFFLINE ▓▓▓▓▓▓▓▓▓▓▓▓',
+    '  101  ℹ️  System Info & How It Works',
+    '  110  📋 System Pages Index',
+    '  120  📢 Emergency Bulletins',
+    '  199  📖 About & Credits',
+    '  999  ❓ Help & Navigation',
     '',
-    '  101  System Info & Help',
-    '  110  System Pages Index',
-    '  120  Emergency Bulletins',
-    '  199  About & Credits',
-    '  999  Help & Navigation',
-    '',
-    '  200  News (requires emulator)',
-    '  300  Sport (requires emulator)',
-    '  400  Markets (requires emulator)',
-    '  500  AI Oracle (requires emulator)',
-    '  600  Games (requires emulator)',
-    '  700  Settings (requires emulator)',
-    '  800  Dev Tools (requires emulator)',
-    '',
-    centerText('NAVIGATION EXAMPLES', 40),
-    '  Enter 101 for system info',
-    '  Enter 999 for help guide',
-    'HELP    ABOUT',
-    ''
+    '▓▓▓▓ REQUIRES EMULATOR ▓▓▓▓▓▓▓▓▓▓▓▓',
+    '  ►200 📰 News Headlines',
+    '  ►300 ⚽ Sport & Live Scores',
+    '  ►400 📈 Markets & Finance',
+    '  ►420 🌤️  Weather Forecasts',
+    '  ►500 🤖 AI Oracle Assistant',
+    '  ►600 🎮 Games & Entertainment',
+    '  ►700 ⚙️  Settings & Themes',
+    '  ►800 🔧 Developer Tools',
+    '────────────────────────────────────────',
+    '🔴HELP 🟢ABOUT  Enter page number'
   ];
 
   return {

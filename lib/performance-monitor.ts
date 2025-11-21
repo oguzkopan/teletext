@@ -3,6 +3,8 @@
  * 
  * Tracks page load times, bundle sizes, and other performance metrics
  * to ensure compliance with performance requirements.
+ * 
+ * Requirements: 12.3 - Monitor frame rate and degrade animations if below 30fps
  */
 
 interface PerformanceMetrics {
@@ -12,9 +14,21 @@ interface PerformanceMetrics {
   timestamp: number;
 }
 
+interface FrameRateMetrics {
+  fps: number;
+  timestamp: number;
+}
+
 class PerformanceMonitor {
   private metrics: PerformanceMetrics[] = [];
   private maxMetrics = 100; // Keep last 100 metrics
+  private frameRateMetrics: FrameRateMetrics[] = [];
+  private maxFrameRateMetrics = 60; // Keep last 60 frame rate samples
+  private frameRateMonitoringActive = false;
+  private lastFrameTime = 0;
+  private frameCount = 0;
+  private animationFrameId: number | null = null;
+  private lowFrameRateCallback: (() => void) | null = null;
 
   /**
    * Records a page load time
@@ -147,6 +161,124 @@ class PerformanceMonitor {
     }
 
     return summary;
+  }
+
+  /**
+   * Start monitoring frame rate
+   * Requirement: 12.3 - Monitor frame rate and degrade animations if below 30fps
+   */
+  startFrameRateMonitoring(onLowFrameRate?: () => void) {
+    if (typeof window === 'undefined') return;
+    if (this.frameRateMonitoringActive) return;
+
+    this.frameRateMonitoringActive = true;
+    this.lowFrameRateCallback = onLowFrameRate || null;
+    this.lastFrameTime = performance.now();
+    this.frameCount = 0;
+
+    const measureFrame = (currentTime: number) => {
+      if (!this.frameRateMonitoringActive) return;
+
+      this.frameCount++;
+      const elapsed = currentTime - this.lastFrameTime;
+
+      // Calculate FPS every second
+      if (elapsed >= 1000) {
+        const fps = Math.round((this.frameCount * 1000) / elapsed);
+        
+        this.frameRateMetrics.push({
+          fps,
+          timestamp: Date.now()
+        });
+
+        // Keep only recent metrics
+        if (this.frameRateMetrics.length > this.maxFrameRateMetrics) {
+          this.frameRateMetrics.shift();
+        }
+
+        // Check if FPS is below 30 and trigger callback
+        if (fps < 30 && this.lowFrameRateCallback) {
+          console.warn(`Low frame rate detected: ${fps} FPS`);
+          this.lowFrameRateCallback();
+        }
+
+        // Log in development
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`Current FPS: ${fps}`);
+        }
+
+        this.frameCount = 0;
+        this.lastFrameTime = currentTime;
+      }
+
+      this.animationFrameId = requestAnimationFrame(measureFrame);
+    };
+
+    this.animationFrameId = requestAnimationFrame(measureFrame);
+  }
+
+  /**
+   * Stop monitoring frame rate
+   */
+  stopFrameRateMonitoring() {
+    this.frameRateMonitoringActive = false;
+    if (this.animationFrameId !== null) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+  }
+
+  /**
+   * Get current average FPS
+   */
+  getAverageFPS(): number {
+    if (this.frameRateMetrics.length === 0) return 60; // Assume 60 if no data
+    
+    const total = this.frameRateMetrics.reduce((sum, m) => sum + m.fps, 0);
+    return Math.round(total / this.frameRateMetrics.length);
+  }
+
+  /**
+   * Get recent FPS (last 10 samples)
+   */
+  getRecentFPS(): number {
+    if (this.frameRateMetrics.length === 0) return 60;
+    
+    const recent = this.frameRateMetrics.slice(-10);
+    const total = recent.reduce((sum, m) => sum + m.fps, 0);
+    return Math.round(total / recent.length);
+  }
+
+  /**
+   * Check if frame rate is acceptable (>= 30 FPS)
+   */
+  isFrameRateAcceptable(): boolean {
+    return this.getRecentFPS() >= 30;
+  }
+
+  /**
+   * Get frame rate summary
+   */
+  getFrameRateSummary() {
+    if (this.frameRateMetrics.length === 0) {
+      return {
+        averageFPS: 60,
+        recentFPS: 60,
+        minFPS: 60,
+        maxFPS: 60,
+        samples: 0
+      };
+    }
+
+    const fps = this.frameRateMetrics.map(m => m.fps);
+    
+    return {
+      averageFPS: this.getAverageFPS(),
+      recentFPS: this.getRecentFPS(),
+      minFPS: Math.min(...fps),
+      maxFPS: Math.max(...fps),
+      samples: this.frameRateMetrics.length
+    };
   }
 }
 

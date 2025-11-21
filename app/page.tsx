@@ -137,6 +137,8 @@ function HomeContent() {
                 loading={routerState.loading} 
                 theme={effectiveTheme}
                 isOnline={routerState.isOnline}
+                inputBuffer={routerState.inputBuffer}
+                expectedInputLength={routerState.expectedInputLength}
               />
             </CRTFrame>
             

@@ -1,0 +1,1246 @@
+/**
+ * ============================================================================
+ * COMPREHENSIVE CSS ANIMATION LIBRARY
+ * Modern Teletext - Teletext UX Redesign
+ * ============================================================================
+ * 
+ * This centralized animation library provides all animations used throughout
+ * the Modern Teletext application. Animations are organized by:
+ * - Theme (Ceefax, Haunting/Kiroween, High Contrast, ORF)
+ * - Type (transitions, effects, decorations, feedback)
+ * - Utility classes for common animation patterns
+ * 
+ * Requirements: All animation requirements (5.1-5.5, 6.1-6.5, 7.1-7.5, etc.)
+ * 
+ * Usage:
+ * - Import this file in your main CSS: @import './animations.css';
+ * - Apply animation classes directly to elements
+ * - Use utility classes for common patterns
+ * - Respect accessibility settings (prefers-reduced-motion)
+ * 
+ * Performance:
+ * - All animations use GPU-accelerated properties (transform, opacity)
+ * - Avoid animating layout properties (width, height, margin, padding)
+ * - Use will-change sparingly for critical animations only
+ * 
+ * ============================================================================
+ */
+
+/* ============================================================================
+   TABLE OF CONTENTS
+   ============================================================================
+   1. Performance Optimizations
+   2. Accessibility Controls
+   3. Base Animation Utilities
+   4. Page Transitions
+   5. Ceefax Theme Animations
+   6. Haunting/Kiroween Theme Animations
+   7. High Contrast Theme Animations
+   8. ORF Theme Animations
+   9. Theme Transition Animations
+   10. Interactive Element Animations
+   11. Feedback Animations
+   12. Loading Animations
+   13. Decorative Animations
+   14. Utility Animation Classes
+   ============================================================================ */
+
+
+/* ============================================================================
+   1. PERFORMANCE OPTIMIZATIONS
+   Requirements: 12.3 - CSS animation performance optimizations
+   ============================================================================ */
+
+/* GPU-Accelerated Animation Base */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Critical animations with will-change hints */
+.animation-critical {
+  will-change: transform, opacity;
+}
+
+/* Remove will-change after animation completes */
+.animation-complete {
+  will-change: auto;
+}
+
+/* Animation complexity levels for performance degradation */
+.animation-complexity-simple { /* Always enabled */ }
+.animation-complexity-moderate { /* Disabled in degraded mode */ }
+.animation-complexity-complex { /* Disabled in degraded mode */ }
+
+/* Degraded animation mode - triggered when FPS < 30 */
+body.animations-degraded .animation-complexity-moderate,
+body.animations-degraded .animation-complexity-complex {
+  animation: none !important;
+  transition: none !important;
+}
+
+body.animations-degraded .animation-complexity-simple {
+  animation-duration: 0.5s !important;
+}
+
+
+/* ============================================================================
+   2. ACCESSIBILITY CONTROLS
+   Requirements: 10.5, 12.5 - Respect prefers-reduced-motion and user settings
+   ============================================================================ */
+
+/* Respect system preference for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* User has disabled all animations via settings */
+body.animations-disabled *, 
+body.animations-disabled *::before, 
+body.animations-disabled *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* User has reduced animation intensity */
+body.animations-reduced * {
+  animation-duration: calc(var(--animation-duration, 1s) * 0.5) !important;
+  transition-duration: calc(var(--transition-duration, 0.3s) * 0.5) !important;
+}
+
+/* Disable specific animation types */
+body.transitions-disabled * { transition: none !important; }
+body.decorations-disabled [class*="decoration"] { display: none !important; }
+body.background-effects-disabled [class*="background-effect"] { display: none !important; }
+
+
+/* ============================================================================
+   3. BASE ANIMATION UTILITIES
+   Common animation patterns used across themes
+   ============================================================================ */
+
+/* Fade animations */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.fade-in { animation: fade-in 300ms ease-out forwards; }
+.fade-out { animation: fade-out 300ms ease-in forwards; }
+.fade-in-fast { animation: fade-in 150ms ease-out forwards; }
+.fade-out-fast { animation: fade-out 150ms ease-in forwards; }
+.fade-in-slow { animation: fade-in 600ms ease-out forwards; }
+.fade-out-slow { animation: fade-out 600ms ease-in forwards; }
+
+/* Slide animations */
+@keyframes slide-in-left {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slide-in-top {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slide-in-bottom {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.slide-in-left { animation: slide-in-left 300ms ease-out forwards; }
+.slide-in-right { animation: slide-in-right 300ms ease-out forwards; }
+.slide-in-top { animation: slide-in-top 300ms ease-out forwards; }
+.slide-in-bottom { animation: slide-in-bottom 300ms ease-out forwards; }
+
+
+/* Scale animations */
+@keyframes scale-in {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes scale-out {
+  from { transform: scale(1); opacity: 1; }
+  to { transform: scale(0); opacity: 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.scale-in { animation: scale-in 300ms ease-out forwards; }
+.scale-out { animation: scale-out 300ms ease-in forwards; }
+.pulse { animation: pulse 1s ease-in-out infinite; }
+.pulse-slow { animation: pulse 2s ease-in-out infinite; }
+.pulse-fast { animation: pulse 0.5s ease-in-out infinite; }
+
+/* Bounce animations */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes bounce-in {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.05); opacity: 1; }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+.bounce { animation: bounce 1s ease-in-out infinite; }
+.bounce-in { animation: bounce-in 600ms ease-out forwards; }
+
+/* Shake animations */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.shake { animation: shake 500ms ease-in-out; }
+
+
+/* Rotate animations */
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes rotate-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+.rotate { animation: rotate 2s linear infinite; }
+.rotate-fast { animation: rotate 1s linear infinite; }
+.rotate-slow { animation: rotate 4s linear infinite; }
+.rotate-reverse { animation: rotate-reverse 2s linear infinite; }
+
+/* Blink/Flash animations */
+@keyframes blink {
+  0%, 49%, 100% { opacity: 1; }
+  50%, 99% { opacity: 0; }
+}
+
+@keyframes flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.blink { animation: blink 1s step-end infinite; }
+.blink-fast { animation: blink 500ms step-end infinite; }
+.blink-slow { animation: blink 2s step-end infinite; }
+.flash { animation: flash 500ms ease-in-out; }
+
+/* Glow animations */
+@keyframes glow {
+  0%, 100% { filter: brightness(1); box-shadow: none; }
+  50% { filter: brightness(1.3); box-shadow: 0 0 20px currentColor; }
+}
+
+.glow { animation: glow 2s ease-in-out infinite; }
+
+
+/* ============================================================================
+   4. PAGE TRANSITIONS
+   Requirements: 10.1, 10.2, 10.3, 10.4 - Theme-specific page transitions
+   ============================================================================ */
+
+/* Generic page transition */
+@keyframes page-transition-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.page-transition { animation: page-transition-fade 300ms ease-out forwards; }
+
+/* Wipe transition (left to right) */
+@keyframes wipe-left-to-right {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes wipe-right-to-left {
+  from { clip-path: inset(0 0 0 100%); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes wipe-top-to-bottom {
+  from { clip-path: inset(0 0 100% 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes wipe-bottom-to-top {
+  from { clip-path: inset(100% 0 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+.wipe-left { animation: wipe-left-to-right 300ms ease-in-out forwards; }
+.wipe-right { animation: wipe-right-to-left 300ms ease-in-out forwards; }
+.wipe-top { animation: wipe-top-to-bottom 300ms ease-in-out forwards; }
+.wipe-bottom { animation: wipe-bottom-to-top 300ms ease-in-out forwards; }
+
+
+/* Glitch transition */
+@keyframes glitch-transition {
+  0% { transform: translateX(0); filter: none; opacity: 1; }
+  10% { transform: translateX(-5px); filter: hue-rotate(90deg); }
+  20% { transform: translateX(5px); filter: hue-rotate(-90deg); }
+  30% { transform: translateX(-3px); filter: hue-rotate(45deg); opacity: 0.8; }
+  40% { transform: translateX(3px); filter: hue-rotate(-45deg); opacity: 0.6; }
+  50% { transform: translateX(0); filter: hue-rotate(180deg); opacity: 0.4; }
+  60% { transform: translateX(-3px); filter: hue-rotate(-180deg); opacity: 0.6; }
+  70% { transform: translateX(3px); filter: hue-rotate(90deg); opacity: 0.8; }
+  80% { transform: translateX(-2px); filter: hue-rotate(-90deg); }
+  90% { transform: translateX(2px); filter: hue-rotate(45deg); }
+  100% { transform: translateX(0); filter: none; opacity: 1; }
+}
+
+.glitch-transition { animation: glitch-transition 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+
+/* Zoom transition */
+@keyframes zoom-in-transition {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes zoom-out-transition {
+  from { transform: scale(1.2); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.zoom-in-transition { animation: zoom-in-transition 300ms ease-out forwards; }
+.zoom-out-transition { animation: zoom-out-transition 300ms ease-out forwards; }
+
+
+/* ============================================================================
+   5. CEEFAX THEME ANIMATIONS
+   Requirements: 5.1, 10.2 - Classic Ceefax theme animations
+   ============================================================================ */
+
+/* Horizontal wipe page transition (300ms) */
+@keyframes ceefax-wipe {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+.ceefax-wipe { animation: ceefax-wipe 300ms ease-in-out forwards; }
+
+/* Button flash animation (150ms) */
+@keyframes ceefax-button-flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.ceefax-button-flash { animation: ceefax-button-flash 150ms ease-in-out; }
+
+/* Blinking cursor animation (500ms) */
+@keyframes ceefax-cursor-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.ceefax-cursor-blink { animation: ceefax-cursor-blink 500ms step-end infinite; }
+
+/* Scanlines background effect */
+@keyframes scanlines-scroll {
+  from { background-position: 0 0; }
+  to { background-position: 0 4px; }
+}
+
+.ceefax-scanlines {
+  position: relative;
+}
+
+.ceefax-scanlines::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, var(--scanlines-intensity, 0.15)) 0px,
+    transparent 1px,
+    transparent 2px,
+    rgba(0, 0, 0, var(--scanlines-intensity, 0.15)) 3px
+  );
+  pointer-events: none;
+  z-index: 1;
+  animation: scanlines-scroll 8s linear infinite;
+}
+
+/* Scanline intensity variants */
+.ceefax-scanlines.intensity-low { --scanlines-intensity: 0.08; }
+.ceefax-scanlines.intensity-medium { --scanlines-intensity: 0.15; }
+.ceefax-scanlines.intensity-high { --scanlines-intensity: 0.25; }
+
+
+/* ============================================================================
+   6. HAUNTING/KIROWEEN THEME ANIMATIONS
+   Requirements: 5.2, 7.1-7.5, 10.3 - Halloween/horror theme animations
+   ============================================================================ */
+
+/* Horror flash button animation with red tint (200ms) */
+@keyframes haunting-button-flash {
+  0%, 100% { filter: brightness(1) hue-rotate(0deg); }
+  50% { 
+    filter: brightness(1.5) hue-rotate(-30deg) saturate(2);
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+  }
+}
+
+.haunting-button-flash { animation: haunting-button-flash 200ms ease-in-out; }
+
+/* Glitch cursor text entry animation (300ms) */
+@keyframes haunting-cursor-glitch {
+  0%, 100% { opacity: 1; text-shadow: none; }
+  25% { 
+    opacity: 0.8;
+    text-shadow: -2px 0 0 rgba(255, 0, 0, 0.7), 2px 0 0 rgba(0, 255, 255, 0.7);
+  }
+  50% { opacity: 0; }
+  75% { 
+    opacity: 0.8;
+    text-shadow: 2px 0 0 rgba(255, 0, 0, 0.7), -2px 0 0 rgba(0, 255, 255, 0.7);
+  }
+}
+
+.haunting-cursor-glitch { animation: haunting-cursor-glitch 300ms step-end infinite; }
+
+/* Floating ghosts background animation (10s loop) */
+@keyframes haunting-ghost-float {
+  0% { transform: translateX(-100%) translateY(0) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.7; }
+  90% { opacity: 0.7; }
+  100% { transform: translateX(100vw) translateY(-20px) rotate(10deg); opacity: 0; }
+}
+
+.haunting-ghost-float::after {
+  content: '👻';
+  position: absolute;
+  top: 20%;
+  left: 0;
+  font-size: 2rem;
+  pointer-events: none;
+  z-index: 1;
+  animation: haunting-ghost-float 10s linear infinite;
+}
+
+
+/* Screen flicker effect (5s loop) */
+@keyframes haunting-screen-flicker {
+  0%, 100% { opacity: 1; }
+  10% { opacity: calc(1 - var(--flicker-intensity, 0.05)); }
+  20% { opacity: calc(1 - var(--flicker-intensity, 0.05) * 2); }
+  30% { opacity: 1; }
+  40% { opacity: calc(1 - var(--flicker-intensity, 0.05) * 3); }
+  50% { opacity: 1; }
+  60% { opacity: calc(1 - var(--flicker-intensity, 0.05) * 1.6); }
+  70% { opacity: 1; }
+  80% { opacity: calc(1 - var(--flicker-intensity, 0.05) * 2.4); }
+  90% { opacity: 1; }
+}
+
+.haunting-screen-flicker { animation: haunting-screen-flicker 5s ease-in-out infinite; }
+.haunting-screen-flicker.intensity-low { --flicker-intensity: 0.03; }
+.haunting-screen-flicker.intensity-medium { --flicker-intensity: 0.05; }
+.haunting-screen-flicker.intensity-high { --flicker-intensity: 0.08; }
+
+/* Chromatic aberration effect */
+@keyframes haunting-chromatic-red {
+  0%, 100% { transform: translateX(-2px); }
+  25% { transform: translateX(-3px) translateY(-1px); }
+  50% { transform: translateX(-1px) translateY(1px); }
+  75% { transform: translateX(-2.5px) translateY(-0.5px); }
+}
+
+@keyframes haunting-chromatic-cyan {
+  0%, 100% { transform: translateX(2px); }
+  25% { transform: translateX(1px) translateY(1px); }
+  50% { transform: translateX(3px) translateY(-1px); }
+  75% { transform: translateX(2.5px) translateY(0.5px); }
+}
+
+.haunting-chromatic-aberration {
+  position: relative;
+}
+
+.haunting-chromatic-aberration::before,
+.haunting-chromatic-aberration::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: var(--chromatic-intensity, 0.3);
+}
+
+.haunting-chromatic-aberration::before {
+  background: rgba(255, 0, 0, 0.5);
+  mix-blend-mode: screen;
+  animation: haunting-chromatic-red 3s ease-in-out infinite;
+}
+
+.haunting-chromatic-aberration::after {
+  background: rgba(0, 255, 255, 0.5);
+  mix-blend-mode: screen;
+  animation: haunting-chromatic-cyan 3s ease-in-out infinite;
+}
+
+.haunting-chromatic-aberration.intensity-low { --chromatic-intensity: 0.15; }
+.haunting-chromatic-aberration.intensity-medium { --chromatic-intensity: 0.3; }
+.haunting-chromatic-aberration.intensity-high { --chromatic-intensity: 0.5; }
+
+
+/* Floating bat animation (8s loop) */
+@keyframes haunting-bat-float {
+  0% { transform: translateX(100vw) translateY(0) scaleX(1); opacity: 0; }
+  10% { opacity: 0.8; }
+  50% { transform: translateX(50vw) translateY(-30px) scaleX(1); }
+  51% { transform: translateX(50vw) translateY(-30px) scaleX(-1); }
+  90% { opacity: 0.8; }
+  100% { transform: translateX(-100%) translateY(0) scaleX(-1); opacity: 0; }
+}
+
+.haunting-bat-float::after {
+  content: '🦇';
+  position: absolute;
+  top: 10%;
+  right: 0;
+  font-size: 1.5rem;
+  pointer-events: none;
+  z-index: 1;
+  animation: haunting-bat-float 8s linear infinite;
+}
+
+/* Fog overlay effect */
+@keyframes haunting-fog-drift {
+  0%, 100% { transform: translateX(0) translateY(0); opacity: 1; }
+  25% { transform: translateX(-10px) translateY(5px); opacity: 0.8; }
+  50% { transform: translateX(10px) translateY(-5px); opacity: 1; }
+  75% { transform: translateX(-5px) translateY(10px); opacity: 0.9; }
+}
+
+.haunting-fog-overlay {
+  position: relative;
+}
+
+.haunting-fog-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse at 20% 30%, rgba(100, 100, 100, var(--fog-intensity, 0.15)) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 70%, rgba(100, 100, 100, var(--fog-intensity, 0.15)) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(80, 80, 80, var(--fog-intensity, 0.15)) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+  animation: haunting-fog-drift 20s ease-in-out infinite;
+}
+
+.haunting-fog-overlay.intensity-low { --fog-intensity: 0.08; }
+.haunting-fog-overlay.intensity-medium { --fog-intensity: 0.15; }
+.haunting-fog-overlay.intensity-high { --fog-intensity: 0.25; }
+
+
+/* Jack-o-lantern flickering animation */
+@keyframes haunting-pumpkin-flicker {
+  0%, 20%, 40%, 60%, 80%, 100% { opacity: 1; filter: brightness(1); }
+  10%, 30%, 50%, 70%, 90% { opacity: 0.7; filter: brightness(1.3); }
+}
+
+.haunting-pumpkin-flicker { animation: haunting-pumpkin-flicker 1.5s ease-in-out infinite; }
+
+/* Ghost decoration float */
+@keyframes haunting-ghost-decoration {
+  0% { transform: translateX(-10%) translateY(0) rotate(0deg); opacity: 0; }
+  5% { opacity: 0.8; }
+  50% { transform: translateX(110%) translateY(-40px) rotate(15deg); opacity: 0.8; }
+  95% { opacity: 0.8; }
+  100% { transform: translateX(110%) translateY(-20px) rotate(20deg); opacity: 0; }
+}
+
+.haunting-ghost-decoration { animation: haunting-ghost-decoration 12s ease-in-out infinite; }
+
+/* Bat fly decoration */
+@keyframes haunting-bat-decoration {
+  0% { transform: translateX(110%) translateY(0) scaleX(1) rotate(0deg); opacity: 0; }
+  5% { opacity: 0.9; }
+  25% { transform: translateX(75%) translateY(-20px) scaleX(1) rotate(-5deg); }
+  50% { transform: translateX(50%) translateY(-40px) scaleX(-1) rotate(5deg); opacity: 0.9; }
+  75% { transform: translateX(25%) translateY(-20px) scaleX(-1) rotate(-5deg); }
+  95% { opacity: 0.9; }
+  100% { transform: translateX(-10%) translateY(0) scaleX(-1) rotate(0deg); opacity: 0; }
+}
+
+.haunting-bat-decoration { animation: haunting-bat-decoration 10s ease-in-out infinite; }
+
+/* Skull pulse animation */
+@keyframes haunting-skull-pulse {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50% { 
+    transform: scale(1.1);
+    filter: brightness(1.3) drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+  }
+}
+
+.haunting-skull-pulse { animation: haunting-skull-pulse 2s ease-in-out infinite; }
+
+/* Spider crawl animation */
+@keyframes haunting-spider-crawl {
+  0% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(10px) rotate(5deg); }
+  50% { transform: translateY(20px) rotate(0deg); }
+  75% { transform: translateY(10px) rotate(-5deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+.haunting-spider-crawl { animation: haunting-spider-crawl 3s ease-in-out infinite; }
+
+
+/* ============================================================================
+   7. HIGH CONTRAST THEME ANIMATIONS
+   Requirements: 5.3, 10.4 - Simple, accessible animations
+   ============================================================================ */
+
+/* Simple fade transition (250ms) */
+@keyframes high-contrast-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.high-contrast-fade { animation: high-contrast-fade 250ms ease forwards; }
+
+/* Simple flash for button press (150ms) */
+@keyframes high-contrast-button-flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.high-contrast-button-flash { animation: high-contrast-button-flash 150ms ease-in-out; }
+
+/* Steady cursor for text entry (500ms) */
+@keyframes high-contrast-cursor {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.high-contrast-cursor { animation: high-contrast-cursor 500ms step-end infinite; }
+
+/* Smooth loading indicator */
+@keyframes high-contrast-loading {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.high-contrast-loading { animation: high-contrast-loading 1s linear infinite; }
+
+
+/* ============================================================================
+   8. ORF THEME ANIMATIONS
+   Requirements: 5.4, 10.4 - Colorful, vibrant animations
+   ============================================================================ */
+
+/* Slide transition (300ms) */
+@keyframes orf-slide {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.orf-slide { animation: orf-slide 300ms ease-in-out forwards; }
+
+/* Color flash for button press (150ms) */
+@keyframes orf-button-flash {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.5) saturate(1.5); }
+}
+
+.orf-button-flash { animation: orf-button-flash 150ms ease-in-out; }
+
+/* Color cursor for text entry (500ms) */
+@keyframes orf-cursor {
+  0%, 50% { opacity: 1; filter: hue-rotate(0deg); }
+  51%, 100% { opacity: 0; filter: hue-rotate(180deg); }
+}
+
+.orf-cursor { animation: orf-cursor 500ms step-end infinite; }
+
+/* Color cycling header animation (5s loop) */
+@keyframes orf-color-cycle {
+  0% { filter: hue-rotate(0deg); }
+  25% { filter: hue-rotate(90deg); }
+  50% { filter: hue-rotate(180deg); }
+  75% { filter: hue-rotate(270deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+.orf-color-cycle { animation: orf-color-cycle 5s linear infinite; }
+
+/* Rainbow border animation */
+@keyframes orf-rainbow-border {
+  0% { border-color: #ff0000; }
+  16.67% { border-color: #ff7f00; }
+  33.33% { border-color: #ffff00; }
+  50% { border-color: #00ff00; }
+  66.67% { border-color: #0000ff; }
+  83.33% { border-color: #8b00ff; }
+  100% { border-color: #ff0000; }
+}
+
+.orf-rainbow-border { animation: orf-rainbow-border 3s linear infinite; }
+
+
+/* ============================================================================
+   9. THEME TRANSITION ANIMATIONS
+   Requirements: 27.1-27.5 - Smooth theme switching with banners
+   ============================================================================ */
+
+/* Theme fade out/in */
+@keyframes theme-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes theme-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.theme-fade-out { animation: theme-fade-out 500ms ease-out forwards; }
+.theme-fade-in { animation: theme-fade-in 500ms ease-in forwards; }
+
+/* Horror-themed transition for Haunting Mode */
+@keyframes theme-haunting-transition {
+  0% { opacity: 1; transform: translateX(0) scale(1); filter: none; }
+  10% { opacity: 0.9; transform: translateX(-10px) scale(1.02); filter: hue-rotate(90deg) brightness(1.2); }
+  20% { opacity: 0.7; transform: translateX(10px) scale(0.98); filter: hue-rotate(-90deg) brightness(0.8); }
+  30% { opacity: 0.5; transform: translateX(-5px) scale(1.01); filter: hue-rotate(45deg) brightness(1.5); }
+  40% { opacity: 0.3; transform: translateX(5px) scale(0.99); filter: hue-rotate(-45deg) brightness(0.6); }
+  50% { opacity: 0; transform: translateX(0) scale(1.05); filter: hue-rotate(180deg) brightness(2); }
+  60% { opacity: 0.3; transform: translateX(-5px) scale(0.95); filter: hue-rotate(-180deg) brightness(0.5); }
+  70% { opacity: 0.5; transform: translateX(5px) scale(1.02); filter: hue-rotate(90deg) brightness(1.3); }
+  80% { opacity: 0.7; transform: translateX(-3px) scale(0.98); filter: hue-rotate(-90deg) brightness(0.9); }
+  90% { opacity: 0.9; transform: translateX(3px) scale(1.01); filter: hue-rotate(45deg) brightness(1.1); }
+  100% { opacity: 1; transform: translateX(0) scale(1); filter: none; }
+}
+
+.theme-haunting-transition { 
+  animation: theme-haunting-transition 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+
+/* Theme name banner animation */
+@keyframes theme-banner-slide {
+  0% { transform: translateY(-100%); opacity: 0; }
+  20% { transform: translateY(0); opacity: 1; }
+  80% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-100%); opacity: 0; }
+}
+
+.theme-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.9);
+  color: #00ff00;
+  text-align: center;
+  padding: 1rem;
+  font-family: 'Courier New', monospace;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  border-bottom: 2px solid currentColor;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  animation: theme-banner-slide 2s ease-in-out forwards;
+  pointer-events: none;
+}
+
+.theme-banner.haunting {
+  color: #ff0000;
+  text-shadow: 
+    0 0 10px rgba(255, 0, 0, 0.8),
+    0 0 20px rgba(255, 0, 0, 0.6),
+    0 0 30px rgba(255, 0, 0, 0.4);
+  border-bottom-color: #ff0000;
+  animation: theme-banner-slide 2.5s ease-in-out forwards,
+             haunting-screen-flicker 2.5s ease-in-out;
+}
+
+.theme-banner.ceefax {
+  color: #ffff00;
+  background: rgba(0, 0, 170, 0.95);
+  border-bottom-color: #ffff00;
+}
+
+.theme-banner.orf {
+  color: #00ff00;
+  background: rgba(0, 0, 0, 0.95);
+  border-bottom-color: #00ff00;
+}
+
+.theme-banner.high-contrast {
+  color: #ffffff;
+  background: rgba(0, 0, 0, 1);
+  border-bottom-color: #ffffff;
+}
+
+
+/* ============================================================================
+   10. INTERACTIVE ELEMENT ANIMATIONS
+   Requirements: 15.1-15.4, 25.1-25.5, 26.2 - Visual feedback for interactions
+   ============================================================================ */
+
+/* Button press animation */
+@keyframes button-press {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+.button-press { animation: button-press 150ms ease-in-out; }
+
+/* Button hover glow */
+@keyframes button-hover-glow {
+  0%, 100% { box-shadow: 0 0 5px currentColor; }
+  50% { box-shadow: 0 0 15px currentColor; }
+}
+
+.button-hover-glow { animation: button-hover-glow 1s ease-in-out infinite; }
+
+/* Input highlight */
+@keyframes input-highlight {
+  0% { background-color: transparent; }
+  50% { background-color: rgba(255, 255, 0, 0.2); }
+  100% { background-color: transparent; }
+}
+
+.input-highlight { animation: input-highlight 300ms ease-in-out; }
+
+/* Focus ring pulse */
+@keyframes focus-ring-pulse {
+  0%, 100% { box-shadow: 0 0 0 2px currentColor; }
+  50% { box-shadow: 0 0 0 4px currentColor; }
+}
+
+.focus-ring-pulse { animation: focus-ring-pulse 1s ease-in-out infinite; }
+
+/* Link indicator bounce */
+@keyframes link-indicator-bounce {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(5px); }
+}
+
+.link-indicator-bounce { animation: link-indicator-bounce 1s ease-in-out infinite; }
+
+/* Selection highlight */
+@keyframes selection-highlight {
+  0% { background-color: transparent; transform: scale(1); }
+  50% { background-color: rgba(0, 255, 0, 0.2); transform: scale(1.02); }
+  100% { background-color: transparent; transform: scale(1); }
+}
+
+.selection-highlight { animation: selection-highlight 400ms ease-out; }
+
+
+/* ============================================================================
+   11. FEEDBACK ANIMATIONS
+   Requirements: 28.1-28.5 - Success/error feedback with animations
+   ============================================================================ */
+
+/* Checkmark animation */
+@keyframes feedback-checkmark {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.feedback-checkmark { animation: feedback-checkmark 300ms ease-out forwards; }
+
+/* Cross/X animation */
+@keyframes feedback-cross {
+  0% { transform: scale(0) rotate(-90deg); opacity: 0; }
+  50% { transform: scale(1.2) rotate(0deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.feedback-cross { animation: feedback-cross 300ms ease-out forwards; }
+
+/* Success flash - green pulse */
+@keyframes feedback-success-flash {
+  0%, 100% { background-color: transparent; box-shadow: none; }
+  50% { 
+    background-color: rgba(0, 255, 0, 0.2);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+  }
+}
+
+.feedback-success-flash { animation: feedback-success-flash 400ms ease-in-out; }
+
+/* Error flash - red pulse */
+@keyframes feedback-error-flash {
+  0%, 100% { background-color: transparent; box-shadow: none; }
+  50% { 
+    background-color: rgba(255, 0, 0, 0.2);
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+  }
+}
+
+.feedback-error-flash { animation: feedback-error-flash 400ms ease-in-out; }
+
+/* Warning flash - yellow pulse */
+@keyframes feedback-warning-flash {
+  0%, 100% { background-color: transparent; box-shadow: none; }
+  50% { 
+    background-color: rgba(255, 255, 0, 0.2);
+    box-shadow: 0 0 20px rgba(255, 255, 0, 0.5);
+  }
+}
+
+.feedback-warning-flash { animation: feedback-warning-flash 400ms ease-in-out; }
+
+
+/* Info flash - cyan pulse */
+@keyframes feedback-info-flash {
+  0%, 100% { background-color: transparent; box-shadow: none; }
+  50% { 
+    background-color: rgba(0, 255, 255, 0.2);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+  }
+}
+
+.feedback-info-flash { animation: feedback-info-flash 400ms ease-in-out; }
+
+/* Celebration confetti fall */
+@keyframes feedback-confetti-fall {
+  0% { transform: translateY(-20px); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+
+.feedback-confetti { animation: feedback-confetti-fall 2s ease-in forwards; }
+
+/* Celebration bounce */
+@keyframes feedback-celebration-bounce {
+  0% { transform: translateY(-50px) scale(0.5); opacity: 0; }
+  50% { transform: translateY(10px) scale(1.1); opacity: 1; }
+  70% { transform: translateY(-5px) scale(0.95); }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.feedback-celebration { animation: feedback-celebration-bounce 600ms ease-out forwards; }
+
+/* Saved message flash */
+@keyframes feedback-saved-flash {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  25% { opacity: 0.3; transform: scale(1.1); }
+  50% { opacity: 1; transform: scale(1); }
+  75% { opacity: 0.3; transform: scale(1.1); }
+}
+
+.feedback-saved-flash { animation: feedback-saved-flash 400ms ease-in-out; }
+
+/* Message fade in/out */
+@keyframes feedback-message-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes feedback-message-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-10px); }
+}
+
+.feedback-message-in { animation: feedback-message-in 200ms ease-out forwards; }
+.feedback-message-out { animation: feedback-message-out 200ms ease-in forwards; }
+
+
+/* ============================================================================
+   12. LOADING ANIMATIONS
+   Requirements: 6.3, 14.1-14.5 - Theme-appropriate loading indicators
+   ============================================================================ */
+
+/* Rotating line (Ceefax) */
+@keyframes loading-rotating-line {
+  0% { content: '|'; }
+  25% { content: '/'; }
+  50% { content: '─'; }
+  75% { content: '\\'; }
+  100% { content: '|'; }
+}
+
+.loading-rotating-line::after {
+  content: '|';
+  animation: loading-rotating-line 1s steps(4) infinite;
+}
+
+/* Pulsing skull (Haunting) */
+@keyframes loading-pulsing-skull {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.7; }
+}
+
+.loading-pulsing-skull { animation: loading-pulsing-skull 800ms ease-in-out infinite; }
+
+/* Spinner */
+@keyframes loading-spinner {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.loading-spinner { animation: loading-spinner 1s linear infinite; }
+
+/* Dots */
+@keyframes loading-dots {
+  0%, 20% { content: '.'; }
+  40% { content: '..'; }
+  60%, 100% { content: '...'; }
+}
+
+.loading-dots::after {
+  content: '.';
+  animation: loading-dots 1.5s steps(3) infinite;
+}
+
+/* Progress bar fill */
+@keyframes loading-progress-fill {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+.loading-progress-fill { animation: loading-progress-fill 2s ease-in-out forwards; }
+
+/* Pulse */
+@keyframes loading-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.loading-pulse { animation: loading-pulse 1.5s ease-in-out infinite; }
+
+
+/* ============================================================================
+   13. DECORATIVE ANIMATIONS
+   Requirements: 6.2, 7.1-7.5, 20.2, 22.1-22.5, 23.1-23.5 - Content-specific
+   ============================================================================ */
+
+/* Weather icon animations */
+@keyframes weather-rain-fall {
+  0% { transform: translateY(-10px); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translateY(20px); opacity: 0; }
+}
+
+.weather-rain { animation: weather-rain-fall 1s linear infinite; }
+
+@keyframes weather-cloud-drift {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(10px); }
+}
+
+.weather-cloud { animation: weather-cloud-drift 3s ease-in-out infinite alternate; }
+
+@keyframes weather-sun-rays {
+  0%, 100% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.weather-sun { animation: weather-sun-rays 20s linear infinite; }
+
+@keyframes weather-snow-fall {
+  0% { transform: translateY(-10px) translateX(0); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translateY(20px) translateX(5px); opacity: 0; }
+}
+
+.weather-snow { animation: weather-snow-fall 2s linear infinite; }
+
+/* Sports live indicator pulse */
+@keyframes sports-live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.05); }
+}
+
+.sports-live-pulse { animation: sports-live-pulse 1.5s ease-in-out infinite; }
+
+/* Score flash */
+@keyframes sports-score-flash {
+  0% { background-color: transparent; transform: scale(1); }
+  25% { background-color: rgba(255, 255, 0, 0.3); transform: scale(1.1); }
+  50% { background-color: rgba(255, 255, 0, 0.5); transform: scale(1.15); }
+  75% { background-color: rgba(255, 255, 0, 0.3); transform: scale(1.1); }
+  100% { background-color: transparent; transform: scale(1); }
+}
+
+.sports-score-flash { animation: sports-score-flash 500ms ease-out; }
+
+
+/* Market trend indicators */
+@keyframes market-trend-up {
+  0% { transform: translateY(5px); opacity: 0; }
+  100% { transform: translateY(-5px); opacity: 1; }
+}
+
+.market-trend-up { animation: market-trend-up 500ms ease-out forwards; }
+
+@keyframes market-trend-down {
+  0% { transform: translateY(-5px); opacity: 0; }
+  100% { transform: translateY(5px); opacity: 1; }
+}
+
+.market-trend-down { animation: market-trend-down 500ms ease-out forwards; }
+
+@keyframes market-value-count {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.market-value-count { animation: market-value-count 300ms ease-out; }
+
+/* AI typing animation */
+@keyframes ai-typing-cursor {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.ai-typing-cursor { animation: ai-typing-cursor 500ms step-end infinite; }
+
+@keyframes ai-thinking-dots {
+  0%, 20% { content: ''; }
+  40% { content: '.'; }
+  60% { content: '..'; }
+  80%, 100% { content: '...'; }
+}
+
+.ai-thinking::after {
+  content: '';
+  animation: ai-thinking-dots 1.5s steps(4) infinite;
+}
+
+/* Progress bar animations */
+@keyframes progress-bar-fill {
+  from { transform: scaleX(0); transform-origin: left; }
+  to { transform: scaleX(1); transform-origin: left; }
+}
+
+.progress-bar-fill { animation: progress-bar-fill 1s ease-out forwards; }
+
+@keyframes progress-step-highlight {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: rgba(0, 255, 0, 0.3); }
+}
+
+.progress-step-highlight { animation: progress-step-highlight 600ms ease-in-out; }
+
+
+/* ============================================================================
+   14. UTILITY ANIMATION CLASSES
+   Reusable animation patterns with timing variants
+   ============================================================================ */
+
+/* Duration modifiers */
+.anim-instant { animation-duration: 0ms !important; }
+.anim-fast { animation-duration: 150ms !important; }
+.anim-normal { animation-duration: 300ms !important; }
+.anim-slow { animation-duration: 600ms !important; }
+.anim-slower { animation-duration: 1000ms !important; }
+
+/* Delay modifiers */
+.anim-delay-0 { animation-delay: 0ms !important; }
+.anim-delay-1 { animation-delay: 100ms !important; }
+.anim-delay-2 { animation-delay: 200ms !important; }
+.anim-delay-3 { animation-delay: 300ms !important; }
+.anim-delay-4 { animation-delay: 400ms !important; }
+.anim-delay-5 { animation-delay: 500ms !important; }
+
+/* Iteration modifiers */
+.anim-once { animation-iteration-count: 1 !important; }
+.anim-twice { animation-iteration-count: 2 !important; }
+.anim-thrice { animation-iteration-count: 3 !important; }
+.anim-infinite { animation-iteration-count: infinite !important; }
+
+/* Direction modifiers */
+.anim-normal { animation-direction: normal !important; }
+.anim-reverse { animation-direction: reverse !important; }
+.anim-alternate { animation-direction: alternate !important; }
+.anim-alternate-reverse { animation-direction: alternate-reverse !important; }
+
+/* Fill mode modifiers */
+.anim-fill-none { animation-fill-mode: none !important; }
+.anim-fill-forwards { animation-fill-mode: forwards !important; }
+.anim-fill-backwards { animation-fill-mode: backwards !important; }
+.anim-fill-both { animation-fill-mode: both !important; }
+
+/* Play state modifiers */
+.anim-paused { animation-play-state: paused !important; }
+.anim-running { animation-play-state: running !important; }
+
+/* Easing modifiers */
+.anim-ease { animation-timing-function: ease !important; }
+.anim-ease-in { animation-timing-function: ease-in !important; }
+.anim-ease-out { animation-timing-function: ease-out !important; }
+.anim-ease-in-out { animation-timing-function: ease-in-out !important; }
+.anim-linear { animation-timing-function: linear !important; }
+
+
+/* Visibility utilities */
+.anim-hidden { opacity: 0; visibility: hidden; }
+.anim-visible { opacity: 1; visibility: visible; }
+
+/* Transform origin utilities */
+.anim-origin-center { transform-origin: center !important; }
+.anim-origin-top { transform-origin: top !important; }
+.anim-origin-bottom { transform-origin: bottom !important; }
+.anim-origin-left { transform-origin: left !important; }
+.anim-origin-right { transform-origin: right !important; }
+.anim-origin-top-left { transform-origin: top left !important; }
+.anim-origin-top-right { transform-origin: top right !important; }
+.anim-origin-bottom-left { transform-origin: bottom left !important; }
+.anim-origin-bottom-right { transform-origin: bottom right !important; }
+
+/* Stagger utilities for sequential animations */
+.anim-stagger-1:nth-child(1) { animation-delay: 0ms; }
+.anim-stagger-1:nth-child(2) { animation-delay: 100ms; }
+.anim-stagger-1:nth-child(3) { animation-delay: 200ms; }
+.anim-stagger-1:nth-child(4) { animation-delay: 300ms; }
+.anim-stagger-1:nth-child(5) { animation-delay: 400ms; }
+.anim-stagger-1:nth-child(6) { animation-delay: 500ms; }
+.anim-stagger-1:nth-child(7) { animation-delay: 600ms; }
+.anim-stagger-1:nth-child(8) { animation-delay: 700ms; }
+.anim-stagger-1:nth-child(9) { animation-delay: 800ms; }
+.anim-stagger-1:nth-child(10) { animation-delay: 900ms; }
+
+.anim-stagger-2:nth-child(1) { animation-delay: 0ms; }
+.anim-stagger-2:nth-child(2) { animation-delay: 50ms; }
+.anim-stagger-2:nth-child(3) { animation-delay: 100ms; }
+.anim-stagger-2:nth-child(4) { animation-delay: 150ms; }
+.anim-stagger-2:nth-child(5) { animation-delay: 200ms; }
+.anim-stagger-2:nth-child(6) { animation-delay: 250ms; }
+.anim-stagger-2:nth-child(7) { animation-delay: 300ms; }
+.anim-stagger-2:nth-child(8) { animation-delay: 350ms; }
+.anim-stagger-2:nth-child(9) { animation-delay: 400ms; }
+.anim-stagger-2:nth-child(10) { animation-delay: 450ms; }
+
+/* ============================================================================
+   END OF ANIMATION LIBRARY
+   ============================================================================ */

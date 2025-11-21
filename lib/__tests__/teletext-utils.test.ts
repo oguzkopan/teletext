@@ -684,3 +684,110 @@ describe('addHalloweenDecoration', () => {
     expect(result.startsWith('TEXT')).toBe(true);
   });
 });
+
+describe('getColorEmoji', () => {
+  it('should return correct emoji for red', () => {
+    const { getColorEmoji } = require('../teletext-utils');
+    expect(getColorEmoji('red')).toBe('🔴');
+  });
+
+  it('should return correct emoji for green', () => {
+    const { getColorEmoji } = require('../teletext-utils');
+    expect(getColorEmoji('green')).toBe('🟢');
+  });
+
+  it('should return correct emoji for yellow', () => {
+    const { getColorEmoji } = require('../teletext-utils');
+    expect(getColorEmoji('yellow')).toBe('🟡');
+  });
+
+  it('should return correct emoji for blue', () => {
+    const { getColorEmoji } = require('../teletext-utils');
+    expect(getColorEmoji('blue')).toBe('🔵');
+  });
+
+  it('should handle case-insensitive color names', () => {
+    const { getColorEmoji } = require('../teletext-utils');
+    expect(getColorEmoji('RED')).toBe('🔴');
+    expect(getColorEmoji('Green')).toBe('🟢');
+  });
+
+  it('should return empty string for unknown color', () => {
+    const { getColorEmoji } = require('../teletext-utils');
+    expect(getColorEmoji('purple')).toBe('');
+  });
+});
+
+describe('formatColoredButtonIndicators', () => {
+  it('should format single button indicator', () => {
+    const { formatColoredButtonIndicators } = require('../teletext-utils');
+    const buttons = [{ color: 'red', label: 'NEWS' }];
+    const result = formatColoredButtonIndicators(buttons, 40);
+    
+    expect(result).toContain('🔴');
+    expect(result).toContain('NEWS');
+  });
+
+  it('should format multiple button indicators', () => {
+    const { formatColoredButtonIndicators } = require('../teletext-utils');
+    const buttons = [
+      { color: 'red', label: 'NEWS' },
+      { color: 'green', label: 'SPORT' },
+      { color: 'yellow', label: 'MARKETS' },
+      { color: 'blue', label: 'AI' }
+    ];
+    const result = formatColoredButtonIndicators(buttons, 40);
+    
+    expect(result).toContain('🔴NEWS');
+    expect(result).toContain('🟢SPORT');
+    expect(result).toContain('🟡MARKETS');
+    expect(result).toContain('🔵AI');
+  });
+
+  it('should truncate long labels', () => {
+    const { formatColoredButtonIndicators } = require('../teletext-utils');
+    const buttons = [{ color: 'red', label: 'VERYLONGLABEL' }];
+    const result = formatColoredButtonIndicators(buttons, 40);
+    
+    expect(result).toContain('🔴');
+    expect(result.length).toBeLessThanOrEqual(40);
+  });
+
+  it('should handle empty button array', () => {
+    const { formatColoredButtonIndicators } = require('../teletext-utils');
+    const result = formatColoredButtonIndicators([], 40);
+    
+    expect(result).toBe('');
+  });
+
+  it('should uppercase labels', () => {
+    const { formatColoredButtonIndicators } = require('../teletext-utils');
+    const buttons = [{ color: 'red', label: 'news' }];
+    const result = formatColoredButtonIndicators(buttons, 40);
+    
+    expect(result).toContain('NEWS');
+    expect(result).not.toContain('news');
+  });
+
+  it('should truncate if total width exceeds maxWidth', () => {
+    const { formatColoredButtonIndicators } = require('../teletext-utils');
+    const buttons = [
+      { color: 'red', label: 'VERYLONGLABEL1' },
+      { color: 'green', label: 'VERYLONGLABEL2' },
+      { color: 'yellow', label: 'VERYLONGLABEL3' },
+      { color: 'blue', label: 'VERYLONGLABEL4' }
+    ];
+    const result = formatColoredButtonIndicators(buttons, 40);
+    
+    expect(result.length).toBeLessThanOrEqual(40);
+  });
+
+  it('should include page information if provided', () => {
+    const { formatColoredButtonIndicators } = require('../teletext-utils');
+    const buttons = [{ color: 'red', label: 'NEWS', page: '200' }];
+    const result = formatColoredButtonIndicators(buttons, 40);
+    
+    // Page info is optional and not displayed in the indicator
+    expect(result).toContain('🔴NEWS');
+  });
+});

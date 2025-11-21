@@ -256,14 +256,21 @@ export class GamesAdapter implements ContentAdapter {
 
       const question = session.questions[session.currentQuestionIndex];
       const questionNumber = session.currentQuestionIndex + 1;
+      const totalQuestions = session.questions.length;
       
       // Shuffle answers
       const allAnswers = [question.correctAnswer, ...question.incorrectAnswers];
       const shuffledAnswers = this.shuffleArray(allAnswers);
 
+      // Create progress indicator
+      const progressBar = this.renderProgressBar(questionNumber, totalQuestions, 20);
+      const questionCounter = `Question ${questionNumber}/${totalQuestions}`;
+
       const rows = [
-        `QUIZ QUESTION ${questionNumber}/5            P${pageId}`,
+        `QUIZ OF THE DAY              P${pageId}`,
         '════════════════════════════════════',
+        this.centerText(questionCounter),
+        this.centerText(progressBar),
         '',
         `Category: ${this.truncateText(question.category, 30)}`,
         '',
@@ -298,13 +305,40 @@ export class GamesAdapter implements ContentAdapter {
         meta: {
           source: 'GamesAdapter',
           lastUpdated: new Date().toISOString(),
-          aiContextId: sessionId
+          aiContextId: sessionId,
+          progress: {
+            current: questionNumber,
+            total: totalQuestions,
+            percentage: Math.round((questionNumber / totalQuestions) * 100)
+          }
         }
       };
     } catch (error) {
       console.error('Error loading quiz question:', error);
       return this.getErrorPage(pageId, 'Quiz Question', error);
     }
+  }
+
+  /**
+   * Renders a progress bar for quiz questions
+   */
+  private renderProgressBar(current: number, total: number, width: number = 20): string {
+    const filledCount = Math.round((current / total) * width);
+    const emptyCount = width - filledCount;
+    return '▓'.repeat(filledCount) + '░'.repeat(emptyCount);
+  }
+
+  /**
+   * Centers text within a given width
+   */
+  private centerText(text: string, width: number = 40): string {
+    if (text.length >= width) {
+      return text.substring(0, width);
+    }
+    
+    const leftPadding = Math.floor((width - text.length) / 2);
+    const rightPadding = width - text.length - leftPadding;
+    return ' '.repeat(leftPadding) + text + ' '.repeat(rightPadding);
   }
 
   /**
@@ -411,21 +445,28 @@ export class GamesAdapter implements ContentAdapter {
       // Generate AI commentary
       const commentary = await this.generateQuizCommentary(score, totalQuestions);
 
+      // Create completion animation
+      const confetti = [
+        '    *  ·  *  ·  *  ·  *  ·  *    ',
+        '  ·  *  ·  *  ·  *  ·  *  ·  *  ',
+        '    *  ·  *  ·  *  ·  *  ·  *    '
+      ];
+
       const rows = [
         'QUIZ RESULTS                 P603',
         '════════════════════════════════════',
         '',
-        'QUIZ COMPLETE!',
+        ...confetti,
         '',
-        `Final Score: ${score}/${totalQuestions} (${percentage}%)`,
+        this.centerText('✓ QUIZ COMPLETE!'),
+        '',
+        this.centerText(`Final Score: ${score}/${totalQuestions} (${percentage}%)`),
         '',
         '════════════════════════════════════',
         '',
         'AI COMMENTARY:',
         '',
         ...this.wrapText(commentary, 40),
-        '',
-        '',
         '',
         '',
         '',
@@ -446,6 +487,12 @@ export class GamesAdapter implements ContentAdapter {
         meta: {
           source: 'GamesAdapter',
           lastUpdated: new Date().toISOString(),
+          completed: true,
+          finalScore: {
+            correct: score,
+            total: totalQuestions,
+            percentage
+          }
         }
       };
     } catch (error) {

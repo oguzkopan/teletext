@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Element Highlighting Demo</title>
+  <style>
+    body {
+      background-color: #000000;
+      color: #ffffff;
+      font-family: 'Courier New', monospace;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      color: #00ffff;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .section {
+      margin-bottom: 40px;
+      padding: 20px;
+      border: 1px solid #333;
+      border-radius: 4px;
+    }
+    
+    .section h2 {
+      color: #ffff00;
+      margin-bottom: 15px;
+    }
+    
+    .demo-content {
+      background-color: #111;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+    
+    /* Interactive element styles - Requirements 25.1, 25.2, 25.3, 25.4, 25.5 */
+    .interactive-element {
+      cursor: pointer;
+      transition: all 0.15s ease-in-out;
+      display: inline-block;
+      position: relative;
+    }
+    
+    .interactive-button {
+      font-weight: bold;
+      color: #ffffff;
+    }
+    
+    .interactive-link {
+      color: #00ffff;
+      text-decoration: none;
+    }
+    
+    .interactive-selection {
+      color: #ffff00;
+    }
+    
+    /* Hover effects - Requirement 25.2 */
+    .interactive-element:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+      text-decoration: underline;
+      text-decoration-color: #ffffff;
+      text-underline-offset: 2px;
+      padding: 0 2px;
+      border-radius: 2px;
+    }
+    
+    .interactive-link:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+    
+    /* Focus indicators - Requirement 25.3 */
+    .interactive-element:focus {
+      outline: 2px solid #ffff00;
+      outline-offset: 2px;
+      background-color: rgba(255, 255, 0, 0.1);
+      border-radius: 2px;
+    }
+    
+    /* Active state */
+    .interactive-element:active {
+      background-color: rgba(255, 255, 255, 0.25);
+      transform: scale(0.98);
+    }
+    
+    /* Keyboard focus visible */
+    .interactive-element:focus-visible {
+      outline: 2px solid #00ffff;
+      outline-offset: 2px;
+      box-shadow: 0 0 8px #00ffff;
+    }
+    
+    .description {
+      color: #888;
+      font-size: 0.9em;
+      margin-bottom: 10px;
+    }
+    
+    .requirement {
+      color: #00ff00;
+      font-size: 0.85em;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Interactive Element Highlighting Demo</h1>
+    
+    <div class="section">
+      <h2>Buttons with Brackets</h2>
+      <p class="description">Buttons are highlighted with brackets and bold text</p>
+      <p class="requirement">Requirement 25.1: Highlight with brackets or color</p>
+      <div class="demo-content">
+        <span class="interactive-element interactive-button" tabindex="0">[1]</span>
+        <span class="interactive-element interactive-button" tabindex="0">[2]</span>
+        <span class="interactive-element interactive-button" tabindex="0">[3]</span>
+        <span class="interactive-element interactive-button" tabindex="0">[Press]</span>
+        <span class="interactive-element interactive-button" tabindex="0">[Enter]</span>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2>Links with Arrow Indicators</h2>
+      <p class="description">Links are displayed in cyan with arrow indicators (►)</p>
+      <p class="requirement">Requirement 25.5: Show links with arrow indicator</p>
+      <div class="demo-content">
+        <span class="interactive-element interactive-link" tabindex="0">► News</span><br>
+        <span class="interactive-element interactive-link" tabindex="0">► Sports</span><br>
+        <span class="interactive-element interactive-link" tabindex="0">► Markets</span><br>
+        <span class="interactive-element interactive-link" tabindex="0">► Weather</span><br>
+        <span class="interactive-element interactive-link" tabindex="0">► Index</span>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2>Selections with Yellow Color</h2>
+      <p class="description">Selections are displayed in yellow with brackets</p>
+      <p class="requirement">Requirement 25.1: Highlight with brackets or color</p>
+      <div class="demo-content">
+        <span class="interactive-element interactive-selection" tabindex="0">[Option A]</span><br>
+        <span class="interactive-element interactive-selection" tabindex="0">[Option B]</span><br>
+        <span class="interactive-element interactive-selection" tabindex="0">[Option C]</span><br>
+        <span class="interactive-element interactive-selection" tabindex="0">[Choice 1]</span><br>
+        <span class="interactive-element interactive-selection" tabindex="0">[Choice 2]</span>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2>Hover Effects</h2>
+      <p class="description">Hover over elements to see background highlight and underline</p>
+      <p class="requirement">Requirement 25.2: Display visual highlight or underline on hover</p>
+      <div class="demo-content">
+        <p>Hover over these elements:</p>
+        <span class="interactive-element interactive-button" tabindex="0">[Button]</span>
+        <span class="interactive-element interactive-link" tabindex="0">► Link</span>
+        <span class="interactive-element interactive-selection" tabindex="0">[Selection]</span>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2>Focus Indicators</h2>
+      <p class="description">Tab through elements to see focus indicators (outline and background)</p>
+      <p class="requirement">Requirement 25.3: Display border or background color change on focus</p>
+      <div class="demo-content">
+        <p>Tab through these elements:</p>
+        <span class="interactive-element interactive-button" tabindex="0">[1]</span>
+        <span class="interactive-element interactive-button" tabindex="0">[2]</span>
+        <span class="interactive-element interactive-link" tabindex="0">► News</span>
+        <span class="interactive-element interactive-link" tabindex="0">► Sports</span>
+        <span class="interactive-element interactive-selection" tabindex="0">[Option A]</span>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2>Navigation Menu Example</h2>
+      <p class="description">A complete navigation menu with mixed interactive elements</p>
+      <p class="requirement">Requirement 25.4: Consistent visual styling across all pages</p>
+      <div class="demo-content">
+        <p>MAIN MENU</p>
+        <p><span class="interactive-element interactive-button" tabindex="0">[1]</span> News Headlines</p>
+        <p><span class="interactive-element interactive-button" tabindex="0">[2]</span> Sports Scores</p>
+        <p><span class="interactive-element interactive-button" tabindex="0">[3]</span> Market Data</p>
+        <p><span class="interactive-element interactive-button" tabindex="0">[4]</span> Weather Forecast</p>
+        <p><span class="interactive-element interactive-link" tabindex="0">► Return to Index</span></p>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2>Mixed Content Example</h2>
+      <p class="description">Interactive elements mixed with regular text</p>
+      <p class="requirement">Requirements 25.1, 25.2, 25.3, 25.4, 25.5</p>
+      <div class="demo-content">
+        <p>Press <span class="interactive-element interactive-button" tabindex="0">[1]</span> for news or <span class="interactive-element interactive-button" tabindex="0">[2]</span> for sports.</p>
+        <p>You can also visit <span class="interactive-element interactive-link" tabindex="0">► News</span> or <span class="interactive-element interactive-link" tabindex="0">► Sports</span> directly.</p>
+        <p>Choose <span class="interactive-element interactive-selection" tabindex="0">[Option A]</span> or <span class="interactive-element interactive-selection" tabindex="0">[Option B]</span> to continue.</p>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2>Keyboard Navigation Instructions</h2>
+      <div class="demo-content">
+        <p>• Press <strong>Tab</strong> to move between interactive elements</p>
+        <p>• Press <strong>Shift+Tab</strong> to move backwards</p>
+        <p>• Press <strong>Enter</strong> or <strong>Space</strong> to activate</p>
+        <p>• Notice the focus indicators (yellow/cyan outlines)</p>
+        <p>• Notice the hover effects (background + underline)</p>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Add click handlers to demonstrate interactivity
+    document.querySelectorAll('.interactive-element').forEach(element => {
+      element.addEventListener('click', function() {
+        const type = this.classList.contains('interactive-button') ? 'button' :
+                     this.classList.contains('interactive-link') ? 'link' : 'selection';
+        const text = this.textContent.trim();
+        console.log(`Clicked ${type}: ${text}`);
+        
+        // Visual feedback
+        this.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+          this.style.transform = '';
+        }, 100);
+      });
+      
+      // Keyboard activation
+      element.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          this.click();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
