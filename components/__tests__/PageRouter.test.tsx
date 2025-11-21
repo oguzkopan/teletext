@@ -376,4 +376,64 @@ describe('PageRouter', () => {
       expect(screen.getByTestId('page-id')).toHaveTextContent('100');
     });
   });
+
+  it('should validate sub-page format (e.g., 202-1)', async () => {
+    const mockSubPage: TeletextPage = {
+      ...createEmptyPage('202-1', 'Article 1'),
+      links: []
+    };
+
+    (global.fetch as jest.Mock).mockImplementation((url: string) => {
+      const pageId = url.split('/').pop();
+      if (pageId === '202-1') {
+        return Promise.resolve({
+          ok: true,
+          headers: { get: () => null },
+          json: () => Promise.resolve({ page: mockSubPage })
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        headers: { get: () => null },
+        json: () => Promise.resolve({ page: mockPage100 })
+      });
+    });
+
+    render(
+      <PageRouter initialPage={mockPage100}>
+        {(state) => (
+          <div>
+            <div data-testid="page-id">{state.currentPage?.id}</div>
+            <button onClick={() => state.navigateToPage('202-1')}>Go to 202-1</button>
+          </div>
+        )}
+      </PageRouter>
+    );
+
+    fireEvent.click(screen.getByText('Go to 202-1'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('page-id')).toHaveTextContent('202-1');
+    });
+  });
+
+  it('should reject invalid sub-page format', async () => {
+    render(
+      <PageRouter initialPage={mockPage100}>
+        {(state) => (
+          <div>
+            <div data-testid="page-id">{state.currentPage?.id}</div>
+            <button onClick={() => state.navigateToPage('202-0')}>Invalid Sub-page</button>
+          </div>
+        )}
+      </PageRouter>
+    );
+
+    fireEvent.click(screen.getByText('Invalid Sub-page'));
+
+    // Should remain on page 100 (invalid sub-page index 0)
+    await waitFor(() => {
+      expect(screen.getByTestId('page-id')).toHaveTextContent('100');
+    });
+  });
 });

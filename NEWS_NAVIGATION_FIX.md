@@ -8,10 +8,11 @@ Implemented single-digit navigation for news article pages with full backend sup
 
 ### Changes Made
 
-1. **PageRouter.tsx** - Enhanced digit press handling:
+1. **PageRouter.tsx** - Enhanced digit press handling and validation:
    - Added special case for single-digit navigation on news pages (201-219)
    - When on a news index page with empty input buffer, pressing 1-9 navigates to article detail pages
    - Format: `{basePageId}-{articleNumber}` (e.g., 202-1, 202-2)
+   - Updated `isValidPageNumber()` to accept sub-page format (matches backend validation)
 
 2. **NewsAdapter.ts** - Added article detail page support:
    - Created `getArticleDetailPage()` method to fetch and format individual articles

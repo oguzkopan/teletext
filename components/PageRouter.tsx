@@ -70,9 +70,25 @@ export default function PageRouter({
 
   /**
    * Validates page number is in valid range (100-899)
-   * Requirement: 1.2
+   * Supports both standard pages (e.g., "202") and sub-pages (e.g., "202-1")
+   * Requirement: 1.2, 35.1
    */
   const isValidPageNumber = (pageId: string): boolean => {
+    // Check for sub-page format (e.g., "202-1", "202-2")
+    const subPageMatch = pageId.match(/^(\d{3})-(\d+)$/);
+    if (subPageMatch) {
+      const basePageNumber = parseInt(subPageMatch[1], 10);
+      const subPageIndex = parseInt(subPageMatch[2], 10);
+      
+      // Validate base page number and sub-page index
+      return !isNaN(basePageNumber) && 
+             basePageNumber >= 100 && 
+             basePageNumber <= 899 &&
+             !isNaN(subPageIndex) &&
+             subPageIndex >= 1 &&
+             subPageIndex <= 99;
+    }
+    
     const num = parseInt(pageId, 10);
     return !isNaN(num) && num >= 100 && num <= 899;
   };
