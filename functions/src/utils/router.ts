@@ -13,11 +13,14 @@ import { DevAdapter } from '../adapters/DevAdapter';
 
 /**
  * Routes a page request to the appropriate content adapter based on page number
- * @param pageId - The page ID (e.g., "201", "305")
+ * Supports both standard pages (e.g., "201") and sub-pages (e.g., "202-1")
+ * @param pageId - The page ID (e.g., "201", "305", "202-1")
  * @returns The appropriate content adapter for the page range
  */
 export function routeToAdapter(pageId: string): ContentAdapter {
-  const pageNumber = parseInt(pageId, 10);
+  // Extract base page number (handle sub-page format like "202-1")
+  const basePageId = pageId.split('-')[0];
+  const pageNumber = parseInt(basePageId, 10);
 
   // Special cases handled by StaticAdapter
   if (pageNumber === 999 || pageNumber === 404 || pageNumber === 666) {
@@ -76,12 +79,28 @@ export function routeToAdapter(pageId: string): ContentAdapter {
 
 /**
  * Validates a page ID format
+ * Supports both standard pages (e.g., "202") and sub-pages (e.g., "202-1")
  * @param pageId - The page ID to validate
  * @returns True if valid, false otherwise
  */
 export function isValidPageId(pageId: string): boolean {
   if (!pageId || typeof pageId !== 'string') {
     return false;
+  }
+
+  // Check for sub-page format (e.g., "202-1", "202-2")
+  const subPageMatch = pageId.match(/^(\d{3})-(\d+)$/);
+  if (subPageMatch) {
+    const basePageNumber = parseInt(subPageMatch[1], 10);
+    const subPageIndex = parseInt(subPageMatch[2], 10);
+    
+    // Validate base page number and sub-page index
+    return !isNaN(basePageNumber) && 
+           basePageNumber >= 100 && 
+           basePageNumber <= 899 &&
+           !isNaN(subPageIndex) &&
+           subPageIndex >= 1 &&
+           subPageIndex <= 99;
   }
 
   const pageNumber = parseInt(pageId, 10);

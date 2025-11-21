@@ -4,7 +4,7 @@
 When navigating to news pages (e.g., page 202), users could see numbered articles (1-7) but couldn't press single digits to view the full article details. The numbers were just for display, not actual navigation targets.
 
 ## Solution
-Implemented single-digit navigation for news article pages:
+Implemented single-digit navigation for news article pages with full backend support:
 
 ### Changes Made
 
@@ -25,9 +25,16 @@ Implemented single-digit navigation for news article pages:
    - Updated news index pages to show "Press 1-9 to read full article" instruction
    - Limited article display to 9 items (matching single-digit navigation)
 
-3. **Tests** - Added comprehensive test coverage:
+3. **router.ts** - Updated validation and routing:
+   - Enhanced `isValidPageId()` to accept sub-page format (e.g., "202-1")
+   - Updated `routeToAdapter()` to correctly route sub-pages to their parent adapter
+   - Validates sub-page index is between 1-99
+
+4. **Tests** - Added comprehensive test coverage:
    - Test for article detail page generation
    - Test for invalid article index handling
+   - Test for router validation of sub-page IDs
+   - Test for router routing of sub-pages
 
 ## Usage
 
