@@ -26,7 +26,7 @@ interface ConversationState {
  * Integrates with Google Vertex AI (Gemini) for conversational AI
  */
 export class AIAdapter implements ContentAdapter {
-  private vertexAI: VertexAI;
+  private vertexAI: VertexAI | null = null;
   private firestore: FirebaseFirestore.Firestore;
   private projectId: string;
   private location: string;
@@ -38,11 +38,20 @@ export class AIAdapter implements ContentAdapter {
     this.projectId = process.env.GOOGLE_CLOUD_PROJECT || process.env.VERTEX_PROJECT_ID || '';
     this.location = process.env.VERTEX_LOCATION || 'us-central1';
 
-    // Initialize Vertex AI
-    this.vertexAI = new VertexAI({
-      project: this.projectId,
-      location: this.location
-    });
+    // Don't initialize Vertex AI in constructor - do it lazily when needed
+  }
+
+  /**
+   * Lazily initializes Vertex AI only when needed
+   */
+  private getVertexAI(): VertexAI {
+    if (!this.vertexAI) {
+      this.vertexAI = new VertexAI({
+        project: this.projectId,
+        location: this.location
+      });
+    }
+    return this.vertexAI;
   }
 
   /**
@@ -1085,7 +1094,8 @@ Format your response in clear paragraphs without special formatting or markdown.
     conversationHistory?: Array<{ role: 'user' | 'model'; content: string }>
   ): Promise<string> {
     try {
-      const model = this.vertexAI.getGenerativeModel({
+      const vertexAI = this.getVertexAI();
+      const model = vertexAI.getGenerativeModel({
         model: 'gemini-1.5-flash'
       });
 

@@ -49,7 +49,7 @@ interface BamboozleSession {
  */
 export class GamesAdapter implements ContentAdapter {
   private firestore: FirebaseFirestore.Firestore;
-  private vertexAI: VertexAI;
+  private vertexAI: VertexAI | null = null;
   private projectId: string;
   private location: string;
   private triviaApiUrl: string = 'https://opentdb.com/api.php';
@@ -61,11 +61,20 @@ export class GamesAdapter implements ContentAdapter {
     this.projectId = process.env.GOOGLE_CLOUD_PROJECT || process.env.VERTEX_PROJECT_ID || '';
     this.location = process.env.VERTEX_LOCATION || 'us-central1';
 
-    // Initialize Vertex AI for witty commentary
-    this.vertexAI = new VertexAI({
-      project: this.projectId,
-      location: this.location
-    });
+    // Don't initialize Vertex AI in constructor - do it lazily when needed
+  }
+
+  /**
+   * Lazily initializes Vertex AI only when needed
+   */
+  private getVertexAI(): VertexAI {
+    if (!this.vertexAI) {
+      this.vertexAI = new VertexAI({
+        project: this.projectId,
+        location: this.location
+      });
+    }
+    return this.vertexAI;
   }
 
   /**
@@ -593,7 +602,8 @@ export class GamesAdapter implements ContentAdapter {
     try {
       const percentage = (score / total) * 100;
       
-      const model = this.vertexAI.getGenerativeModel({ model: 'gemini-pro' });
+      const vertexAI = this.getVertexAI();
+      const model = vertexAI.getGenerativeModel({ model: 'gemini-pro' });
       
       const prompt = `Generate a short, witty, and entertaining comment about someone's quiz performance. 
 They scored ${score} out of ${total} questions correct (${percentage}%).
