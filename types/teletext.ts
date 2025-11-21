@@ -65,6 +65,8 @@ export interface PageMeta {
   favoritePages?: string[]; // For keyboard shortcuts config page
   themeSelectionPage?: boolean; // Flag to enable theme selection keyboard handling
   continuation?: PageContinuation; // Multi-page navigation metadata
+  inputMode?: 'single' | 'double' | 'triple'; // Expected input length: 1, 2, or 3 digits
+  inputOptions?: string[];  // Valid single-digit options (e.g., ['1', '2', '3', '4', '5'])
 }
 
 export interface PageContinuation {

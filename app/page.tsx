@@ -166,7 +166,7 @@ function HomeContent() {
                 </div>
                 <div style={{ letterSpacing: '12px', fontSize: '48px', fontWeight: 'bold' }}>
                   {routerState.inputBuffer}
-                  {routerState.inputBuffer.length < 3 && <span style={{ color: '#666' }}>{'_'.repeat(3 - routerState.inputBuffer.length)}</span>}
+                  {routerState.inputBuffer.length < routerState.expectedInputLength && <span style={{ color: '#666' }}>{'_'.repeat(routerState.expectedInputLength - routerState.inputBuffer.length)}</span>}
                 </div>
               </div>
             )}

@@ -26,6 +26,7 @@ export interface PageRouterState {
   canGoForward: boolean;
   isOnline: boolean;
   isCached: boolean;
+  expectedInputLength: number; // 1, 2, or 3 digits expected
 }
 
 /**
@@ -225,26 +226,48 @@ export default function PageRouter({
   }, [history, historyIndex, onPageChange, createCancellableRequest, clearRequest, isRequestActive, fetchPage]);
 
   /**
-   * Handles digit press for page number input with debouncing
-   * Requirement: 12.3, 12.5 - Input buffer with 3 digits
+   * Handles digit press for page number input with variable length support
+   * Requirement: 12.3, 12.5 - Input buffer with flexible digit length
    * Requirement: Performance - Debouncing for keyboard input (100ms)
-   * All navigation requires 3-digit input - no single-digit shortcuts
+   * Supports 1-digit, 2-digit, or 3-digit input based on current page metadata
    */
   const handleDigitPress = useCallback((digit: number) => {
-    // Only accept digits to build 3-digit page number
-    if (inputBuffer.length < 3) {
-      const newBuffer = inputBuffer + digit.toString();
+    // Determine expected input length from current page metadata
+    const inputMode = currentPage?.meta?.inputMode || 'triple';
+    const maxLength = inputMode === 'single' ? 1 : inputMode === 'double' ? 2 : 3;
+    
+    // Check if this is a valid single-digit option for the current page
+    const validOptions = currentPage?.meta?.inputOptions || [];
+    const digitStr = digit.toString();
+    
+    if (inputBuffer.length < maxLength) {
+      const newBuffer = inputBuffer + digitStr;
       setInputBuffer(newBuffer);
       
-      // Auto-navigate when 3 digits are entered (with 100ms debounce)
-      if (newBuffer.length === 3) {
+      // For single-digit input mode, check if it's a valid option and navigate immediately
+      if (inputMode === 'single' && validOptions.includes(digitStr)) {
+        // Navigate based on the option mapping
+        // The page should have links that correspond to these options
+        const optionIndex = validOptions.indexOf(digitStr);
+        if (currentPage?.links && currentPage.links[optionIndex]) {
+          const targetPage = currentPage.links[optionIndex].targetPage;
+          if (targetPage) {
+            setTimeout(() => {
+              navigateToPage(targetPage);
+              setInputBuffer('');
+            }, 100);
+          }
+        }
+      }
+      // Auto-navigate when max digits are entered
+      else if (newBuffer.length === maxLength) {
         setTimeout(() => {
           navigateToPage(newBuffer);
           setInputBuffer('');
         }, 100);
       }
     }
-  }, [inputBuffer, navigateToPage]);
+  }, [inputBuffer, currentPage, navigateToPage]);
 
   /**
    * Handles Enter key press
@@ -380,6 +403,10 @@ export default function PageRouter({
   const canGoBack = historyIndex > 0;
   const canGoForward = historyIndex < history.length - 1;
 
+  // Calculate expected input length based on current page metadata
+  const inputMode = currentPage?.meta?.inputMode || 'triple';
+  const expectedInputLength = inputMode === 'single' ? 1 : inputMode === 'double' ? 2 : 3;
+
   return (
     <>
       {children({
@@ -396,7 +423,8 @@ export default function PageRouter({
         canGoBack,
         canGoForward,
         isOnline,
-        isCached
+        isCached,
+        expectedInputLength
       })}
     </>
   );

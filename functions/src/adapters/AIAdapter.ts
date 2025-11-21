@@ -70,17 +70,38 @@ export class AIAdapter implements ContentAdapter {
     } else if (pageNumber === 505) {
       return this.getSpookyStoryMenuPage();
     } else if (pageNumber === 506) {
-      return this.getSpookyStoryLengthPage(params);
-    } else if (pageNumber >= 507 && pageNumber <= 509) {
-      // Spooky story response pages - generated dynamically
-      return this.getPlaceholderPage(pageId);
+      // Haunted House theme
+      return this.getSpookyStoryInputPage('1', 'Haunted House');
+    } else if (pageNumber === 507) {
+      // Ghost Story theme
+      return this.getSpookyStoryInputPage('2', 'Ghost Story');
+    } else if (pageNumber === 508) {
+      // Monster Tale theme
+      return this.getSpookyStoryInputPage('3', 'Monster Tale');
+    } else if (pageNumber === 509) {
+      // Psychological Horror theme
+      return this.getSpookyStoryInputPage('4', 'Psychological Horror');
+    } else if (pageNumber === 520) {
+      // Surprise Me / Conversation History
+      return this.getConversationHistoryPage();
     } else if (pageNumber === 510) {
       return this.getQATopicSelectionPage();
     } else if (pageNumber === 511) {
-      return this.getCountrySelectionPage(params);
+      // News & Current Events topic
+      return this.getQAQuestionInputPage('1', 'News & Current Events');
     } else if (pageNumber === 512) {
-      return this.getQuestionTypeSelectionPage(params);
-    } else if (pageNumber >= 513 && pageNumber <= 519) {
+      // Technology & Science topic
+      return this.getQAQuestionInputPage('2', 'Technology & Science');
+    } else if (pageNumber === 513) {
+      // Career & Education topic
+      return this.getQAQuestionInputPage('3', 'Career & Education');
+    } else if (pageNumber === 514) {
+      // Health & Wellness topic
+      return this.getQAQuestionInputPage('4', 'Health & Wellness');
+    } else if (pageNumber === 515) {
+      // General Knowledge topic
+      return this.getQAQuestionInputPage('5', 'General Knowledge');
+    } else if (pageNumber >= 516 && pageNumber <= 519) {
       // Q&A response pages - these are generated dynamically
       // In a real implementation, these would be retrieved from cache or regenerated
       return this.getPlaceholderPage(pageId);
@@ -184,17 +205,75 @@ export class AIAdapter implements ContentAdapter {
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'AI', targetPage: '500', color: 'green' },
-        { label: 'BACK', targetPage: '500', color: 'yellow' }
+        { label: 'BACK', targetPage: '500', color: 'yellow' },
+        { label: '', targetPage: '506', color: 'blue' }, // Option 1
+        { label: '', targetPage: '507', color: 'blue' }, // Option 2
+        { label: '', targetPage: '508', color: 'blue' }, // Option 3
+        { label: '', targetPage: '509', color: 'blue' }, // Option 4
+        { label: '', targetPage: '520', color: 'blue' }, // Option 5
+        { label: '', targetPage: '520', color: 'blue' }  // Option 6
       ],
       meta: {
         source: 'AIAdapter',
         lastUpdated: new Date().toISOString(),
+        inputMode: 'single',
+        inputOptions: ['1', '2', '3', '4', '5', '6']
       }
     };
   }
 
   /**
-   * Creates the story length selection page (506)
+   * Creates a spooky story input page for a specific theme
+   */
+  private getSpookyStoryInputPage(themeId: string, themeName: string): TeletextPage {
+    const pageNumber = 505 + parseInt(themeId);
+    
+    const rows = [
+      `${this.truncateText(themeName.toUpperCase(), 28).padEnd(28)} P${pageNumber}`,
+      '════════════════════════════════════',
+      '',
+      '🎃 GENERATE SPOOKY STORY 🎃',
+      '',
+      `Theme: ${themeName}`,
+      '',
+      'This is a simplified interface.',
+      'In a full implementation, you could',
+      'customize your story with:',
+      '',
+      '• Story length (short/medium/long)',
+      '• Setting details',
+      '• Character preferences',
+      '• Scare intensity level',
+      '',
+      'The AI would generate a chilling',
+      'tale formatted for teletext.',
+      '',
+      '',
+      '',
+      'INDEX   THEMES  AI      BACK',
+      ''
+    ];
+
+    return {
+      id: pageNumber.toString(),
+      title: `${themeName} Story`,
+      rows: this.padRows(rows),
+      links: [
+        { label: 'INDEX', targetPage: '100', color: 'red' },
+        { label: 'THEMES', targetPage: '505', color: 'green' },
+        { label: 'AI', targetPage: '500', color: 'yellow' },
+        { label: 'BACK', targetPage: '505', color: 'blue' }
+      ],
+      meta: {
+        source: 'AIAdapter',
+        lastUpdated: new Date().toISOString(),
+        haunting: true // Enable spooky effects
+      }
+    };
+  }
+
+  /**
+   * Creates the story length selection page (DEPRECATED - kept for compatibility)
    */
   private getSpookyStoryLengthPage(params?: Record<string, any>): TeletextPage {
     const theme = params?.theme || 'unknown';
@@ -288,7 +367,63 @@ export class AIAdapter implements ContentAdapter {
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'AI', targetPage: '500', color: 'green' },
-        { label: 'BACK', targetPage: '500', color: 'yellow' }
+        { label: 'BACK', targetPage: '500', color: 'yellow' },
+        { label: '', targetPage: '511', color: 'blue' }, // Option 1
+        { label: '', targetPage: '512', color: 'blue' }, // Option 2
+        { label: '', targetPage: '513', color: 'blue' }, // Option 3
+        { label: '', targetPage: '514', color: 'blue' }, // Option 4
+        { label: '', targetPage: '515', color: 'blue' }  // Option 5
+      ],
+      meta: {
+        source: 'AIAdapter',
+        lastUpdated: new Date().toISOString(),
+        inputMode: 'single',
+        inputOptions: ['1', '2', '3', '4', '5']
+      }
+    };
+  }
+
+  /**
+   * Creates a question input page for a specific topic
+   */
+  private getQAQuestionInputPage(topicId: string, topicName: string): TeletextPage {
+    const pageNumber = 510 + parseInt(topicId);
+    
+    const rows = [
+      `${this.truncateText(topicName.toUpperCase(), 28).padEnd(28)} P${pageNumber}`,
+      '════════════════════════════════════',
+      '',
+      'ASK YOUR QUESTION:',
+      '',
+      'This is a simplified Q&A interface.',
+      'In a full implementation, you would',
+      'type your question here.',
+      '',
+      'The AI would then process your',
+      'question and provide a detailed',
+      'response formatted for teletext.',
+      '',
+      'For now, use the color buttons to:',
+      '',
+      '{green}GREEN:{white} View example questions',
+      '{yellow}YELLOW:{white} Return to topic selection',
+      '{blue}BLUE:{white} Return to AI index',
+      '',
+      '',
+      '',
+      'INDEX   EXAMPLES TOPICS  AI',
+      ''
+    ];
+
+    return {
+      id: pageNumber.toString(),
+      title: `${topicName} Q&A`,
+      rows: this.padRows(rows),
+      links: [
+        { label: 'INDEX', targetPage: '100', color: 'red' },
+        { label: 'EXAMPLES', targetPage: '516', color: 'green' },
+        { label: 'TOPICS', targetPage: '510', color: 'yellow' },
+        { label: 'AI', targetPage: '500', color: 'blue' }
       ],
       meta: {
         source: 'AIAdapter',
@@ -298,7 +433,7 @@ export class AIAdapter implements ContentAdapter {
   }
 
   /**
-   * Creates the country/region selection page (511)
+   * Creates the country/region selection page (DEPRECATED - kept for compatibility)
    */
   private getCountrySelectionPage(params?: Record<string, any>): TeletextPage {
     const topic = params?.topic || 'unknown';

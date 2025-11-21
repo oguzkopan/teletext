@@ -9,6 +9,7 @@ interface RemoteInterfaceProps {
   onEnter: () => void;
   onFavoriteKey?: (index: number) => void;
   currentInput: string;
+  expectedInputLength?: number; // 1, 2, or 3 digits expected
 }
 
 /**
@@ -25,7 +26,8 @@ export default function RemoteInterface({
   onColorButton,
   onEnter,
   onFavoriteKey,
-  currentInput
+  currentInput,
+  expectedInputLength = 3
 }: RemoteInterfaceProps) {
   
   // Keyboard event handler
@@ -115,7 +117,7 @@ export default function RemoteInterface({
       {/* Input display */}
       <div className="input-display">
         <div className="display-screen">
-          {currentInput || '___'}
+          {currentInput || '_'.repeat(expectedInputLength)}
         </div>
       </div>
 

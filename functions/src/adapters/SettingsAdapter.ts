@@ -164,12 +164,18 @@ export class SettingsAdapter implements ContentAdapter {
       rows: this.padRows(rows),
       links: [
         { label: 'EFFECTS', targetPage: '701', color: 'red' },
-        { label: 'INDEX', targetPage: '100', color: 'green' }
+        { label: 'INDEX', targetPage: '100', color: 'green' },
+        { label: '', targetPage: '702', color: 'blue' }, // Option 1
+        { label: '', targetPage: '703', color: 'blue' }, // Option 2
+        { label: '', targetPage: '704', color: 'blue' }, // Option 3
+        { label: '', targetPage: '705', color: 'blue' }  // Option 4
       ],
       meta: {
         source: 'SettingsAdapter',
         lastUpdated: new Date().toISOString(),
-        themeSelectionPage: true  // Flag to enable special keyboard handling
+        themeSelectionPage: true,  // Flag to enable special keyboard handling
+        inputMode: 'single',
+        inputOptions: ['1', '2', '3', '4']
       }
     };
   }

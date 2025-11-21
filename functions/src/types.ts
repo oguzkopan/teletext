@@ -39,6 +39,8 @@ export interface PageMeta {
     currentIndex: number;
   };
   themeSelectionPage?: boolean; // Flag to enable special keyboard handling for theme selection
+  inputMode?: 'single' | 'double' | 'triple'; // Expected input length: 1, 2, or 3 digits
+  inputOptions?: string[];  // Valid single-digit options (e.g., ['1', '2', '3', '4', '5'])
 }
 
 export interface ContentAdapter {
