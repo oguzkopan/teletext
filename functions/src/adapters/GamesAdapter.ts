@@ -58,7 +58,8 @@ export class GamesAdapter implements ContentAdapter {
     this.firestore = admin.firestore();
     
     // Get project configuration from environment
-    this.projectId = process.env.GOOGLE_CLOUD_PROJECT || process.env.VERTEX_PROJECT_ID || '';
+    // GOOGLE_CLOUD_PROJECT is automatically set by Firebase Functions
+    this.projectId = process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || '';
     this.location = process.env.VERTEX_LOCATION || 'us-central1';
 
     // Don't initialize Vertex AI in constructor - do it lazily when needed

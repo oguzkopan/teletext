@@ -66,10 +66,15 @@ If you want to enable AI-powered features, ensure these environment variables ar
 
 ### In `functions/.env`:
 ```
-GOOGLE_CLOUD_PROJECT=your-project-id
-VERTEX_PROJECT_ID=your-project-id
+# Note: GOOGLE_CLOUD_PROJECT is automatically set by Firebase - DO NOT add it manually!
+# Only add this if you want to override the default location:
 VERTEX_LOCATION=us-central1
 ```
+
+### Important Notes:
+- **DO NOT** set `GOOGLE_CLOUD_PROJECT` in your `.env` file - it's reserved and automatically set by Firebase
+- The adapters will automatically use the Firebase project ID for Vertex AI
+- You only need to set `VERTEX_LOCATION` if you want to use a different region than `us-central1`
 
 ### Additional Requirements:
 1. Enable Vertex AI API in Google Cloud Console
