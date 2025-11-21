@@ -75,13 +75,13 @@ export default function CRTFrame({ children, effects, hauntingMode = false }: CR
         .crt-frame {
           position: relative;
           background: #2a2a2a;
-          padding: 1.5vh 1.5vw;
+          padding: 0.5vh 0.5vw;
           border-radius: 20px;
           box-shadow: 
             0 0 50px rgba(0, 0, 0, 0.8),
             inset 0 0 20px rgba(0, 0, 0, 0.5);
-          max-width: 98vw;
-          max-height: 98vh;
+          max-width: 99vw;
+          max-height: 99vh;
           width: 100%;
           height: 100%;
           display: flex;
@@ -93,7 +93,7 @@ export default function CRTFrame({ children, effects, hauntingMode = false }: CR
         .crt-bezel {
           position: relative;
           background: #000;
-          padding: 1vh 1vw;
+          padding: 0.3vh 0.3vw;
           border-radius: 10px;
           box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.9);
           width: 100%;

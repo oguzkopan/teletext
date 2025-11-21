@@ -26,33 +26,34 @@ const createDemoPage = (showWelcome: boolean = false): TeletextPage => {
     return ' '.repeat(leftPad) + text + ' '.repeat(rightPad);
   };
   
+  // Create compact 2-column layout that fits on one screen
   page.rows = [
-    padText('{white}' + centerText('MODERN TELETEXT', 32) + '    P100', 40),
-    padText('════════════════════════════════════════', 40),
-    padText('', 40),
+    'MODERN TELETEXT                     P100',
+    '════════════════════════════════════════',
     showWelcome 
-      ? padText('{green}' + centerText('★ SYSTEM READY - WELCOME! ★', 40), 40)
-      : padText('{yellow}' + centerText('Welcome to Modern Teletext!', 40), 40),
-    padText('', 40),
-    padText('{white}' + centerText('A modern web application that', 40), 40),
-    padText(centerText('resurrects classic teletext', 40), 40),
-    padText(centerText('with contemporary capabilities', 40), 40),
-    padText('', 40),
-    padText('{cyan}' + centerText('★ MAGAZINES ★', 40), 40),
-    padText('', 40),
-    padText('  {green}101 {white}System Info & Help', 40),
-    padText('  {green}200 {white}News & Headlines', 40),
-    padText('  {green}300 {white}Sports & Scores', 40),
-    padText('  {green}400 {white}Markets & Finance', 40),
-    padText('  {green}500 {white}AI Oracle Assistant', 40),
-    padText('  {green}600 {white}Games & Quizzes', 40),
-    padText('  {green}700 {white}Settings & Themes', 40),
-    padText('  {green}800 {white}Developer Tools', 40),
-    padText('', 40),
-    padText('', 40),
-    padText('{yellow}' + centerText('Use remote or keyboard to navigate', 40), 40),
-    padText('', 40),
-    padText('{red}NEWS {green}SPORT {yellow}MARKETS {blue}AI', 40)
+      ? '{green}★ SYSTEM READY - WELCOME! ★             '
+      : '  A modern teletext for the web         ',
+    '',
+    '{cyan}★ MAGAZINES ★                           ',
+    '{green}101{white} System    {green}500{white} AI Oracle          ',
+    '{green}200{white} News      {green}600{white} Games              ',
+    '{green}300{white} Sports    {green}700{white} Settings           ',
+    '{green}400{white} Markets   {green}800{white} Dev Tools          ',
+    '',
+    '{yellow}QUICK ACCESS:                           ',
+    '  Enter 3-digit page number             ',
+    '  Use colored buttons for shortcuts     ',
+    '  Press 999 for help anytime            ',
+    '',
+    '{cyan}POPULAR PAGES:                          ',
+    '  200 Latest news headlines             ',
+    '  300 Live sports scores                ',
+    '  400 Market data & crypto              ',
+    '  500 Ask AI anything                   ',
+    '',
+    '',
+    '────────────────────────────────────────',
+    '{red}NEWS {green}SPORT {yellow}WEATHER {blue}AI {white}999=HELP'
   ];
   
   page.links = [
@@ -142,6 +143,8 @@ function HomeContent() {
               />
             </CRTFrame>
             
+
+
             {/* On-screen input display - always show when there's input */}
             {routerState.inputBuffer && routerState.inputBuffer.length > 0 && (
               <div 

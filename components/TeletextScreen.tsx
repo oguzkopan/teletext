@@ -7,7 +7,6 @@ import { useAITypingAnimation } from '@/hooks/useAITypingAnimation';
 import { getInteractiveElementStyles } from '@/lib/interactive-element-highlighting';
 import { useLoadingTextRotation } from '@/hooks/useLoadingTextRotation';
 import { useAnimationSettingsPage } from './AnimationSettingsPage';
-import InputBufferDisplay from './InputBufferDisplay';
 
 interface TeletextScreenProps {
   page: TeletextPage;
@@ -386,9 +385,9 @@ const TeletextScreen = React.memo(function TeletextScreen({
         backgroundColor: theme.colors.background,
         color: theme.colors.text,
         fontFamily: "'Courier New', Courier, monospace",
-        fontSize: 'clamp(10px, 1.5vw, 20px)',
-        lineHeight: '1.2',
-        padding: '1.5vh 1.5vw',
+        fontSize: 'clamp(14px, 2.2vw, 28px)',
+        lineHeight: '1.35',
+        padding: '1vh 1.2vw',
         width: '100%',
         height: '100%',
         position: 'relative',
@@ -473,14 +472,7 @@ const TeletextScreen = React.memo(function TeletextScreen({
         </div>
       )}
       
-      {/* Input buffer display - Requirements: 6.5, 8.4, 15.1 */}
-      <InputBufferDisplay
-        buffer={inputBuffer}
-        expectedLength={expectedInputLength}
-        theme={theme}
-        position="footer"
-        visible={!loading}
-      />
+
 
       {/* Offline indicator */}
       {!loading && !isOnline && (
@@ -527,7 +519,10 @@ const TeletextScreen = React.memo(function TeletextScreen({
       <style jsx>{`
         .teletext-row {
           white-space: pre;
-          height: 1.2em;
+          height: 1.3em;
+          width: 100%;
+          overflow: visible;
+          display: block;
         }
         
         /* Interactive element highlighting - Requirements 25.1, 25.2, 25.3, 25.4, 25.5 */

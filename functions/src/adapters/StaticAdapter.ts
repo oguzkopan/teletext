@@ -96,37 +96,33 @@ export class StaticAdapter implements ContentAdapter {
     // Requirements: 30.3
     const randomTip = SHORTCUT_TIPS[Math.floor(Math.random() * SHORTCUT_TIPS.length)];
     
-    // ASCII art logo banner and full-width layout
+    // Compact 2-column layout that fits on one screen
     // Requirements: 4.1, 4.2, 9.1, 9.3, 9.4, 29.3, 30.3
     const rows = [
-      '╔══════════════════════════════════╗P100',
-      '║  MODERN TELETEXT  ░▒▓█▓▒░       ║',
-      '╚══════════════════════════════════╝',
+      'MODERN TELETEXT                     P100',
+      '════════════════════════════════════════',
       this.centerText(`${dateStr} ${timeStr}`, 40),
       '',
-      // Magazine sections with icons and visual separation
-      // Requirements: 4.2, 4.3, 4.4, 9.2
-      '▓▓▓▓ INFORMATION & SYSTEM ▓▓▓▓▓▓▓▓▓▓',
-      '  101  ℹ️  System Info & How It Works',
-      '  110  📋 System Pages Index',
-      '▓▓▓▓ NEWS & CURRENT AFFAIRS ▓▓▓▓▓▓▓▓',
-      '  ►200 📰 News Headlines & Stories',
-      '▓▓▓▓ SPORT & LIVE SCORES ▓▓▓▓▓▓▓▓▓▓▓',
-      '  ►300 ⚽ Sport Results & Fixtures',
-      '▓▓▓▓ MARKETS & FINANCE ▓▓▓▓▓▓▓▓▓▓▓▓▓',
-      '  ►400 📈 Markets, Stocks & Crypto',
-      '  ►420 🌤️  Weather Forecasts',
-      '▓▓▓▓ INTERACTIVE SERVICES ▓▓▓▓▓▓▓▓▓▓',
-      '  ►500 🤖 AI Oracle  ►600 🎮 Games',
-      '  ►700 ⚙️  Settings  ►800 🔧 Dev Tools',
+      '▓▓▓▓▓▓▓▓ MAGAZINES ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓',
+      '101 System      500 AI Oracle           ',
+      '110 Index       600 Games               ',
+      '200 News        700 Settings            ',
+      '300 Sport       800 Dev Tools           ',
+      '400 Markets     999 Help                ',
+      '420 Weather                             ',
       '',
-      this.centerText('★ WHAT\'S NEW ★', 40),
-      '  Enhanced UX with visual indicators!',
-      randomTip, // Random tip of the day
-      // Navigation legend
-      // Requirements: 4.5, 9.5
+      '▓▓▓▓▓▓▓▓ QUICK START ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓',
+      '  Enter 3-digit page number             ',
+      '  Use colored buttons for shortcuts     ',
+      '  Press 999 for help anytime            ',
+      '',
+      this.centerText('WHAT\'S NEW', 40),
+      '  Enhanced UX with visual indicators    ',
+      '  ' + randomTip.substring(0, 37),
+      '',
+      '',
       '────────────────────────────────────────',
-      '🔴NEWS 🟢SPORT 🟡WEATHER 🔵AI  999=HELP'
+      'RED=NEWS GREEN=SPORT YELLOW=WEATHER HELP'
     ];
 
     return {

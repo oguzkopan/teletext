@@ -93,12 +93,34 @@ export function truncateText(
 }
 
 /**
- * Pads text to exactly the specified width with spaces.
+ * Strips color codes from text to get the visible length.
+ * Color codes are in the format {color} where color is red, green, yellow, blue, magenta, cyan, white, black.
  * 
- * @param text - The text to pad
+ * @param text - Text with color codes
+ * @returns Text without color codes
+ */
+export function stripColorCodes(text: string): string {
+  return text.replace(/\{(red|green|yellow|blue|magenta|cyan|white|black)\}/gi, '');
+}
+
+/**
+ * Gets the visible length of text (excluding color codes).
+ * 
+ * @param text - Text with potential color codes
+ * @returns Visible character count
+ */
+export function getVisibleLength(text: string): number {
+  return stripColorCodes(text).length;
+}
+
+/**
+ * Pads text to exactly the specified width with spaces.
+ * Accounts for color codes when calculating visible length.
+ * 
+ * @param text - The text to pad (may include color codes like {red})
  * @param width - Target width (default: 40)
  * @param align - Alignment: 'left', 'right', or 'center' (default: 'left')
- * @returns Padded text of exactly width characters
+ * @returns Padded text of exactly width visible characters
  * 
  * Requirements: 2.1, 2.2, 14.5
  */
@@ -107,12 +129,18 @@ export function padText(
   width: number = 40, 
   align: 'left' | 'right' | 'center' = 'left'
 ): string {
-  // Truncate if too long
-  if (text.length > width) {
-    return text.slice(0, width);
+  // Get visible length (excluding color codes)
+  const visibleText = stripColorCodes(text);
+  const visibleLength = visibleText.length;
+  
+  // Truncate if too long (preserve color codes at start if present)
+  if (visibleLength > width) {
+    const colorCodes = text.match(/^\{(red|green|yellow|blue|magenta|cyan|white|black)\}/gi) || [];
+    const colorPrefix = colorCodes.join('');
+    return colorPrefix + visibleText.slice(0, width);
   }
 
-  const padding = width - text.length;
+  const padding = width - visibleLength;
 
   switch (align) {
     case 'right':
