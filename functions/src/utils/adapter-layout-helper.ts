@@ -93,22 +93,23 @@ export function applyAdapterLayout(options: AdapterLayoutOptions): TeletextPage 
 }
 
 /**
- * Creates a simple header row for adapters that don't use layout manager
+ * Creates a standardized header row with Kiroween branding
+ * Format: {pageNumber} 🎃KIROWEEN🎃 {time} 🔴🟢🟡🔵
  * 
- * @param title - Page title
+ * @param title - Page title (not used in compact format, kept for compatibility)
  * @param pageId - Page ID
- * @param maxTitleLength - Maximum length for title (default: 28)
+ * @param maxTitleLength - Not used, kept for compatibility
  * @returns Header row string
  */
 export function createSimpleHeader(title: string, pageId: string, maxTitleLength: number = 28): string {
-  const truncatedTitle = title.length > maxTitleLength 
-    ? title.substring(0, maxTitleLength - 3) + '...' 
-    : title;
-  
-  const titlePart = truncatedTitle.toUpperCase().padEnd(maxTitleLength, ' ');
-  const pageNumPart = `P${pageId}`.padStart(12);
-  
-  return titlePart + pageNumPart;
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  // Compact header format matching P100
+  return `{cyan}${pageId} 🎃KIROWEEN🎃 ${timeStr} {red}🔴{green}🟢{yellow}🟡{blue}🔵`;
 }
 
 /**
