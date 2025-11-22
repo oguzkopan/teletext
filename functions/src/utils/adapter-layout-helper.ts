@@ -53,17 +53,17 @@ export function applyAdapterLayout(options: AdapterLayoutOptions): TeletextPage 
     continuation
   } = options;
 
-  // Pad content rows to exactly 40 characters
+  // Pad content rows to exactly 60 characters
   const paddedContent = contentRows.map(row => {
-    if (row.length > 40) {
-      return row.substring(0, 40);
+    if (row.length > 60) {
+      return row.substring(0, 60);
     }
-    return row.padEnd(40, ' ');
+    return row.padEnd(60, ' ');
   });
 
   // Ensure exactly 24 rows
   while (paddedContent.length < 24) {
-    paddedContent.push(''.padEnd(40, ' '));
+    paddedContent.push(''.padEnd(60, ' '));
   }
 
   // Limit to 24 rows
