@@ -7,6 +7,7 @@ import PageRouter from '@/components/PageRouter';
 import BootSequence from '@/components/BootSequence';
 import PerformanceDebug from '@/components/PerformanceDebug';
 import KeyboardHandler from '@/components/KeyboardHandler';
+import HalloweenDecorations from '@/components/HalloweenDecorations';
 import { ThemeProvider, useTheme, themes } from '@/lib/theme-context';
 import { TeletextPage } from '@/types/teletext';
 import { createEmptyPage, padText } from '@/lib/teletext-utils';
@@ -14,54 +15,62 @@ import { validateEnvironmentVariablesWithWarnings } from '@/lib/env-validation';
 
 // Demo page with welcome message after boot
 // Requirements: 34.2, 34.3 - Full-width layout with centered titles
+// HALLOWEEN HACKATHON EDITION - Colorful spooky theme
 const createDemoPage = (showWelcome: boolean = false): TeletextPage => {
-  const page = createEmptyPage('100', 'MODERN TELETEXT');
+  const page = createEmptyPage('100', 'KIROWEEN TELETEXT');
   
-  // Helper function to center text
-  const centerText = (text: string, width: number = 40): string => {
-    if (text.length >= width) return text.slice(0, width);
-    const padding = width - text.length;
-    const leftPad = Math.floor(padding / 2);
-    const rightPad = padding - leftPad;
-    return ' '.repeat(leftPad) + text + ' '.repeat(rightPad);
-  };
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-GB', { 
+    weekday: 'short', 
+    day: '2-digit', 
+    month: 'short' 
+  });
+  const timeStr = now.toLocaleTimeString('en-GB', { 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  });
   
-  // Create compact 2-column layout that fits on one screen
+  // Create full-screen 2-column Halloween-themed layout
   page.rows = [
-    'MODERN TELETEXT                     P100',
-    '════════════════════════════════════════',
+    `{cyan}100 {yellow}🎃 KIROWEEN TELETEXT 🎃 {cyan}${dateStr} ${timeStr}`,
+    '{magenta}════════════════════════════════════════',
     showWelcome 
-      ? '{green}★ SYSTEM READY - WELCOME! ★             '
-      : '  A modern teletext for the web         ',
-    '',
-    '{cyan}★ MAGAZINES ★                           ',
-    '{green}101{white} System    {green}500{white} AI Oracle          ',
-    '{green}200{white} News      {green}600{white} Games              ',
-    '{green}300{white} Sports    {green}700{white} Settings           ',
-    '{green}400{white} Markets   {green}800{white} Dev Tools          ',
-    '',
-    '{yellow}QUICK ACCESS:                           ',
-    '  Enter 3-digit page number             ',
-    '  Use colored buttons for shortcuts     ',
-    '  Press 999 for help anytime            ',
-    '',
-    '{cyan}POPULAR PAGES:                          ',
-    '  200 Latest news headlines             ',
-    '  300 Live sports scores                ',
-    '  400 Market data & crypto              ',
-    '  500 Ask AI anything                   ',
-    '',
-    '',
-    '────────────────────────────────────────',
-    '{red}NEWS {green}SPORT {yellow}WEATHER {blue}AI {white}999=HELP'
+      ? '{green}👻 SYSTEM READY - WELCOME! 👻           '
+      : '{red}👻 {yellow}HAUNTED MAGAZINES {red}👻  {cyan}QUICK ACCESS',
+    '{green}101{white} System    {green}500{white} AI Oracle {red}🔴{white} Latest News',
+    '{green}200{white} News      {green}600{white} Games     {green}🟢{white} Live Sports',
+    '{green}300{white} Sports    {green}700{white} Settings  {yellow}🟡{white} Weather',
+    '{green}400{white} Markets   {green}800{white} Dev Tools {blue}🔵{white} Ask AI',
+    '{green}420{white} Weather   {green}999{white} Help      {magenta}⚡{white} Quick Help',
+    '{magenta}────────────────────────────────────────',
+    '{yellow}🦇 SPOOKY FEATURES 🦇  {cyan}💀 POPULAR 💀',
+    '{red}666{white} Cursed Page         {green}200{white} Breaking News',
+    '{red}404{white} Lost in Void        {green}300{white} Live Scores',
+    '{yellow}500{white} AI Oracle           {green}400{white} Crypto/Stocks',
+    '{blue}600{white} Haunted Games       {green}500{white} Chat with AI',
+    '{magenta}────────────────────────────────────────',
+    '{cyan}🎃 NAVIGATION TIPS 🎃',
+    '{white}• Type {yellow}3-digit{white} page number to jump',
+    '{white}• Use {red}R{white}/{green}G{white}/{yellow}Y{white}/{blue}B{white} for colored shortcuts',
+    '{white}• Press {cyan}999{white} for help anytime',
+    '{white}• Press {magenta}666{white} if you dare... 👻',
+    '{magenta}════════════════════════════════════════',
+    '{red}🔴NEWS {green}🟢SPORT {yellow}🟡WEATHER {blue}🔵AI {white}999=HELP',
+    '{yellow}⚡ Built with Kiro for Kiroween 2024 ⚡'
   ];
   
   page.links = [
     { label: 'NEWS', targetPage: '200', color: 'red' },
     { label: 'SPORT', targetPage: '300', color: 'green' },
-    { label: 'MARKETS', targetPage: '400', color: 'yellow' },
+    { label: 'WEATHER', targetPage: '420', color: 'yellow' },
     { label: 'AI', targetPage: '500', color: 'blue' }
   ];
+  
+  page.meta = {
+    ...page.meta,
+    halloweenTheme: true,
+    fullScreenLayout: true
+  };
   
   return page;
 };
@@ -121,7 +130,10 @@ function HomeContent() {
   }
 
   return (
-    <main className="w-screen h-screen overflow-hidden bg-gray-900 m-0 p-0 relative">
+    <main className="w-screen h-screen overflow-hidden bg-black m-0 p-0 relative">
+      {/* Halloween decorations for Kiroween Hackathon */}
+      <HalloweenDecorations />
+      
       <PageRouter 
         initialPage={createDemoPage(showWelcome)}
         onPageChange={(page) => setCurrentPage(page)}

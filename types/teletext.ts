@@ -81,6 +81,27 @@ export interface PageMeta {
   creditsAnimation?: string; // Animation type for credits (e.g., 'scrolling-credits')
   kiroBadge?: boolean;      // Enable Kiro badge animation
   kiroBadgeAnimation?: string; // Animation type for Kiro badge (e.g., 'kiro-badge-pulse')
+  halloweenTheme?: boolean; // Enable Halloween theme decorations and styling
+  fullScreenLayout?: boolean; // Use full-screen layout (90%+ screen utilization)
+  maxVisualEffects?: boolean; // Apply maximum visual effects regardless of user settings
+  specialPageAnimation?: {
+    type: string;
+    name: string;
+    targetRows: number[];
+    frames: string[];
+    duration: number;
+    loop: boolean;
+  };
+  specialPageAnimations?: Array<{
+    type: string;
+    name: string;
+    targetRows: number[];
+    frames: string[];
+    duration: number;
+    loop: boolean;
+  }>;
+  keyboardVisualization?: boolean; // Enable special keyboard visualization
+  highlightedKeys?: string[]; // Keys to highlight in keyboard shortcuts page
 }
 
 export interface PageContinuation {

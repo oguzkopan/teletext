@@ -1,8 +1,10 @@
-# Modern Teletext (DeadText)
+# 🎃 Modern Teletext (DeadText) - Kiroween Edition 🎃
 
-> Resurrecting the classic teletext broadcast technology with modern capabilities
+> Resurrecting the classic teletext broadcast technology with modern capabilities and Halloween spirit!
 
-A nostalgic web application that faithfully recreates the 40×24 character grid interface and three-digit page navigation of 1970s-era teletext services (like BBC Ceefax and ORACLE), enhanced with contemporary features including live API integrations, AI-powered assistance, interactive games, and authentic CRT visual effects.
+**🏆 Kiroween Hackathon 2024 - Category: Resurrection 🧟‍♂️**
+
+A nostalgic web application that faithfully recreates the 40×24 character grid interface and three-digit page navigation of 1970s-era teletext services (like BBC Ceefax and ORACLE), enhanced with contemporary features including live API integrations, AI-powered assistance, interactive games, authentic CRT visual effects, and a **spooky Halloween theme** for the Kiroween Hackathon!
 
 ## ✨ Features
 

@@ -130,34 +130,38 @@ export class SettingsAdapter implements ContentAdapter {
   /**
    * Creates the theme selection page (700)
    * Requirements: 37.1 - Display numbered theme options (1-4)
+   * HALLOWEEN HACKATHON EDITION - Full-screen colorful layout
    */
   private getThemeSelectionPage(currentTheme?: string): TeletextPage {
     const rows = [
-      'THEME SELECTION              P700',
-      '════════════════════════════════════',
-      '',
-      'Press a number key to select theme:',
-      '',
-      '1. CEEFAX (Classic BBC)',
-      '   Yellow on blue background',
-      '   Traditional teletext look',
-      '',
-      '2. ORF (Austrian Teletext)',
-      '   Green on black background',
-      '   European teletext style',
-      '',
-      '3. HIGH CONTRAST',
-      '   White on black background',
-      '   Maximum readability',
-      '',
-      '4. HAUNTING MODE',
-      '   Green on black with glitch',
-      '   Spooky horror aesthetic',
-      '',
-      currentTheme ? `Current: ${currentTheme}` : '',
-      '',
-      'EFFECTS INDEX',
-      ''
+      '{cyan}THEME SELECTION              {yellow}P700',
+      '{magenta}════════════════════════════════════════',
+      '{yellow}🎨 Choose Your Spooky Style 🎨',
+      '{white}Press a number key to select theme:',
+      '{magenta}────────────────────────────────────────',
+      '{cyan}[1] {yellow}🟦 CEEFAX {white}(Classic BBC)',
+      '    {yellow}Yellow on blue background',
+      '    Traditional teletext look',
+      '    {green}Perfect for retro vibes! 📺',
+      '{magenta}────────────────────────────────────────',
+      '{cyan}[2] {green}⬛ ORF {white}(Austrian Teletext)',
+      '    {green}Green on black background',
+      '    European teletext style',
+      '    {green}Matrix-style hacker aesthetic! 💻',
+      '{magenta}────────────────────────────────────────',
+      '{cyan}[3] {white}⬜ HIGH CONTRAST',
+      '    {white}White on black background',
+      '    Maximum readability',
+      '    {green}Best for accessibility! ♿',
+      '{magenta}────────────────────────────────────────',
+      '{cyan}[4] {red}👻 HAUNTING MODE {white}(KIROWEEN!)',
+      '    {red}Green on black with glitch effects',
+      '    Spooky horror aesthetic',
+      '    {red}Perfect for Halloween! 🎃',
+      '{magenta}════════════════════════════════════════',
+      currentTheme ? `{yellow}Current: ${currentTheme}` : '{yellow}Select a theme above',
+      '{magenta}════════════════════════════════════════',
+      '{red}🔴EFFECTS {green}🟢INDEX {yellow}🟡PREVIEW {blue}🔵HELP'
     ];
 
     return {
@@ -167,17 +171,17 @@ export class SettingsAdapter implements ContentAdapter {
       links: [
         { label: 'EFFECTS', targetPage: '701', color: 'red' },
         { label: 'INDEX', targetPage: '100', color: 'green' },
-        { label: '', targetPage: '702', color: 'blue' }, // Option 1
-        { label: '', targetPage: '703', color: 'blue' }, // Option 2
-        { label: '', targetPage: '704', color: 'blue' }, // Option 3
-        { label: '', targetPage: '705', color: 'blue' }  // Option 4
+        { label: 'PREVIEW', targetPage: '702', color: 'yellow' },
+        { label: 'HELP', targetPage: '999', color: 'blue' }
       ],
       meta: {
         source: 'SettingsAdapter',
         lastUpdated: new Date().toISOString(),
-        themeSelectionPage: true,  // Flag to enable special keyboard handling
+        themeSelectionPage: true,
         inputMode: 'single',
-        inputOptions: ['1', '2', '3', '4']
+        inputOptions: ['1', '2', '3', '4'],
+        halloweenTheme: true,
+        fullScreenLayout: true
       }
     };
   }

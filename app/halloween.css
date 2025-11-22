@@ -1,0 +1,350 @@
+/* ============================================================================
+   KIROWEEN HACKATHON - Halloween Theme Enhancements
+   Spooky, colorful, and visually striking design for the hackathon
+   ============================================================================ */
+
+/* Pumpkin glow effect */
+@keyframes pumpkin-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 5px rgba(255, 100, 0, 0.8));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 15px rgba(255, 100, 0, 1));
+    transform: scale(1.1);
+  }
+}
+
+/* Bat wing flap */
+@keyframes bat-flap {
+  0%, 100% {
+    transform: scaleX(1);
+  }
+  50% {
+    transform: scaleX(0.8);
+  }
+}
+
+/* Ghost wobble */
+@keyframes ghost-wobble {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-5px) rotate(2deg);
+  }
+  75% {
+    transform: translateY(5px) rotate(-2deg);
+  }
+}
+
+/* Lightning flash */
+@keyframes lightning-flash {
+  0%, 90%, 100% {
+    opacity: 0;
+  }
+  91%, 93%, 95% {
+    opacity: 1;
+    filter: brightness(2);
+  }
+  92%, 94% {
+    opacity: 0.5;
+  }
+}
+
+/* Spooky text glow */
+@keyframes spooky-glow {
+  0%, 100% {
+    text-shadow: 
+      0 0 5px rgba(255, 0, 0, 0.5),
+      0 0 10px rgba(255, 100, 0, 0.3);
+  }
+  50% {
+    text-shadow: 
+      0 0 10px rgba(255, 0, 0, 0.8),
+      0 0 20px rgba(255, 100, 0, 0.6),
+      0 0 30px rgba(255, 150, 0, 0.4);
+  }
+}
+
+/* Floating particles */
+@keyframes float-up {
+  0% {
+    transform: translateY(100vh) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.5;
+  }
+  90% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(-100px) translateX(50px);
+    opacity: 0;
+  }
+}
+
+/* Creepy crawl */
+@keyframes creepy-crawl {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(5px) rotate(5deg);
+  }
+  50% {
+    transform: translateY(10px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(5px) rotate(-5deg);
+  }
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
+/* Eerie pulse */
+@keyframes eerie-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+/* Blood drip effect */
+@keyframes blood-drip {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+}
+
+/* Witch's cauldron bubble */
+@keyframes bubble-up {
+  0% {
+    transform: translateY(0) scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-50px) scale(1);
+    opacity: 0;
+  }
+}
+
+/* Spiderweb shimmer */
+@keyframes web-shimmer {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Haunted text shake */
+@keyframes haunted-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-2px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(2px);
+  }
+}
+
+/* Moonlight glow */
+@keyframes moonlight {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(200, 200, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(200, 200, 255, 0.6);
+  }
+}
+
+/* Graveyard fog */
+@keyframes fog-drift {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Apply Halloween effects to specific elements */
+.halloween-pumpkin {
+  animation: pumpkin-glow 2s ease-in-out infinite;
+}
+
+.halloween-bat {
+  animation: bat-flap 0.5s ease-in-out infinite;
+}
+
+.halloween-ghost {
+  animation: ghost-wobble 3s ease-in-out infinite;
+}
+
+.halloween-lightning {
+  animation: lightning-flash 5s ease-in-out infinite;
+}
+
+.halloween-text {
+  animation: spooky-glow 2s ease-in-out infinite;
+}
+
+.halloween-spider {
+  animation: creepy-crawl 4s ease-in-out infinite;
+}
+
+.halloween-web {
+  animation: web-shimmer 3s ease-in-out infinite;
+}
+
+.halloween-shake {
+  animation: haunted-shake 0.5s ease-in-out;
+}
+
+/* Full-screen background effects */
+.halloween-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(255, 100, 0, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(150, 0, 255, 0.1) 0%, transparent 50%);
+  animation: eerie-pulse 4s ease-in-out infinite;
+}
+
+/* Colorful border effects */
+.halloween-border {
+  border: 2px solid;
+  border-image: linear-gradient(
+    45deg,
+    #ff0000,
+    #ff6600,
+    #ffff00,
+    #00ff00,
+    #0000ff,
+    #ff00ff
+  ) 1;
+  animation: rainbow-border 3s linear infinite;
+}
+
+@keyframes rainbow-border {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
+
+/* Glowing text effect for important elements */
+.glow-text {
+  text-shadow: 
+    0 0 5px currentColor,
+    0 0 10px currentColor,
+    0 0 15px currentColor;
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Particle system for ambient effects */
+.particle {
+  position: fixed;
+  pointer-events: none;
+  animation: float-up 10s linear infinite;
+}
+
+.particle:nth-child(1) { animation-delay: 0s; left: 10%; }
+.particle:nth-child(2) { animation-delay: 2s; left: 20%; }
+.particle:nth-child(3) { animation-delay: 4s; left: 30%; }
+.particle:nth-child(4) { animation-delay: 6s; left: 40%; }
+.particle:nth-child(5) { animation-delay: 8s; left: 50%; }
+.particle:nth-child(6) { animation-delay: 1s; left: 60%; }
+.particle:nth-child(7) { animation-delay: 3s; left: 70%; }
+.particle:nth-child(8) { animation-delay: 5s; left: 80%; }
+.particle:nth-child(9) { animation-delay: 7s; left: 90%; }
+
+/* Enhanced emoji styling */
+.emoji-large {
+  font-size: 3rem;
+  display: inline-block;
+  animation: eerie-pulse 2s ease-in-out infinite;
+}
+
+.emoji-spin {
+  display: inline-block;
+  animation: spin 4s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Kiroween branding */
+.kiroween-logo {
+  background: linear-gradient(
+    45deg,
+    #ff0000,
+    #ff6600,
+    #ffff00,
+    #00ff00,
+    #0000ff,
+    #ff00ff
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: rainbow-flow 3s ease infinite;
+}
+
+@keyframes rainbow-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}

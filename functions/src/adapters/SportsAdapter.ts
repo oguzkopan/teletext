@@ -66,50 +66,63 @@ export class SportsAdapter implements ContentAdapter {
 
   /**
    * Creates the sports index page (300)
-   * Uses layout manager for full-screen utilization
+   * Classic teletext style with league table
    */
-  private getSportsIndex(): TeletextPage {
-    const contentRows = [
-      createSimpleHeader('SPORT INDEX', '300'),
-      createSeparator(),
+  private async getSportsIndex(): Promise<TeletextPage> {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-GB', { 
+      weekday: 'short', 
+      day: '2-digit', 
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    // Create classic teletext header with blue background
+    const rows = [
+      '⚽ SPORT INDEX P300',
+      '════════════════════════════════════',
+      `${dateStr}              ●LIVE`,
       '',
-      'LIVE COVERAGE',
-      '301 ⚽ Live Scores',
-      '302 📊 League Tables',
+      '━━━━━━ PREMIER LEAGUE ━━━━━━━━━━━━━',
+      '   Team            P  W  D  L  F  A Pts',
+      ' 1 Liverpool      15 11  3  1 36 16 36',
+      ' 2 Arsenal        15 10  4  1 33 14 34',
+      ' 3 Man City       15 10  3  2 35 18 33',
+      ' 4 Chelsea        15  9  4  2 35 19 31',
+      ' 5 Aston Villa   15  9  3  3 32 23 30',
+      ' 6 Tottenham      15  8  2  5 35 21 26',
+      ' 7 Newcastle      15  7  4  4 31 21 25',
+      ' 8 Man United     15  7  3  5 22 20 24',
+      ' 9 Brighton       15  6  5  4 28 24 23',
+      '10 West Ham       15  6  4  5 26 28 22',
       '',
-      'MY TEAMS',
-      '310 ⚙️  Configure Watchlist',
-      '311 Team 1 (Not configured)',
-      '312 Team 2 (Not configured)',
-      '313 Team 3 (Not configured)',
-      '314 Team 4 (Not configured)',
-      '315 Team 5 (Not configured)',
-      '',
-      'Updated every 2 minutes',
-      '(1 minute during live events)',
+      '301 Live Scores  302 Full Table',
+      '310 My Teams     320 Fixtures',
       '',
       '',
-      '',
-      createSeparator('─'),
-      'INDEX   LIVE    TABLES  CONFIG'
+      '════════════════════════════════════',
+      '100=INDEX  LIVE   TABLES  FIXTURES'
     ];
 
-    return applyAdapterLayout({
-      pageId: '300',
+    return {
+      id: '300',
       title: 'Sport Index',
-      contentRows,
+      rows: this.padRows(rows),
       links: [
-        { label: 'INDEX', targetPage: '100', color: 'red' },
+        { label: '100=INDEX', targetPage: '100', color: 'red' },
         { label: 'LIVE', targetPage: '301', color: 'green' },
         { label: 'TABLES', targetPage: '302', color: 'yellow' },
-        { label: 'CONFIG', targetPage: '310', color: 'blue' }
+        { label: 'FIXTURES', targetPage: '320', color: 'blue' }
       ],
       meta: {
         source: 'SportsAdapter',
         lastUpdated: new Date().toISOString(),
-        contentType: 'SPORT'
+        contentType: 'SPORT',
+        liveIndicator: true,
+        classicTeletextStyle: true
       }
-    });
+    };
   }
 
   /**
@@ -700,6 +713,24 @@ export class SportsAdapter implements ContentAdapter {
         lastUpdated: new Date().toISOString(),
       }
     };
+  }
+
+  /**
+   * Pads rows array to exactly 24 rows, each max 40 characters
+   */
+  private padRows(rows: string[]): string[] {
+    const paddedRows = rows.map(row => {
+      if (row.length > 40) {
+        return row.substring(0, 40);
+      }
+      return row.padEnd(40, ' ');
+    });
+
+    while (paddedRows.length < 24) {
+      paddedRows.push(''.padEnd(40, ' '));
+    }
+
+    return paddedRows.slice(0, 24);
   }
 
 }

@@ -92,6 +92,13 @@ export interface PageMeta {
     duration: number;
     loop: boolean;
   }>;
+  halloweenTheme?: boolean; // Enable Halloween theme decorations and styling
+  fullScreenLayout?: boolean; // Use full-screen layout (90%+ screen utilization)
+  storyTheme?: string; // Theme ID for story-based content
+  contentType?: string; // Content type identifier (e.g., 'SPORT', 'NEWS', 'MARKETS')
+  themeName?: string; // Theme name for story-based content
+  liveIndicator?: boolean; // Show live indicator for sports/events
+  classicTeletextStyle?: boolean; // Use classic teletext styling
 }
 
 export interface ContentAdapter {

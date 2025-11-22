@@ -3,21 +3,6 @@
 import { ContentAdapter, TeletextPage } from '../types';
 import { VertexAI } from '@google-cloud/vertexai';
 
-// Keyboard shortcuts for tip generation
-// Requirements: 30.3, 30.4
-const SHORTCUT_TIPS = [
-  'TIP: Press [🔴 R] for quick NEWS access',
-  'TIP: Press [🟢 G] for quick SPORT access',
-  'TIP: Press [🟡 Y] for quick WEATHER',
-  'TIP: Press [🔵 B] for quick AI access',
-  'TIP: Press 100 to return to index',
-  'TIP: Press 999 for help anytime',
-  'TIP: Press 720 for keyboard shortcuts',
-  'TIP: Use [←] to go back to previous',
-  'TIP: Use [↑][↓] to scroll content',
-  'TIP: Press [⌫] to delete last digit'
-];
-
 /**
  * StaticAdapter serves static system pages (100-199)
  * Includes main index, help pages, emergency bulletins, and about pages
@@ -79,6 +64,7 @@ export class StaticAdapter implements ContentAdapter {
   /**
    * Creates the main index page (100) with visual enhancements
    * Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 9.1, 9.2, 9.3, 9.4, 9.5, 29.3
+   * HALLOWEEN HACKATHON EDITION - Spooky themed full-screen layout
    */
   private getIndexPage(): TeletextPage {
     const now = new Date();
@@ -92,37 +78,36 @@ export class StaticAdapter implements ContentAdapter {
       minute: '2-digit' 
     });
     
-    // Get random tip of the day
+    // Get random tip of the day (for future use)
     // Requirements: 30.3
-    const randomTip = SHORTCUT_TIPS[Math.floor(Math.random() * SHORTCUT_TIPS.length)];
+    // const randomTip = SHORTCUT_TIPS[Math.floor(Math.random() * SHORTCUT_TIPS.length)];
     
-    // Compact 2-column layout that fits on one screen
+    // Full-screen 2-column Halloween-themed layout
     // Requirements: 4.1, 4.2, 9.1, 9.3, 9.4, 29.3, 30.3
     const rows = [
-      'MODERN TELETEXT                     P100',
-      '========================================',
-      this.centerText(`${dateStr} ${timeStr}`, 40),
-      '',
-      '======== MAGAZINES =====================',
-      '101 System      500 AI Oracle',
-      '110 Index       600 Games',
-      '200 News        700 Settings',
-      '300 Sport       800 Dev Tools',
-      '400 Markets     999 Help',
-      '420 Weather',
-      '',
-      '======== QUICK START ===================',
-      '  Enter 3-digit page number',
-      '  Use colored buttons for shortcuts',
-      '  Press 999 for help anytime',
-      '',
-      this.centerText('WHATS NEW', 40),
-      '  Enhanced UX with visual indicators',
-      '  ' + randomTip.substring(4, 37), // Remove "TIP: " prefix
-      '',
-      '',
-      '========================================',
-      'RED=NEWS GREEN=SPORT YELLOW=WEATHER HELP'
+      '{cyan}100 {yellow}🎃 KIROWEEN TELETEXT 🎃 {cyan}' + dateStr + ' ' + timeStr,
+      '{magenta}════════════════════════════════════════',
+      '{red}👻 {yellow}HAUNTED MAGAZINES {red}👻  {cyan}QUICK ACCESS',
+      '{green}101{white} System    {green}500{white} AI Oracle {red}🔴{white} Latest News',
+      '{green}200{white} News      {green}600{white} Games     {green}🟢{white} Live Sports',
+      '{green}300{white} Sports    {green}700{white} Settings  {yellow}🟡{white} Weather',
+      '{green}400{white} Markets   {green}800{white} Dev Tools {blue}🔵{white} Ask AI',
+      '{green}420{white} Weather   {green}999{white} Help      {magenta}⚡{white} Quick Help',
+      '{magenta}────────────────────────────────────────',
+      '{yellow}🦇 SPOOKY FEATURES 🦇  {cyan}💀 POPULAR 💀',
+      '{red}666{white} Cursed Page         {green}200{white} Breaking News',
+      '{red}404{white} Lost in Void        {green}300{white} Live Scores',
+      '{yellow}500{white} AI Oracle           {green}400{white} Crypto/Stocks',
+      '{blue}600{white} Haunted Games       {green}500{white} Chat with AI',
+      '{magenta}────────────────────────────────────────',
+      '{cyan}🎃 NAVIGATION TIPS 🎃',
+      '{white}• Type {yellow}3-digit{white} page number to jump',
+      '{white}• Use {red}R{white}/{green}G{white}/{yellow}Y{white}/{blue}B{white} for colored shortcuts',
+      '{white}• Press {cyan}999{white} for help anytime',
+      '{white}• Press {magenta}666{white} if you dare... 👻',
+      '{magenta}════════════════════════════════════════',
+      '{red}🔴NEWS {green}🟢SPORT {yellow}🟡WEATHER {blue}🔵AI {white}999=HELP',
+      '{yellow}⚡ Built with Kiro for Kiroween 2024 ⚡'
     ];
 
     return {
@@ -138,8 +123,10 @@ export class StaticAdapter implements ContentAdapter {
       meta: {
         source: 'StaticAdapter',
         lastUpdated: new Date().toISOString(),
-        animatedLogo: true, // Signal to frontend to use animated logo
-        logoAnimation: 'logo-reveal' // Animation type to use
+        animatedLogo: true,
+        logoAnimation: 'logo-reveal',
+        halloweenTheme: true,
+        fullScreenLayout: true
       }
     };
   }

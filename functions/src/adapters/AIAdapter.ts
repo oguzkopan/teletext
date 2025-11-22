@@ -84,14 +84,14 @@ export class AIAdapter implements ContentAdapter {
     } else if (pageNumber >= 530 && pageNumber <= 534) {
       // Generated spooky story pages (530-534 for themes 1-5)
       const themeId = (pageNumber - 529).toString();
-      const themeNames: Record<string, string> = {
-        '1': 'Haunted House',
-        '2': 'Ghost Story',
-        '3': 'Monster Tale',
-        '4': 'Psychological Horror',
-        '5': 'Cursed Object'
-      };
-      const themeName = themeNames[themeId] || 'Horror Story';
+      // Theme names for reference (not currently used in generation)
+      // const themeNames: Record<string, string> = {
+      //   '1': 'Haunted House',
+      //   '2': 'Ghost Story',
+      //   '3': 'Monster Tale',
+      //   '4': 'Psychological Horror',
+      //   '5': 'Cursed Object'
+      // };
       
       // Generate the story
       const pages = await this.processSpookyStoryRequest({
