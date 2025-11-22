@@ -81,6 +81,32 @@ export class AIAdapter implements ContentAdapter {
     } else if (pageNumber === 509) {
       // Psychological Horror theme
       return this.getSpookyStoryInputPage('4', 'Psychological Horror');
+    } else if (pageNumber >= 530 && pageNumber <= 534) {
+      // Generated spooky story pages (530-534 for themes 1-5)
+      const themeId = (pageNumber - 529).toString();
+      const themeNames: Record<string, string> = {
+        '1': 'Haunted House',
+        '2': 'Ghost Story',
+        '3': 'Monster Tale',
+        '4': 'Psychological Horror',
+        '5': 'Cursed Object'
+      };
+      const themeName = themeNames[themeId] || 'Horror Story';
+      
+      // Generate the story
+      const pages = await this.processSpookyStoryRequest({
+        theme: themeId,
+        length: '2', // Medium length
+        contextId: params?.contextId
+      });
+      
+      // Return the first page of the generated story
+      return pages[0];
+    } else if (pageNumber >= 535 && pageNumber <= 549) {
+      // Continuation pages for generated stories
+      // These would be accessed via NEXT button from previous pages
+      // For now, return placeholder
+      return this.getPlaceholderPage(pageId);
     } else if (pageNumber === 520) {
       // Surprise Me / Conversation History
       return this.getConversationHistoryPage();
@@ -232,27 +258,31 @@ export class AIAdapter implements ContentAdapter {
       `${this.truncateText(themeName.toUpperCase(), 28).padEnd(28)} P${pageNumber}`,
       '════════════════════════════════════',
       '',
-      '🎃 GENERATE SPOOKY STORY 🎃',
+      '🎃 KIROWEEN SPECIAL 🎃',
       '',
       `Theme: ${themeName}`,
       '',
-      'This is a simplified interface.',
-      'In a full implementation, you could',
-      'customize your story with:',
+      'Ready to generate a spine-chilling',
+      'horror story?',
       '',
-      '• Story length (short/medium/long)',
-      '• Setting details',
-      '• Character preferences',
-      '• Scare intensity level',
+      'The AI will create a unique',
+      `${themeName.toLowerCase()} tale`,
+      'formatted for teletext display.',
       '',
-      'The AI would generate a chilling',
-      'tale formatted for teletext.',
+      'Story length: Medium (600-800 words)',
+      'Reading time: ~5-7 minutes',
+      '',
+      'Press GREEN button to generate',
+      'your personalized horror story!',
       '',
       '',
       '',
-      'INDEX   THEMES  AI      BACK',
+      'INDEX   GENERATE THEMES  AI',
       ''
     ];
+
+    // Calculate the story result page (530 + theme offset)
+    const storyPageNumber = 530 + parseInt(themeId) - 1;
 
     return {
       id: pageNumber.toString(),
@@ -260,14 +290,16 @@ export class AIAdapter implements ContentAdapter {
       rows: this.padRows(rows),
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
-        { label: 'THEMES', targetPage: '505', color: 'green' },
-        { label: 'AI', targetPage: '500', color: 'yellow' },
-        { label: 'BACK', targetPage: '505', color: 'blue' }
+        { label: 'GENERATE', targetPage: storyPageNumber.toString(), color: 'green' },
+        { label: 'THEMES', targetPage: '505', color: 'yellow' },
+        { label: 'AI', targetPage: '500', color: 'blue' }
       ],
       meta: {
         source: 'AIAdapter',
         lastUpdated: new Date().toISOString(),
-        haunting: true // Enable spooky effects
+        haunting: true, // Enable spooky effects
+        storyTheme: themeId,
+        themeName: themeName
       }
     };
   }
@@ -356,23 +388,24 @@ export class AIAdapter implements ContentAdapter {
       this.centerText('Step 2 of 2'),
       this.centerText('▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓'),
       '',
-      'ASK YOUR QUESTION:',
+      '⚠ DEMO MODE ⚠',
       '',
-      'This is a simplified Q&A interface.',
-      'In a full implementation, you would',
-      'type your question here.',
+      'This Q&A feature is not yet fully',
+      'implemented. In the complete version,',
+      'you would:',
       '',
-      'The AI would then process your',
-      'question and provide a detailed',
-      'response formatted for teletext.',
+      '1. Type your question about',
+      `   ${topicName.toLowerCase()}`,
+      '2. Press ENTER to submit',
+      '3. Receive an AI-generated answer',
+      '   formatted for teletext',
       '',
-      'For now, use the color buttons to:',
+      'For now, this is a demonstration',
+      'of the interface design.',
       '',
-      '{green}GREEN:{white} View example questions',
-      '{yellow}YELLOW:{white} Return to topic selection',
-      '{blue}BLUE:{white} Return to AI index',
       '',
-      'INDEX   EXAMPLES TOPICS  AI',
+      '',
+      'INDEX   TOPICS  AI',
       ''
     ];
 
@@ -382,9 +415,8 @@ export class AIAdapter implements ContentAdapter {
       rows: this.padRows(rows),
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
-        { label: 'EXAMPLES', targetPage: '516', color: 'green' },
-        { label: 'TOPICS', targetPage: '510', color: 'yellow' },
-        { label: 'AI', targetPage: '500', color: 'blue' }
+        { label: 'TOPICS', targetPage: '510', color: 'green' },
+        { label: 'AI', targetPage: '500', color: 'yellow' }
       ],
       meta: {
         source: 'AIAdapter',
@@ -443,7 +475,9 @@ export class AIAdapter implements ContentAdapter {
       }
 
       // Format response into teletext pages with haunting mode
-      const pages = this.formatSpookyStoryResponse(aiResponse, '507', newContextId || '', theme);
+      // Use page 530+ for generated stories
+      const startPage = (530 + parseInt(theme) - 1).toString();
+      const pages = this.formatSpookyStoryResponse(aiResponse, startPage, newContextId || '', theme);
 
       return pages;
     } catch (error) {
