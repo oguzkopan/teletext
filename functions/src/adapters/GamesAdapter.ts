@@ -803,7 +803,9 @@ Just provide the commentary text, nothing else.`;
         meta: {
           source: 'GamesAdapter',
           lastUpdated: new Date().toISOString(),
-          aiContextId: sessionId
+          aiContextId: sessionId,
+          inputMode: 'single',
+          inputOptions: ['1', '2', '3']
         }
       };
     } catch (error) {

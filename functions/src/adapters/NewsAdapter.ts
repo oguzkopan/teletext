@@ -557,12 +557,12 @@ export class NewsAdapter implements ContentAdapter {
     } else {
       articles.slice(0, 9).forEach((article, index) => {
         const headline = stripHtml(article.title || 'Untitled');
-        const truncated = truncateText(headline, 36); // 36 chars for headline + "1. " = 39 chars
+        const truncated = truncateText(headline, 56); // 56 chars for headline + "1. " = 59 chars
         contentRows.push(`${index + 1}. ${truncated}`);
         
         // Add source if available
         if (article.source && article.source.name) {
-          const source = truncateText(`   ${article.source.name}`, 40);
+          const source = truncateText(`   ${article.source.name}`, 60);
           contentRows.push(source);
         } else {
           contentRows.push('');
@@ -591,7 +591,9 @@ export class NewsAdapter implements ContentAdapter {
         source: 'NewsAdapter',
         lastUpdated: new Date().toISOString(),
         contentType: 'NEWS',
-        cacheStatus: 'cached'
+        cacheStatus: 'cached',
+        inputMode: 'single',
+        inputOptions: articles.slice(0, 9).map((_, i) => (i + 1).toString())
       },
       showTimestamp: true
     });
