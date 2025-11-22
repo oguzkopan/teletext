@@ -4,7 +4,7 @@
   "description": "Firebase Cloud Functions for Modern Teletext",
   "main": "lib/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && if [ -d lib/functions/src ]; then cp -r lib/functions/src/* lib/ && rm -rf lib/functions; fi && mkdir -p ../lib && cp -r lib/lib/* ../lib/",
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
