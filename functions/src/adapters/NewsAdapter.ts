@@ -629,7 +629,7 @@ export class NewsAdapter implements ContentAdapter {
       rows.push('');
       
       // Add content
-      pageContent.forEach(row => rows.push(row.padEnd(40, ' ')));
+      pageContent.forEach(row => rows.push(row.padEnd(60, ' ')));
       
       // Create continuation metadata
       const continuation = {

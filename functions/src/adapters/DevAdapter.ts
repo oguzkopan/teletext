@@ -123,7 +123,7 @@ export class DevAdapter implements ContentAdapter {
       const examplePage: TeletextPage = {
         id: '100',
         title: 'Example Page',
-        rows: Array(24).fill(''.padEnd(40, ' ')),
+        rows: Array(24).fill(''.padEnd(60, ' ')),
         links: [
           { label: 'TEST', targetPage: '100', color: 'red' }
         ],
@@ -142,7 +142,7 @@ export class DevAdapter implements ContentAdapter {
     const rows = [
       'RAW JSON                     P801',
       '════════════════════════════════════',
-      pageTitle.substring(0, 40).padEnd(40, ' '),
+      pageTitle.substring(0, 60).padEnd(60, ' '),
       ''
     ];
 
@@ -326,16 +326,16 @@ export class DevAdapter implements ContentAdapter {
     const jsonLines = json.split('\n');
 
     for (const line of jsonLines) {
-      // If line is <= 40 chars, add it as-is
-      if (line.length <= 40) {
-        lines.push(line.padEnd(40, ' '));
+      // If line is <= 60 chars, add it as-is
+      if (line.length <= 60) {
+        lines.push(line.padEnd(60, ' '));
       } else {
-        // Split long lines at 40 characters
+        // Split long lines at 60 characters
         let remaining = line;
         while (remaining.length > 0) {
-          const chunk = remaining.substring(0, 40);
-          lines.push(chunk.padEnd(40, ' '));
-          remaining = remaining.substring(40);
+          const chunk = remaining.substring(0, 60);
+          lines.push(chunk.padEnd(60, ' '));
+          remaining = remaining.substring(60);
           
           // Add indentation for continuation lines
           if (remaining.length > 0) {
@@ -353,15 +353,15 @@ export class DevAdapter implements ContentAdapter {
    */
   private padRows(rows: string[]): string[] {
     const paddedRows = rows.map(row => {
-      if (row.length > 40) {
-        return row.substring(0, 40);
+      if (row.length > 60) {
+        return row.substring(0, 60);
       }
-      return row.padEnd(40, ' ');
+      return row.padEnd(60, ' ');
     });
 
     // Ensure exactly 24 rows
     while (paddedRows.length < 24) {
-      paddedRows.push(''.padEnd(40, ' '));
+      paddedRows.push(''.padEnd(60, ' '));
     }
 
     return paddedRows.slice(0, 24);

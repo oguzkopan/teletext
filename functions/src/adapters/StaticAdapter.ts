@@ -833,14 +833,14 @@ export class StaticAdapter implements ContentAdapter {
     const paddedRows = rows.map(row => {
       const visibleLength = this.getVisibleLength(row);
       
-      if (visibleLength > 40) {
-        // Truncate to 40 visible characters
+      if (visibleLength > 60) {
+        // Truncate to 60 visible characters
         // This is tricky with emojis, so we'll just truncate the string
         // and accept some imperfection
-        return row.substring(0, 40);
-      } else if (visibleLength < 40) {
-        // Pad to exactly 40 visible characters
-        const paddingNeeded = 40 - visibleLength;
+        return row.substring(0, 60);
+      } else if (visibleLength < 60) {
+        // Pad to exactly 60 visible characters
+        const paddingNeeded = 60 - visibleLength;
         return row + ' '.repeat(paddingNeeded);
       }
       
@@ -849,7 +849,7 @@ export class StaticAdapter implements ContentAdapter {
 
     // Ensure exactly 24 rows
     while (paddedRows.length < 24) {
-      paddedRows.push(''.padEnd(40, ' '));
+      paddedRows.push(''.padEnd(60, ' '));
     }
 
     return paddedRows.slice(0, 24);

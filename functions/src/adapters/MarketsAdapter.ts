@@ -272,7 +272,7 @@ export class MarketsAdapter implements ContentAdapter {
         
         // Format: "BTC      $45,123.45  ▲ +2.34%"
         const line = `${symbol.padEnd(8)} ${price.padStart(12)} ${trendArrow} ${changeStr}`;
-        contentRows.push(line.substring(0, 40));
+        contentRows.push(line.substring(0, 60));
       });
     }
 

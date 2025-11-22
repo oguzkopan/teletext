@@ -1690,18 +1690,18 @@ Just provide the commentary text, nothing else.`;
   }
 
   /**
-   * Pads rows array to exactly 24 rows, each max 40 characters
+   * Pads rows array to exactly 24 rows, each max 60 characters
    */
   private padRows(rows: string[]): string[] {
     const paddedRows = rows.map(row => {
-      if (row.length > 40) {
-        return row.substring(0, 40);
+      if (row.length > 60) {
+        return row.substring(0, 60);
       }
-      return row.padEnd(40, ' ');
+      return row.padEnd(60, ' ');
     });
 
     while (paddedRows.length < 24) {
-      paddedRows.push(''.padEnd(40, ' '));
+      paddedRows.push(''.padEnd(60, ' '));
     }
 
     return paddedRows.slice(0, 24);
