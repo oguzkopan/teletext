@@ -17,8 +17,8 @@ import { PageResponse, AIResponse } from './types';
 setGlobalOptions({
   region: 'us-central1',           // Primary region for low latency
   maxInstances: 100,                // Scale up to 100 instances under load
-  timeoutSeconds: 60,               // 60 second timeout for most functions
-  memory: '512MiB',                 // 512MB memory allocation
+  timeoutSeconds: 300,              // 5 minute timeout for functions (handles cold starts)
+  memory: '1GiB',                   // 1GB memory allocation (better performance)
   concurrency: 80,                  // Handle up to 80 concurrent requests per instance
 });
 

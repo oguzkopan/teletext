@@ -170,7 +170,7 @@ export class LayoutManager {
           break;
         case 'left':
         default:
-          result.push(padText(row, 40, 'left'));
+          result.push(padText(row, 60, 'left'));
           break;
       }
     }
@@ -190,7 +190,7 @@ export class LayoutManager {
    * @param width - Target width
    * @returns Centered text
    */
-  centerText(text: string, width: number = 40): string {
+  centerText(text: string, width: number = 60): string {
     return centerText(text, width);
   }
 
@@ -201,7 +201,7 @@ export class LayoutManager {
    * @param width - Target width
    * @returns Justified text
    */
-  justifyText(text: string, width: number = 40): string {
+  justifyText(text: string, width: number = 60): string {
     return justifyText(text, width);
   }
 
@@ -308,10 +308,10 @@ export class LayoutManager {
 
       // Combine hints and buttons, truncating if necessary
       const combined = footerText ? `${footerText}  ${buttonHints}` : buttonHints;
-      footerText = truncateText(combined, 40, false);
+      footerText = truncateText(combined, 60, false);
     }
 
-    footer.push(padText(footerText, 40, 'left'));
+    footer.push(padText(footerText, 60, 'left'));
 
     return footer;
   }

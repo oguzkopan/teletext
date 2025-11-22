@@ -146,7 +146,7 @@ export class NavigationIndicators {
    * @param maxWidth - Maximum width for the formatted string
    * @returns Formatted navigation option string
    */
-  formatPageNumber(pageNumber: number | string, label: string, maxWidth: number = 40): string {
+  formatPageNumber(pageNumber: number | string, label: string, maxWidth: number = 60): string {
     const numStr = pageNumber.toString();
     
     // Format: "NNN. Label text"
@@ -168,7 +168,7 @@ export class NavigationIndicators {
    */
   formatNavigationOptions(
     options: Array<{ page: number | string; label: string }>,
-    maxWidth: number = 40
+    maxWidth: number = 60
   ): string[] {
     return options.map(opt => this.formatPageNumber(opt.page, opt.label, maxWidth));
   }
@@ -186,7 +186,7 @@ export class NavigationIndicators {
   createNavigationHint(
     hints: string[],
     coloredButtons?: Array<{ color: string; label: string }>,
-    maxWidth: number = 40
+    maxWidth: number = 60
   ): string {
     let hintText = hints.join('  ');
 
@@ -218,7 +218,7 @@ export class NavigationIndicators {
    */
   renderColoredButtonIndicators(
     coloredButtons: Array<{ color: string; label: string; page?: string }>,
-    maxWidth: number = 40
+    maxWidth: number = 60
   ): string {
     if (!coloredButtons || coloredButtons.length === 0) {
       return '';
@@ -331,7 +331,7 @@ export class NavigationIndicators {
     // Row 1: Breadcrumbs or separator with metadata
     if (options.breadcrumbs && options.breadcrumbs.length > 0) {
       const breadcrumbText = this.renderBreadcrumbs(options.breadcrumbs);
-      header.push(padText(breadcrumbText, 40, 'left'));
+      header.push(padText(breadcrumbText, 60, 'left'));
     } else if (options.pagePosition) {
       // Show page position for multi-page content
       const position = this.renderPagePosition(options.pagePosition.current, options.pagePosition.total);

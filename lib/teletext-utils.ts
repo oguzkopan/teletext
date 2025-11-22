@@ -16,7 +16,7 @@ import { TeletextPage } from '@/types/teletext';
  * 
  * Requirements: 14.1, 14.2
  */
-export function wrapText(text: string, maxWidth: number = 40): string[] {
+export function wrapText(text: string, maxWidth: number = 60): string[] {
   if (!text || text.length === 0) {
     return [''];
   }
@@ -78,7 +78,7 @@ export function wrapText(text: string, maxWidth: number = 40): string[] {
  */
 export function truncateText(
   text: string, 
-  maxLength: number = 40, 
+  maxLength: number = 60, 
   ellipsis: boolean = true
 ): string {
   if (!text || text.length <= maxLength) {
@@ -126,7 +126,7 @@ export function getVisibleLength(text: string): number {
  */
 export function padText(
   text: string, 
-  width: number = 40, 
+  width: number = 60, 
   align: 'left' | 'right' | 'center' = 'left'
 ): string {
   // Get visible length (excluding color codes)
@@ -166,7 +166,7 @@ export function padText(
  * 
  * Requirements: 2.1, 2.2
  */
-export function normalizeRows(rows: string[], targetWidth: number = 40): string[] {
+export function normalizeRows(rows: string[], targetWidth: number = 60): string[] {
   return rows.map(row => padText(row, targetWidth, 'left'));
 }
 
@@ -437,7 +437,7 @@ export function formatContentToPages(
  * 
  * Requirements: 34.2, 34.3
  */
-export function centerText(text: string, width: number = 40): string {
+export function centerText(text: string, width: number = 60): string {
   return padText(text, width, 'center');
 }
 
@@ -450,7 +450,7 @@ export function centerText(text: string, width: number = 40): string {
  * 
  * Requirements: 34.2, 34.3
  */
-export function rightAlignText(text: string, width: number = 40): string {
+export function rightAlignText(text: string, width: number = 60): string {
   return padText(text, width, 'right');
 }
 
@@ -463,7 +463,7 @@ export function rightAlignText(text: string, width: number = 40): string {
  * 
  * Requirements: 34.2, 34.3
  */
-export function justifyText(text: string, width: number = 40): string {
+export function justifyText(text: string, width: number = 60): string {
   // If text is already at or exceeds width, truncate
   if (text.length >= width) {
     return text.slice(0, width);
@@ -517,7 +517,7 @@ export function justifyText(text: string, width: number = 40): string {
 export function createTitleRow(
   title: string, 
   decoration: string = '═', 
-  width: number = 40
+  width: number = 60
 ): string {
   const titleLength = title.length;
   
@@ -543,7 +543,7 @@ export function createTitleRow(
  * 
  * Requirements: 34.2, 34.3
  */
-export function createSeparator(char: string = '═', width: number = 40): string {
+export function createSeparator(char: string = '═', width: number = 60): string {
   return char.repeat(width);
 }
 
@@ -560,7 +560,7 @@ export function createSeparator(char: string = '═', width: number = 40): strin
 export function createTwoColumnRow(
   left: string, 
   right: string, 
-  width: number = 40
+  width: number = 60
 ): string {
   const leftTruncated = truncateText(left, width - right.length - 1, false);
   const rightTruncated = truncateText(right, width - leftTruncated.length - 1, false);
@@ -634,7 +634,7 @@ export function createMultiPageContent(
     rows.push(''.padEnd(40));
     
     // Add content
-    contentRows.forEach(row => rows.push(padText(row, 40)));
+    contentRows.forEach(row => rows.push(padText(row, 60)));
     
     // Pad to 24 rows
     while (rows.length < 24) {
@@ -671,7 +671,7 @@ export function createMultiPageContent(
     rows.push(''.padEnd(40));
     
     // Add content
-    pageContent.forEach(row => rows.push(padText(row, 40)));
+    pageContent.forEach(row => rows.push(padText(row, 60)));
     
     // Pad to 24 rows
     while (rows.length < 24) {
@@ -769,7 +769,7 @@ export function getColorEmoji(color: string): string {
  */
 export function formatColoredButtonIndicators(
   buttons: Array<{ color: string; label: string; page?: string }>,
-  maxWidth: number = 40
+  maxWidth: number = 60
 ): string {
   if (!buttons || buttons.length === 0) {
     return '';
