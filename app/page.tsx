@@ -30,33 +30,33 @@ const createDemoPage = (showWelcome: boolean = false): TeletextPage => {
     minute: '2-digit' 
   });
   
-  // Create full-screen 2-column Halloween-themed layout
+  // Ultra-compact 3-column layout - fits everything on one screen
   page.rows = [
-    `{cyan}100 {yellow}🎃 KIROWEEN TELETEXT 🎃 {cyan}${dateStr} ${timeStr}`,
+    `{cyan}100 🎃KIROWEEN🎃 ${timeStr} {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
     '{magenta}════════════════════════════════════════',
     showWelcome 
       ? '{green}👻 SYSTEM READY - WELCOME! 👻           '
-      : '{red}👻 {yellow}HAUNTED MAGAZINES {red}👻  {cyan}QUICK ACCESS',
-    '{green}101{white} System    {green}500{white} AI Oracle {red}🔴{white} Latest News',
-    '{green}200{white} News      {green}600{white} Games     {green}🟢{white} Live Sports',
-    '{green}300{white} Sports    {green}700{white} Settings  {yellow}🟡{white} Weather',
-    '{green}400{white} Markets   {green}800{white} Dev Tools {blue}🔵{white} Ask AI',
-    '{green}420{white} Weather   {green}999{white} Help      {magenta}⚡{white} Quick Help',
-    '{magenta}────────────────────────────────────────',
-    '{yellow}🦇 SPOOKY FEATURES 🦇  {cyan}💀 POPULAR 💀',
-    '{red}666{white} Cursed Page         {green}200{white} Breaking News',
-    '{red}404{white} Lost in Void        {green}300{white} Live Scores',
-    '{yellow}500{white} AI Oracle           {green}400{white} Crypto/Stocks',
-    '{blue}600{white} Haunted Games       {green}500{white} Chat with AI',
-    '{magenta}────────────────────────────────────────',
-    '{cyan}🎃 NAVIGATION TIPS 🎃',
-    '{white}• Type {yellow}3-digit{white} page number to jump',
-    '{white}• Use {red}R{white}/{green}G{white}/{yellow}Y{white}/{blue}B{white} for colored shortcuts',
-    '{white}• Press {cyan}999{white} for help anytime',
-    '{white}• Press {magenta}666{white} if you dare... 👻',
+      : '{yellow}MAGAZINES    FEATURES    QUICK ACCESS',
+    '{green}101{white}System   {red}666{white}Cursed   {red}🔴{white}News {green}200',
+    '{green}200{white}News     {red}404{white}Void     {green}🟢{white}Sport{green}300',
+    '{green}300{white}Sport    {yellow}500{white}AI       {yellow}🟡{white}Wthr {green}420',
+    '{green}400{white}Markets  {blue}600{white}Games    {blue}🔵{white}AI   {green}500',
+    '{green}420{white}Weather  {green}700{white}Settings {magenta}⚡{white}Help {green}999',
+    '{green}500{white}AI       {green}800{white}DevTools',
+    '{green}600{white}Games    {green}999{white}Help',
+    '{green}700{white}Settings',
+    '{green}800{white}DevTools',
     '{magenta}════════════════════════════════════════',
-    '{red}🔴NEWS {green}🟢SPORT {yellow}🟡WEATHER {blue}🔵AI {white}999=HELP',
-    '{yellow}⚡ Built with Kiro for Kiroween 2024 ⚡'
+    '{cyan}🎃 NAVIGATION: {white}Type {yellow}3-digit{white} page',
+    '{white}Use {red}R{white}/{green}G{white}/{yellow}Y{white}/{blue}B{white} buttons • Press {cyan}999{white} help',
+    '{white}Press {magenta}666{white} if you dare... 👻',
+    '',
+    '{yellow}POPULAR: {green}200{white}News {green}300{white}Sport {green}400{white}Markets',
+    '{green}500{white}AI Chat {green}600{white}Games {green}700{white}Themes',
+    '',
+    '',
+    '{magenta}════════════════════════════════════════',
+    '{yellow}⚡ Kiroween 2024 - Built with Kiro ⚡'
   ];
   
   page.links = [

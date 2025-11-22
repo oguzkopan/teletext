@@ -130,36 +130,31 @@ export class SettingsAdapter implements ContentAdapter {
   /**
    * Creates the theme selection page (700)
    * Requirements: 37.1 - Display numbered theme options (1-4)
-   * HALLOWEEN HACKATHON EDITION - Full-screen colorful layout
+   * HALLOWEEN HACKATHON EDITION - Compact layout
    */
   private getThemeSelectionPage(currentTheme?: string): TeletextPage {
     const rows = [
       '{cyan}THEME SELECTION              {yellow}P700',
       '{magenta}════════════════════════════════════════',
       '{yellow}🎨 Choose Your Spooky Style 🎨',
-      '{white}Press a number key to select theme:',
-      '{magenta}────────────────────────────────────────',
-      '{cyan}[1] {yellow}🟦 CEEFAX {white}(Classic BBC)',
-      '    {yellow}Yellow on blue background',
-      '    Traditional teletext look',
-      '    {green}Perfect for retro vibes! 📺',
-      '{magenta}────────────────────────────────────────',
-      '{cyan}[2] {green}⬛ ORF {white}(Austrian Teletext)',
-      '    {green}Green on black background',
-      '    European teletext style',
-      '    {green}Matrix-style hacker aesthetic! 💻',
-      '{magenta}────────────────────────────────────────',
-      '{cyan}[3] {white}⬜ HIGH CONTRAST',
-      '    {white}White on black background',
+      '',
+      '{cyan}[1] {yellow}🟦 CEEFAX {white}- Yellow/Blue 📺',
+      '    Classic BBC teletext look',
+      '',
+      '{cyan}[2] {green}⬛ ORF {white}- Green/Black 💻',
+      '    Matrix-style hacker aesthetic',
+      '',
+      '{cyan}[3] {white}⬜ HIGH CONTRAST {white}- White/Black ♿',
       '    Maximum readability',
-      '    {green}Best for accessibility! ♿',
-      '{magenta}────────────────────────────────────────',
-      '{cyan}[4] {red}👻 HAUNTING MODE {white}(KIROWEEN!)',
-      '    {red}Green on black with glitch effects',
-      '    Spooky horror aesthetic',
-      '    {red}Perfect for Halloween! 🎃',
-      '{magenta}════════════════════════════════════════',
+      '',
+      '{cyan}[4] {red}👻 HAUNTING MODE {white}- Glitch FX 🎃',
+      '    Spooky horror for Kiroween!',
+      '',
+      '',
       currentTheme ? `{yellow}Current: ${currentTheme}` : '{yellow}Select a theme above',
+      '',
+      '',
+      '',
       '{magenta}════════════════════════════════════════',
       '{red}🔴EFFECTS {green}🟢INDEX {yellow}🟡PREVIEW {blue}🔵HELP'
     ];
