@@ -85,7 +85,8 @@ export class PageLayoutProcessor {
           .map(l => ({
             color: l.color!,
             label: l.label
-          }))
+          })),
+        customHints: page.meta?.customHints
       }
     );
 

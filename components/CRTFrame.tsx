@@ -111,8 +111,8 @@ export default function CRTFrame({ children, effects, hauntingMode = false }: CR
           width: 100%;
           height: 100%;
           display: flex;
-          align-items: center;
-          justify-content: center;
+          align-items: stretch;
+          justify-content: stretch;
           box-sizing: border-box;
         }
 

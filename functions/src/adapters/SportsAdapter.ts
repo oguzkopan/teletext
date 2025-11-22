@@ -69,20 +69,10 @@ export class SportsAdapter implements ContentAdapter {
    * Classic teletext style with league table
    */
   private async getSportsIndex(): Promise<TeletextPage> {
-    const now = new Date();
-    const dateStr = now.toLocaleDateString('en-GB', { 
-      weekday: 'short', 
-      day: '2-digit', 
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-
-    // Create classic teletext header with blue background
+    // Create standardized header
     const rows = [
-      '⚽ SPORT INDEX P300',
-      '════════════════════════════════════',
-      `${dateStr}              ●LIVE`,
+      createSimpleHeader('SPORT INDEX', '300'),
+      createSeparator(),
       '',
       '━━━━━━ PREMIER LEAGUE ━━━━━━━━━━━━━',
       '   Team            P  W  D  L  F  A Pts',
@@ -440,8 +430,8 @@ export class SportsAdapter implements ContentAdapter {
    */
   private formatLeagueTablesPage(standings: any[]): TeletextPage {
     const rows = [
-      'LEAGUE TABLES                P302',
-      '════════════════════════════════════',
+      createSimpleHeader('LEAGUE TABLES', '302'),
+      createSeparator(),
       'PREMIER LEAGUE 2024/25',
       ''
     ];

@@ -155,6 +155,7 @@ export class GamesAdapter implements ContentAdapter {
       meta: {
         source: 'GamesAdapter',
         lastUpdated: new Date().toISOString(),
+        customHints: ['Use colored buttons or type page number']
       }
     };
   }
@@ -199,9 +200,9 @@ export class GamesAdapter implements ContentAdapter {
         'Good luck!',
         '',
         '',
-        '',
-        'Press GREEN button to start quiz',
-        '',
+        'HOW TO START:',
+        '• Press GREEN button, or',
+        '• Type 602 and press Enter',
         '',
         'INDEX   START   GAMES',
         ''
@@ -219,7 +220,8 @@ export class GamesAdapter implements ContentAdapter {
         meta: {
           source: 'GamesAdapter',
           lastUpdated: new Date().toISOString(),
-          aiContextId: newSessionId
+          aiContextId: newSessionId,
+          customHints: ['Press GREEN to start or type 602']
         }
       };
     } catch (error) {
@@ -236,18 +238,18 @@ export class GamesAdapter implements ContentAdapter {
     params?: Record<string, any>
   ): Promise<TeletextPage> {
     try {
-      const sessionId = params?.sessionId || params?.aiContextId;
+      let sessionId = params?.sessionId || params?.aiContextId;
+      let session = sessionId ? await this.getQuizSession(sessionId) : null;
       
-      if (!sessionId) {
-        // No session, redirect to start
-        return this.startQuizOfTheDay();
-      }
-
-      const session = await this.getQuizSession(sessionId);
-      
+      // If no session or session expired, create a new one
       if (!session) {
-        // Session expired or not found
-        return this.getSessionExpiredPage(pageId);
+        const questions = await this.fetchTriviaQuestions(5);
+        sessionId = await this.createQuizSession(questions);
+        session = await this.getQuizSession(sessionId);
+        
+        if (!session) {
+          return this.getErrorPage(pageId, 'Quiz Question', new Error('Failed to create session'));
+        }
       }
 
       // Check if quiz is complete
@@ -736,9 +738,9 @@ Just provide the commentary text, nothing else.`;
       '• The Adventurer Path',
       '• The Cursed Path',
       '',
-      'Ready to begin your adventure?',
-      '',
-      '',
+      'HOW TO START:',
+      '• Press GREEN button, or',
+      '• Type 611 and press Enter',
       'INDEX   START   GAMES',
       ''
     ];
@@ -755,6 +757,7 @@ Just provide the commentary text, nothing else.`;
       meta: {
         source: 'GamesAdapter',
         lastUpdated: new Date().toISOString(),
+        customHints: ['Press GREEN to start or type 611']
       }
     };
   }

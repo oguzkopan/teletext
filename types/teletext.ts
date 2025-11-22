@@ -75,6 +75,7 @@ export interface PageMeta {
   continuation?: PageContinuation; // Multi-page navigation metadata
   inputMode?: 'single' | 'double' | 'triple'; // Expected input length: 1, 2, or 3 digits
   inputOptions?: string[];  // Valid single-digit options (e.g., ['1', '2', '3', '4', '5'])
+  customHints?: string[];   // Custom navigation hints to display in footer
   animatedLogo?: boolean;   // Enable animated logo on page
   logoAnimation?: string;   // Animation type for logo (e.g., 'logo-reveal', 'logo-pulse')
   scrollingCredits?: boolean; // Enable scrolling credits animation
