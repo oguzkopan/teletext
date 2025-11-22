@@ -385,16 +385,16 @@ const TeletextScreen = React.memo(function TeletextScreen({
         backgroundColor: theme.colors.background,
         color: theme.colors.text,
         fontFamily: "'Courier New', Courier, monospace",
-        fontSize: 'clamp(14px, 2.2vw, 32px)',
-        lineHeight: '1.25',
-        padding: '1vh 2vw',
+        fontSize: 'clamp(12px, 1.8vh, 24px)',
+        lineHeight: '1.15',
+        padding: '0.5vh 1.5vw',
         width: '100%',
         height: '100%',
         maxWidth: '100%',
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-start',
         boxSizing: 'border-box',
         overflow: 'hidden'
       }}
@@ -513,17 +513,26 @@ const TeletextScreen = React.memo(function TeletextScreen({
       )}
       
       {/* Content with page transition animations - Requirement 10.1, 10.2, 10.3, 10.4 */}
-      <div className="content-wrapper" style={{ position: 'relative', zIndex: 5 }}>
+      <div className="content-wrapper" style={{ 
+        position: 'relative', 
+        zIndex: 5,
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        justifyContent: 'space-between'
+      }}>
         {!loading && renderedRows}
       </div>
       
       <style jsx>{`
         .teletext-row {
           white-space: pre;
-          height: 1.3em;
+          height: calc((100vh - 4vh) / 24);
+          min-height: 1.15em;
           width: 100%;
           overflow: visible;
-          display: block;
+          display: flex;
+          align-items: center;
         }
         
         /* Interactive element highlighting - Requirements 25.1, 25.2, 25.3, 25.4, 25.5 */

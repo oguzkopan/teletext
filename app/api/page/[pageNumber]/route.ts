@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
  * This route proxies requests to Firebase Functions
  */
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: { pageNumber: string } }
 ) {
   const { pageNumber } = params;
@@ -15,10 +15,17 @@ export async function GET(
     // Determine if we're in development or production
     const isDevelopment = process.env.NODE_ENV === 'development';
     
+    // Get query parameters from the request (e.g., sessionId, aiContextId)
+    const searchParams = request.nextUrl.searchParams;
+    const queryString = searchParams.toString();
+    
     // Use local emulator in development, production functions in production
-    const functionUrl = isDevelopment
+    const baseUrl = isDevelopment
       ? `http://127.0.0.1:5001/teletext-eacd0/us-central1/getPage/${pageNumber}`
       : `https://getpage-q6w32usldq-uc.a.run.app/${pageNumber}`;
+    
+    // Append query parameters if they exist
+    const functionUrl = queryString ? `${baseUrl}?${queryString}` : baseUrl;
     
     const response = await fetch(functionUrl, {
       method: 'GET',

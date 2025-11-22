@@ -151,11 +151,17 @@ export default function PageRouter({
    */
   const fetchPage = useCallback(async (
     pageId: string, 
-    abortSignal?: AbortSignal
+    abortSignal?: AbortSignal,
+    sessionId?: string
   ): Promise<{ page: TeletextPage | null; fromCache: boolean }> => {
     try {
+      // Build URL with session ID if provided
+      const url = sessionId 
+        ? `/api/page/${pageId}?sessionId=${encodeURIComponent(sessionId)}`
+        : `/api/page/${pageId}`;
+      
       // Network request with abort signal for cancellation
-      const response = await fetch(`/api/page/${pageId}`, {
+      const response = await fetch(url, {
         signal: abortSignal,
       });
       
@@ -197,11 +203,14 @@ export default function PageRouter({
     // Start performance measurement
     const startTime = performance.now();
     
+    // Get session ID from current page if it exists (for quiz/game continuity)
+    const sessionId = currentPage?.meta?.aiContextId;
+    
     setLoading(true);
     setIsCached(false);
     
     try {
-      const { page, fromCache } = await fetchPage(pageId, abortController.signal);
+      const { page, fromCache } = await fetchPage(pageId, abortController.signal, sessionId);
       
       // Check if this request is still active (not cancelled by a newer request)
       if (!isRequestActive(pageId)) {
@@ -359,10 +368,11 @@ export default function PageRouter({
           setHighlightBreadcrumb(true);
           
           const abortController = createCancellableRequest(pageId);
+          const sessionId = currentPage?.meta?.aiContextId;
           setLoading(true);
           setIsCached(false);
           
-          fetchPage(pageId, abortController.signal).then(({ page, fromCache }) => {
+          fetchPage(pageId, abortController.signal, sessionId).then(({ page, fromCache }) => {
             if (isRequestActive(pageId) && page) {
               // Update breadcrumbs for back navigation
               // Build breadcrumbs from history up to the new index
@@ -408,10 +418,11 @@ export default function PageRouter({
           setHistoryIndex(newIndex);
           
           const abortController = createCancellableRequest(pageId);
+          const sessionId = currentPage?.meta?.aiContextId;
           setLoading(true);
           setIsCached(false);
           
-          fetchPage(pageId, abortController.signal).then(({ page, fromCache }) => {
+          fetchPage(pageId, abortController.signal, sessionId).then(({ page, fromCache }) => {
             if (isRequestActive(pageId) && page) {
               // Update breadcrumbs for forward navigation
               // Build breadcrumbs from history up to the new index
