@@ -7,7 +7,6 @@ import { createMissingApiKeyPage, logMissingApiKey } from '../utils/env-validati
 import { getApiKey } from '../utils/config';
 import {
   applyAdapterLayout,
-  createSimpleHeader,
   createSeparator,
   truncateText,
   wrapText,
@@ -346,9 +345,8 @@ export class NewsAdapter implements ContentAdapter {
    * Requirements: Uses layout manager for full-screen utilization
    */
   private getNewsIndex(): TeletextPage {
+    // Don't add header here - let applyAdapterLayout handle it
     const contentRows = [
-      createSimpleHeader('NEWS INDEX', '200'),
-      createSeparator(),
       '',
       'HEADLINES',
       '201 📰 Top Headlines',
@@ -542,9 +540,8 @@ export class NewsAdapter implements ContentAdapter {
       minute: '2-digit'
     });
 
+    // Don't add header here - let applyAdapterLayout handle it
     const contentRows: string[] = [];
-    contentRows.push(createSimpleHeader(title, pageId));
-    contentRows.push(createSeparator());
     contentRows.push(`Updated: ${timeStr}`);
     contentRows.push('');
 

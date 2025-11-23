@@ -13,7 +13,6 @@ import {
 } from '../../../lib/weather-icons';
 import {
   applyAdapterLayout,
-  createSimpleHeader,
   createSeparator,
   truncateText,
   padRows
@@ -91,9 +90,8 @@ export class WeatherAdapter implements ContentAdapter {
    * Uses layout manager for full-screen utilization
    */
   private getWeatherIndex(): TeletextPage {
+    // Don't add header here - let applyAdapterLayout handle it
     const contentRows = [
-      createSimpleHeader('WEATHER INDEX', '420'),
-      createSeparator(),
       '{yellow}WORLD WEATHER FORECAST                                                  ',
       createSeparator(),
       ''
@@ -216,9 +214,8 @@ export class WeatherAdapter implements ContentAdapter {
     const current = weatherData.current;
     const forecast = weatherData.forecast;
 
+    // Don't add header here - let applyAdapterLayout handle it
     const contentRows = [
-      createSimpleHeader(city.name.toUpperCase(), city.pageId),
-      createSeparator(),
       `{cyan}Updated: ${timeStr}`,
       ''
     ];

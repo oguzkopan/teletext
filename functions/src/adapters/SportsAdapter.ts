@@ -15,7 +15,6 @@ import {
 } from '../../../lib/sports-live-indicators';
 import {
   applyAdapterLayout,
-  createSimpleHeader,
   createSeparator,
   truncateText,
   padRows
@@ -69,10 +68,8 @@ export class SportsAdapter implements ContentAdapter {
    * Classic teletext style with league table
    */
   private async getSportsIndex(): Promise<TeletextPage> {
-    // Create standardized header
+    // Don't add header here - let applyAdapterLayout handle it
     const rows = [
-      createSimpleHeader('SPORT INDEX', '300'),
-      createSeparator(),
       '',
       '━━━━━━ PREMIER LEAGUE ━━━━━━━━━━━━━',
       '   Team            P  W  D  L  F  A Pts',
@@ -304,9 +301,8 @@ export class SportsAdapter implements ContentAdapter {
       minute: '2-digit'
     });
 
+    // Don't add header here - let applyAdapterLayout handle it
     const contentRows = [
-      createSimpleHeader('LIVE SCORES', '301'),
-      createSeparator(),
       `Updated: ${timeStr}`,
       ''
     ];
@@ -429,9 +425,8 @@ export class SportsAdapter implements ContentAdapter {
    * Formats league standings into a teletext page
    */
   private formatLeagueTablesPage(standings: any[]): TeletextPage {
+    // Don't add header here - let applyAdapterLayout handle it
     const rows = [
-      createSimpleHeader('LEAGUE TABLES', '302'),
-      createSeparator(),
       'PREMIER LEAGUE 2024/25',
       ''
     ];

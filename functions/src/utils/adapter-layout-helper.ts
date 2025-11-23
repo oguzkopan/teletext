@@ -33,9 +33,8 @@ export interface AdapterLayoutOptions {
 /**
  * Applies full-screen layout to adapter content
  * 
- * This function integrates with the LayoutManager on the frontend
- * by providing properly structured page data with metadata that
- * the layout manager can use to create headers and footers.
+ * This function creates a complete page with header, content, and footer.
+ * The header is created here to prevent duplication.
  * 
  * @param options - Layout configuration
  * @returns Formatted TeletextPage
@@ -53,8 +52,19 @@ export function applyAdapterLayout(options: AdapterLayoutOptions): TeletextPage 
     continuation
   } = options;
 
+  // Create header (2 rows)
+  const header = createSimpleHeader(title, pageId);
+  const separator = createSeparator();
+
+  // Combine header + content
+  const allRows = [
+    header,
+    separator,
+    ...contentRows
+  ];
+
   // Pad content rows to exactly 80 characters (full screen width)
-  const paddedContent = contentRows.map(row => {
+  const paddedContent = allRows.map(row => {
     if (row.length > 80) {
       return row.substring(0, 80);
     }

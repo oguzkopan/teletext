@@ -6,7 +6,6 @@ import { ContentAdapter, TeletextPage } from '../types';
 import { getApiKey } from '../utils/config';
 import {
   applyAdapterLayout,
-  createSimpleHeader,
   createSeparator,
   truncateText,
   padRows
@@ -62,9 +61,8 @@ export class MarketsAdapter implements ContentAdapter {
    * Uses layout manager for full-screen utilization
    */
   private getMarketsIndex(): TeletextPage {
+    // Don't add header here - let applyAdapterLayout handle it
     const contentRows = [
-      createSimpleHeader('MARKETS INDEX', '400'),
-      createSeparator(),
       '',
       'FINANCIAL MARKETS',
       '401 💰 Cryptocurrency Prices',
@@ -244,9 +242,8 @@ export class MarketsAdapter implements ContentAdapter {
       minute: '2-digit'
     });
 
+    // Don't add header here - let applyAdapterLayout handle it
     const contentRows = [
-      createSimpleHeader('CRYPTOCURRENCY PRICES', '401'),
-      createSeparator(),
       `Updated: ${timeStr}`,
       '',
       'COIN         PRICE       24H CHANGE',
