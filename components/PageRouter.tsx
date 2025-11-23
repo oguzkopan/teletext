@@ -206,12 +206,15 @@ export default function PageRouter({
     
     // Get session ID from current page if it exists (for quiz/game continuity)
     const sessionId = currentPage?.meta?.aiContextId;
+    console.log(`[PageRouter] Navigating from ${currentPage?.id} to ${pageId}, sessionId: ${sessionId}`);
     
     setLoading(true);
     setIsCached(false);
     
     try {
       const { page, fromCache } = await fetchPage(pageId, abortController.signal, sessionId);
+      
+      console.log(`[PageRouter] Received page: ${page?.id}, requested: ${pageId}, sessionId in response: ${page?.meta?.aiContextId}`);
       
       // Check if this request is still active (not cancelled by a newer request)
       if (!isRequestActive(pageId)) {
