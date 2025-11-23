@@ -67,6 +67,7 @@ export function KiroweeenDecorations({
     return () => {
       newAnimationIds.forEach(animId => engine.stopAnimation(animId));
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldRender, currentThemeKey, decorations]);
 
   if (!shouldRender) {

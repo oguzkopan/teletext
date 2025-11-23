@@ -72,9 +72,10 @@ export function useLoadingTextRotation(
         clearInterval(elapsedTimerRef.current);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Update theme when it changes
+  // Update theme and rotation interval when they change
   useEffect(() => {
     if (rotationRef.current) {
       rotationRef.current.setTheme(theme);

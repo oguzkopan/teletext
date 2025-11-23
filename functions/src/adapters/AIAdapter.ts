@@ -232,12 +232,12 @@ export class AIAdapter implements ContentAdapter {
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'AI', targetPage: '500', color: 'green' },
         { label: 'BACK', targetPage: '500', color: 'yellow' },
-        { label: '', targetPage: '506', color: 'blue' }, // Option 1
-        { label: '', targetPage: '507', color: 'blue' }, // Option 2
-        { label: '', targetPage: '508', color: 'blue' }, // Option 3
-        { label: '', targetPage: '509', color: 'blue' }, // Option 4
-        { label: '', targetPage: '520', color: 'blue' }, // Option 5
-        { label: '', targetPage: '520', color: 'blue' }  // Option 6
+        { label: '1', targetPage: '506', color: undefined }, // Option 1
+        { label: '2', targetPage: '507', color: undefined }, // Option 2
+        { label: '3', targetPage: '508', color: undefined }, // Option 3
+        { label: '4', targetPage: '509', color: undefined }, // Option 4
+        { label: '5', targetPage: '520', color: undefined }, // Option 5
+        { label: '6', targetPage: '520', color: undefined }  // Option 6
       ],
       meta: {
         source: 'AIAdapter',
@@ -343,11 +343,11 @@ export class AIAdapter implements ContentAdapter {
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'AI', targetPage: '500', color: 'green' },
         { label: 'BACK', targetPage: '500', color: 'yellow' },
-        { label: '', targetPage: '511', color: 'blue' }, // Option 1
-        { label: '', targetPage: '512', color: 'blue' }, // Option 2
-        { label: '', targetPage: '513', color: 'blue' }, // Option 3
-        { label: '', targetPage: '514', color: 'blue' }, // Option 4
-        { label: '', targetPage: '515', color: 'blue' }  // Option 5
+        { label: '1', targetPage: '511', color: undefined }, // Option 1
+        { label: '2', targetPage: '512', color: undefined }, // Option 2
+        { label: '3', targetPage: '513', color: undefined }, // Option 3
+        { label: '4', targetPage: '514', color: undefined }, // Option 4
+        { label: '5', targetPage: '515', color: undefined }  // Option 5
       ],
       meta: {
         source: 'AIAdapter',

@@ -51,6 +51,7 @@ export function useAnimationSettings(): AnimationSettingsControls {
   // Load settings from Firestore on mount
   useEffect(() => {
     loadSettings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**

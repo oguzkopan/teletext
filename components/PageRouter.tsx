@@ -97,6 +97,7 @@ export default function PageRouter({
       });
       setCurrentPage(processedPage);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTime, shouldUpdate, currentPage?.id, breadcrumbs, loading]);
 
   /**
@@ -280,6 +281,7 @@ export default function PageRouter({
       console.error('Navigation error:', error);
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [history, historyIndex, breadcrumbs, onPageChange, createCancellableRequest, clearRequest, isRequestActive, fetchPage]);
 
   /**
@@ -303,26 +305,14 @@ export default function PageRouter({
       
       // For single-digit input mode, check if it's a valid option and navigate immediately
       if (inputMode === 'single' && validOptions.includes(digitStr)) {
-        // Navigate based on the option mapping
-        // The links array has color button links first (red, green, yellow, blue)
-        // followed by the numbered option links
-        // Count how many color button links have non-empty labels
-        const colorButtonCount = currentPage?.links?.filter(link => 
-          link.label && link.label.trim() !== ''
-        ).length || 0;
+        // Find the link that matches this digit
+        const matchingLink = currentPage?.links?.find(link => link.label === digitStr);
         
-        // The option links start after the color button links
-        const optionIndex = validOptions.indexOf(digitStr);
-        const linkIndex = colorButtonCount + optionIndex;
-        
-        if (currentPage?.links && currentPage.links[linkIndex]) {
-          const targetPage = currentPage.links[linkIndex].targetPage;
-          if (targetPage) {
-            setTimeout(() => {
-              navigateToPage(targetPage);
-              setInputBuffer('');
-            }, 100);
-          }
+        if (matchingLink && matchingLink.targetPage) {
+          setTimeout(() => {
+            navigateToPage(matchingLink.targetPage);
+            setInputBuffer('');
+          }, 100);
         }
       }
       // Auto-navigate when max digits are entered
@@ -333,7 +323,7 @@ export default function PageRouter({
         }, 100);
       }
     }
-  }, [inputBuffer, currentPage, navigateToPage]);
+  }, [inputBuffer, currentPage?.meta?.inputMode, currentPage?.meta?.inputOptions, currentPage?.links, navigateToPage]);
 
   /**
    * Handles Enter key press
@@ -470,7 +460,7 @@ export default function PageRouter({
         // No fallback - down arrow only works for multi-page navigation
         break;
     }
-  }, [currentPage, history, historyIndex, breadcrumbs, navigateToPage, onPageChange, createCancellableRequest, isRequestActive, fetchPage]);
+  }, [currentPage, history, historyIndex, navigateToPage, onPageChange, createCancellableRequest, isRequestActive, fetchPage]);
 
   /**
    * Handles colored Fastext button navigation

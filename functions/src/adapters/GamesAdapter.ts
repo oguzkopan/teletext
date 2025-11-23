@@ -854,7 +854,10 @@ Just provide the commentary text, nothing else.`;
         ],
         links: [
           { label: 'INDEX', targetPage: '100', color: 'red' },
-          { label: 'QUIT', targetPage: '610', color: 'blue' }
+          { label: 'QUIT', targetPage: '610', color: 'blue' },
+          { label: '1', targetPage: '612', color: undefined },
+          { label: '2', targetPage: '613', color: undefined },
+          { label: '3', targetPage: '614', color: undefined }
         ]
       };
     }
@@ -890,7 +893,10 @@ Just provide the commentary text, nothing else.`;
         ],
         links: [
           { label: 'INDEX', targetPage: '100', color: 'red' },
-          { label: 'QUIT', targetPage: '610', color: 'blue' }
+          { label: 'QUIT', targetPage: '610', color: 'blue' },
+          { label: '1', targetPage: '615', color: undefined },
+          { label: '2', targetPage: '615', color: undefined },
+          { label: '3', targetPage: '615', color: undefined }
         ]
       };
     }
@@ -924,7 +930,10 @@ Just provide the commentary text, nothing else.`;
         ],
         links: [
           { label: 'INDEX', targetPage: '100', color: 'red' },
-          { label: 'QUIT', targetPage: '610', color: 'blue' }
+          { label: 'QUIT', targetPage: '610', color: 'blue' },
+          { label: '1', targetPage: '616', color: undefined },
+          { label: '2', targetPage: '616', color: undefined },
+          { label: '3', targetPage: '616', color: undefined }
         ]
       };
     }
@@ -958,7 +967,10 @@ Just provide the commentary text, nothing else.`;
         ],
         links: [
           { label: 'INDEX', targetPage: '100', color: 'red' },
-          { label: 'QUIT', targetPage: '610', color: 'blue' }
+          { label: 'QUIT', targetPage: '610', color: 'blue' },
+          { label: '1', targetPage: '617', color: undefined },
+          { label: '2', targetPage: '617', color: undefined },
+          { label: '3', targetPage: '617', color: undefined }
         ]
       };
     }

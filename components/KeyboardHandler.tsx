@@ -157,7 +157,7 @@ export default function KeyboardHandler({ routerState }: KeyboardHandlerProps) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [routerState, setTheme]);
+  }, [routerState, setTheme, animationSettings]);
 
   return null;
 }

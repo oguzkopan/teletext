@@ -167,7 +167,11 @@ export class SettingsAdapter implements ContentAdapter {
         { label: 'EFFECTS', targetPage: '701', color: 'red' },
         { label: 'INDEX', targetPage: '100', color: 'green' },
         { label: 'PREVIEW', targetPage: '702', color: 'yellow' },
-        { label: 'HELP', targetPage: '999', color: 'blue' }
+        { label: 'HELP', targetPage: '999', color: 'blue' },
+        { label: '1', targetPage: '700', color: undefined }, // Ceefax theme (handled by KeyboardHandler)
+        { label: '2', targetPage: '700', color: undefined }, // ORF theme (handled by KeyboardHandler)
+        { label: '3', targetPage: '700', color: undefined }, // High contrast theme (handled by KeyboardHandler)
+        { label: '4', targetPage: '700', color: undefined }  // Haunting theme (handled by KeyboardHandler)
       ],
       meta: {
         source: 'SettingsAdapter',

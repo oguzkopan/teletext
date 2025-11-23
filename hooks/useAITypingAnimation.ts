@@ -124,7 +124,10 @@ export function useAITypingAnimation(
         setDisplayText(animationRef.current!.getDisplayText());
       });
     }
-  }, [options.speed, options.showCursor, options.cursorChar, options.allowSkip]);
+  // We intentionally don't include 'options' as a dependency to avoid recreating
+  // the animation on every render. Individual option properties are tracked instead.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [options.speed, options.showCursor, options.cursorChar, options.allowSkip, options.onComplete]);
 
   const startTyping = useCallback((text: string) => {
     if (animationRef.current) {

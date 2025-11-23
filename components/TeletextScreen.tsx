@@ -101,7 +101,8 @@ const TeletextScreen = React.memo(function TeletextScreen({
       // Clean up on unmount
       effectIds.forEach(id => animationEngine.stopAnimation(id));
     };
-  }, [theme.name]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [theme.name, animationEngine]);
 
   // Play page transition animation when page changes
   useEffect(() => {
@@ -146,7 +147,7 @@ const TeletextScreen = React.memo(function TeletextScreen({
         animationEngine.stopAnimation(loadingAnimationId);
       }
     };
-  }, [loading, animationEngine, displayPage.meta?.aiGenerated]);
+  }, [loading, animationEngine, displayPage.meta?.aiGenerated, typingAnimation]);
 
   // Handle AI typing animation for AI-generated content
   // Requirements: 24.1, 24.2
@@ -174,7 +175,7 @@ const TeletextScreen = React.memo(function TeletextScreen({
     return () => {
       typingAnimation.stop();
     };
-  }, [displayPage.id, displayPage.meta?.aiGenerated, loading]);
+  }, [displayPage.id, displayPage.rows, displayPage.meta?.aiGenerated, loading, typingAnimation]);
   /**
    * Parses a row of text and applies color codes.
    * Color codes are represented as {COLOR} in the text.
