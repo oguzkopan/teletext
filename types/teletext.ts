@@ -85,6 +85,7 @@ export interface PageMeta {
   halloweenTheme?: boolean; // Enable Halloween theme decorations and styling
   fullScreenLayout?: boolean; // Use full-screen layout (90%+ screen utilization)
   maxVisualEffects?: boolean; // Apply maximum visual effects regardless of user settings
+  useLayoutManager?: boolean; // Indicates page was already processed by adapter layout helper
   specialPageAnimation?: {
     type: string;
     name: string;

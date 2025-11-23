@@ -51,6 +51,12 @@ export class PageLayoutProcessor {
       return page;
     }
 
+    // If page was already processed by adapter layout, return as-is
+    // This prevents double-processing and duplicate headers
+    if (page.meta?.useLayoutManager) {
+      return page;
+    }
+
     // Determine page type for contextual help
     const pageType = this.getPageType(page.id);
 
