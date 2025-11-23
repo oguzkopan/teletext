@@ -53,17 +53,17 @@ export function applyAdapterLayout(options: AdapterLayoutOptions): TeletextPage 
     continuation
   } = options;
 
-  // Pad content rows to exactly 60 characters
+  // Pad content rows to exactly 80 characters (full screen width)
   const paddedContent = contentRows.map(row => {
-    if (row.length > 60) {
-      return row.substring(0, 60);
+    if (row.length > 80) {
+      return row.substring(0, 80);
     }
-    return row.padEnd(60, ' ');
+    return row.padEnd(80, ' ');
   });
 
   // Ensure exactly 24 rows
   while (paddedContent.length < 24) {
-    paddedContent.push(''.padEnd(60, ' '));
+    paddedContent.push(''.padEnd(80, ' '));
   }
 
   // Limit to 24 rows
@@ -116,10 +116,10 @@ export function createSimpleHeader(title: string, pageId: string, maxTitleLength
  * Creates a separator row
  * 
  * @param char - Character to use for separator (default: '═')
- * @param width - Width of separator (default: 40)
+ * @param width - Width of separator (default: 80 for full screen)
  * @returns Separator row string
  */
-export function createSeparator(char: string = '═', width: number = 40): string {
+export function createSeparator(char: string = '═', width: number = 80): string {
   return char.repeat(width).substring(0, width).padEnd(width, ' ');
 }
 
@@ -187,10 +187,10 @@ export function wrapText(text: string, maxWidth: number): string[] {
  * Centers text within specified width
  * 
  * @param text - Text to center
- * @param width - Target width (default: 40)
+ * @param width - Target width (default: 80 for full screen)
  * @returns Centered text
  */
-export function centerText(text: string, width: number = 40): string {
+export function centerText(text: string, width: number = 80): string {
   if (text.length >= width) {
     return text.substring(0, width);
   }
@@ -220,7 +220,7 @@ function getVisibleLength(text: string): number {
 }
 
 /**
- * Pads rows array to exactly 24 rows, each exactly 40 visible characters
+ * Pads rows array to exactly 24 rows, each exactly 80 visible characters (full screen width)
  * 
  * @param rows - Array of rows to pad
  * @returns Padded rows array
@@ -229,12 +229,12 @@ export function padRows(rows: string[]): string[] {
   const paddedRows = rows.map(row => {
     const visibleLength = getVisibleLength(row);
     
-    if (visibleLength > 40) {
-      // Truncate to 40 characters (rough approximation)
-      return row.substring(0, 40);
-    } else if (visibleLength < 40) {
-      // Pad to exactly 40 visible characters
-      const paddingNeeded = 40 - visibleLength;
+    if (visibleLength > 80) {
+      // Truncate to 80 characters (rough approximation)
+      return row.substring(0, 80);
+    } else if (visibleLength < 80) {
+      // Pad to exactly 80 visible characters
+      const paddingNeeded = 80 - visibleLength;
       return row + ' '.repeat(paddingNeeded);
     }
     
@@ -243,7 +243,7 @@ export function padRows(rows: string[]): string[] {
 
   // Ensure exactly 24 rows
   while (paddedRows.length < 24) {
-    paddedRows.push(''.padEnd(40, ' '));
+    paddedRows.push(''.padEnd(80, ' '));
   }
 
   // CRITICAL: Always return exactly 24 rows, truncate if necessary

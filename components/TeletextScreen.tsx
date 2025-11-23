@@ -386,18 +386,20 @@ const TeletextScreen = React.memo(function TeletextScreen({
         backgroundColor: theme.colors.background,
         color: theme.colors.text,
         fontFamily: "'Courier New', Courier, monospace",
-        fontSize: 'clamp(14px, 1.5vw, 22px)',
-        lineHeight: '1.2',
-        padding: '1vh 1vw',
-        width: '100%',
-        height: '100%',
-        maxWidth: '100%',
+        fontSize: 'clamp(16px, 2vw, 28px)',
+        lineHeight: '1.15',
+        padding: '0.5vh 1vw',
+        width: '100vw',
+        height: '100vh',
+        maxWidth: '100vw',
+        maxHeight: '100vh',
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-start',
         boxSizing: 'border-box',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        margin: 0
       }}
     >
       {/* Animation layer for theme-specific effects - Requirement 6.1 */}
@@ -528,12 +530,13 @@ const TeletextScreen = React.memo(function TeletextScreen({
       <style jsx>{`
         .teletext-row {
           white-space: pre;
-          height: calc((100vh - 2vh) / 24);
-          min-height: 1.2em;
+          height: calc(100vh / 24);
+          min-height: calc(100vh / 24);
           width: 100%;
           overflow: visible;
           display: flex;
           align-items: center;
+          line-height: 1.15;
         }
         
         /* Interactive element highlighting - Requirements 25.1, 25.2, 25.3, 25.4, 25.5 */

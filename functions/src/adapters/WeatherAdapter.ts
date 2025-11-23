@@ -94,22 +94,24 @@ export class WeatherAdapter implements ContentAdapter {
     const contentRows = [
       createSimpleHeader('WEATHER INDEX', '420'),
       createSeparator(),
-      '',
-      'SELECT A CITY:',
+      '{yellow}WORLD WEATHER FORECAST                                                  ',
+      createSeparator(),
       ''
     ];
 
-    // Add cities in two columns
-    const citiesPerColumn = Math.ceil(this.cities.length / 2);
+    // Add cities in three columns for full-screen layout
+    const citiesPerColumn = Math.ceil(this.cities.length / 3);
     for (let i = 0; i < citiesPerColumn; i++) {
-      const leftCity = this.cities[i];
-      const rightCity = this.cities[i + citiesPerColumn];
+      const col1 = this.cities[i];
+      const col2 = this.cities[i + citiesPerColumn];
+      const col3 = this.cities[i + citiesPerColumn * 2];
       
-      const leftText = `${leftCity.pageId} ${leftCity.name}`;
-      const rightText = rightCity ? `${rightCity.pageId} ${rightCity.name}` : '';
+      const col1Text = col1 ? `{green}${col1.pageId}{white} ${col1.name}` : '';
+      const col2Text = col2 ? `{green}${col2.pageId}{white} ${col2.name}` : '';
+      const col3Text = col3 ? `{green}${col3.pageId}{white} ${col3.name}` : '';
       
-      const line = `${leftText.padEnd(20)}${rightText}`;
-      contentRows.push(truncateText(line, 40));
+      const line = `${col1Text.padEnd(26)}${col2Text.padEnd(26)}${col3Text}`;
+      contentRows.push(line);
     }
 
     // Fill remaining rows
@@ -117,9 +119,9 @@ export class WeatherAdapter implements ContentAdapter {
       contentRows.push('');
     }
 
-    contentRows.push('Updated every 30 minutes');
+    contentRows.push('{cyan}Updated every 30 minutes • Real-time weather data from OpenWeatherMap');
     contentRows.push(createSeparator('─'));
-    contentRows.push('INDEX   LONDON  NYC     TOKYO');
+    contentRows.push('{red}INDEX   {green}LONDON  {yellow}NYC     {blue}TOKYO');
 
     return applyAdapterLayout({
       pageId: '420',
@@ -217,14 +219,13 @@ export class WeatherAdapter implements ContentAdapter {
     const contentRows = [
       createSimpleHeader(city.name.toUpperCase(), city.pageId),
       createSeparator(),
-      `Updated: ${timeStr}`,
+      `{cyan}Updated: ${timeStr}`,
       ''
     ];
 
     // Current conditions with animated icon
     // Requirements: 20.1, 20.2 - ASCII art weather icons with animations
-    contentRows.push('CURRENT CONDITIONS');
-    contentRows.push('');
+    contentRows.push('{yellow}CURRENT CONDITIONS');
     
     const temp = Math.round(current.main?.temp || 0);
     const feelsLike = Math.round(current.main?.feels_like || 0);
@@ -240,18 +241,18 @@ export class WeatherAdapter implements ContentAdapter {
     // Requirements: 20.3 - Color coding for temperature
     const tempDisplay = formatTemperature(temp, true);
     
-    // Display icon alongside current conditions
-    contentRows.push(`${iconLines[0]}  ${tempDisplay}`);
-    contentRows.push(`${iconLines[1]}  ${this.capitalizeWords(conditionDesc)}`);
+    // Display icon alongside current conditions with proper spacing for full-screen
+    contentRows.push(`${iconLines[0].padEnd(15)}${tempDisplay}`);
+    contentRows.push(`${iconLines[1].padEnd(15)}{white}${this.capitalizeWords(conditionDesc)}`);
     contentRows.push(`${iconLines[2]}`);
-    contentRows.push(`${iconLines[3]}  Feels like: ${feelsLike}°C`);
-    contentRows.push(`${iconLines[4]}  Humidity: ${humidity}%`);
-    contentRows.push(`               Wind: ${windSpeed} km/h`);
+    contentRows.push(`${iconLines[3].padEnd(15)}{white}Feels like: {cyan}${feelsLike}°C`);
+    contentRows.push(`${iconLines[4].padEnd(15)}{white}Humidity: {cyan}${humidity}%`);
+    contentRows.push(`${' '.repeat(15)}{white}Wind: {cyan}${windSpeed} km/h`);
     contentRows.push('');
 
     // Forecast with visual timeline
     // Requirements: 20.4 - Visual timeline for multi-day forecasts
-    contentRows.push('FORECAST (3-HOUR INTERVALS)');
+    contentRows.push('{yellow}FORECAST (3-HOUR INTERVALS)');
     contentRows.push(createSeparator('─'));
     
     if (forecast?.list && forecast.list.length > 0) {
@@ -268,7 +269,7 @@ export class WeatherAdapter implements ContentAdapter {
         const forecastCondition = mapWeatherCondition(forecastConditionDesc);
         
         // Get mini icon (just one line from the icon)
-        const miniIcon = formatWeatherIcon(forecastCondition, 0)[2].trim().substring(0, 12);
+        const miniIcon = formatWeatherIcon(forecastCondition, 0)[2].trim().substring(0, 15);
         
         // Temperature with color coding
         const tempStr = formatTemperature(forecastTemp, false);
@@ -278,10 +279,10 @@ export class WeatherAdapter implements ContentAdapter {
         const trend = getTemperatureTrend(forecastTemp, previousTemp);
         previousTemp = forecastTemp;
         
-        contentRows.push(`${timeStr} ${miniIcon} ${tempStr} ${tempSymbol} ${trend}`);
+        contentRows.push(`{cyan}${timeStr} {white}${miniIcon.padEnd(15)} ${tempStr} ${tempSymbol} ${trend}`);
       });
     } else {
-      contentRows.push('Forecast not available');
+      contentRows.push('{red}Forecast not available');
     }
 
     // Add footer
@@ -289,7 +290,7 @@ export class WeatherAdapter implements ContentAdapter {
       contentRows.push('');
     }
     contentRows.push(createSeparator('─'));
-    contentRows.push('INDEX   REFRESH NEXT    BACK');
+    contentRows.push('{red}INDEX   {green}REFRESH {yellow}NEXT    {blue}BACK');
 
     return applyAdapterLayout({
       pageId: city.pageId,

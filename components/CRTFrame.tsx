@@ -66,24 +66,23 @@ export default function CRTFrame({ children, effects, hauntingMode = false }: CR
           align-items: center;
           width: 100vw;
           height: 100vh;
-          background: #1a1a1a;
+          background: #000;
           padding: 0;
           margin: 0;
           box-sizing: border-box;
+          overflow: hidden;
         }
 
         .crt-frame {
           position: relative;
-          background: #2a2a2a;
-          padding: 1vh 1vw;
-          border-radius: 20px;
-          box-shadow: 
-            0 0 50px rgba(0, 0, 0, 0.8),
-            inset 0 0 20px rgba(0, 0, 0, 0.5);
-          max-width: 98vw;
-          max-height: 98vh;
-          width: 98vw;
-          height: 98vh;
+          background: #000;
+          padding: 0;
+          border-radius: 0;
+          box-shadow: none;
+          max-width: 100vw;
+          max-height: 100vh;
+          width: 100vw;
+          height: 100vh;
           display: flex;
           align-items: stretch;
           justify-content: stretch;
@@ -93,9 +92,9 @@ export default function CRTFrame({ children, effects, hauntingMode = false }: CR
         .crt-bezel {
           position: relative;
           background: #000;
-          padding: 0.5vh 0.5vw;
-          border-radius: 10px;
-          box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.9);
+          padding: 0;
+          border-radius: 0;
+          box-shadow: none;
           width: 100%;
           height: 100%;
           display: flex;
@@ -117,8 +116,8 @@ export default function CRTFrame({ children, effects, hauntingMode = false }: CR
         }
 
         .crt-screen.curved {
-          border-radius: 8px;
-          transform: perspective(1000px) rotateX(0deg);
+          border-radius: 0;
+          transform: none;
         }
 
         /* Scanlines effect */

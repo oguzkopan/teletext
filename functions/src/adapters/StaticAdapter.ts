@@ -68,41 +68,45 @@ export class StaticAdapter implements ContentAdapter {
    */
   private getIndexPage(): TeletextPage {
     const now = new Date();
+    const dateStr = now.toLocaleDateString('en-GB', { 
+      weekday: 'short', 
+      day: '2-digit', 
+      month: 'short' 
+    });
     const timeStr = now.toLocaleTimeString('en-GB', { 
       hour: '2-digit', 
-      minute: '2-digit' 
+      minute: '2-digit',
+      second: '2-digit'
     });
     
-    // Get random tip of the day (for future use)
-    // Requirements: 30.3
-    // const randomTip = SHORTCUT_TIPS[Math.floor(Math.random() * SHORTCUT_TIPS.length)];
-    
-    // Ultra-compact 3-column layout - fits everything on one screen
-    // Requirements: 4.1, 4.2, 9.1, 9.3, 9.4, 29.3, 30.3
+    // Full-screen multi-column layout like Ceefax with ASCII art logo
     const rows = [
-      '{cyan}100 🎃KIROWEEN🎃 ' + timeStr + ' {red}🔴{green}🟢{yellow}🟡{blue}🔵',
-      '{magenta}════════════════════════════════════════',
-      '{yellow}MAGAZINES    FEATURES    QUICK ACCESS',
-      '{green}101{white}System   {red}666{white}Cursed   {red}🔴{white}News {green}200',
-      '{green}200{white}News     {red}404{white}Void     {green}🟢{white}Sport{green}300',
-      '{green}300{white}Sport    {yellow}500{white}AI       {yellow}🟡{white}Wthr {green}420',
-      '{green}400{white}Markets  {blue}600{white}Games    {blue}🔵{white}AI   {green}500',
-      '{green}420{white}Weather  {green}700{white}Settings {magenta}⚡{white}Help {green}999',
-      '{green}500{white}AI       {green}800{white}DevTools',
-      '{green}600{white}Games    {green}999{white}Help',
-      '{green}700{white}Settings',
-      '{green}800{white}DevTools',
-      '{magenta}════════════════════════════════════════',
-      '{cyan}🎃 NAVIGATION: {white}Type {yellow}3-digit{white} page',
-      '{white}Use {red}R{white}/{green}G{white}/{yellow}Y{white}/{blue}B{white} buttons • Press {cyan}999{white} help',
-      '{white}Press {magenta}666{white} if you dare... 👻',
-      '',
-      '{yellow}POPULAR: {green}200{white}News {green}300{white}Sport {green}400{white}Markets',
-      '{green}500{white}AI Chat {green}600{white}Games {green}700{white}Themes',
-      '',
-      '',
-      '{magenta}════════════════════════════════════════',
-      '{yellow}⚡ Kiroween 2024 - Built with Kiro ⚡'
+      `{cyan}100 {yellow}🎃 KIROWEEN TELETEXT 🎃{cyan} ${dateStr} ${timeStr} {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+      '{blue}═══════════════════════════════════════════════════════════════════════════════',
+      '{yellow}╔══════════════════════════════════════════════════════════════════════════╗',
+      '{yellow}║  {magenta}MODERN TELETEXT{yellow}  {white}░▒▓█▓▒░  {cyan}Your Gateway to Information{yellow}           ║',
+      '{yellow}╚══════════════════════════════════════════════════════════════════════════╝',
+      '{blue}═══════════════════════════════════════════════════════════════════════════════',
+      '{cyan}▓▓▓ NEWS & INFO ▓▓▓      {magenta}▓▓▓ ENTERTAINMENT ▓▓▓    {yellow}▓▓▓ SERVICES ▓▓▓       ',
+      '{green}101{white} System Status       {red}600{white} Games & Quizzes      {cyan}700{white} Settings          ',
+      '{green}200{white} News Headlines      {red}601{white} Quiz of the Day      {cyan}701{white} Themes            ',
+      '{green}201{white} UK News             {red}610{white} Bamboozle Quiz       {cyan}800{white} Dev Tools         ',
+      '{green}202{white} World News          {red}620{white} Random Facts         {cyan}999{white} Help              ',
+      '{green}203{white} Local News          {yellow}500{white} AI Chat             {magenta}666{white} Cursed Page       ',
+      '{blue}───────────────────────────────────────────────────────────────────────────────',
+      '{cyan}▓▓▓ SPORT & LEISURE ▓▓▓  {yellow}▓▓▓ MARKETS & MONEY ▓▓▓  {red}▓▓▓ WEATHER & TRAVEL ▓▓',
+      '{green}300{white} Sport Headlines     {green}400{white} Markets Overview    {green}420{white} Weather Forecast  ',
+      '{green}301{white} Football            {green}401{white} Stock Prices        {green}421{white} London Weather    ',
+      '{green}302{white} Cricket             {green}402{white} Crypto Markets      {green}422{white} New York Weather  ',
+      '{green}303{white} Tennis              {green}403{white} Commodities         {green}423{white} Tokyo Weather     ',
+      '{green}304{white} Live Scores         {green}404{white} Void Page           {green}424{white} Traffic Info      ',
+      '{blue}═══════════════════════════════════════════════════════════════════════════════',
+      '{cyan}🎃 NAVIGATION: {white}Type {yellow}3-digit{white} page number or use {red}R{white}/{green}G{white}/{yellow}Y{white}/{blue}B{white} buttons',
+      '{white}Press {cyan}999{white} for help • Press {magenta}666{white} if you dare... 👻',
+      '{blue}───────────────────────────────────────────────────────────────────────────────',
+      '{yellow}POPULAR PAGES: {green}200{white} News {green}300{white} Sport {green}400{white} Markets {green}500{white} AI {green}600{white} Games',
+      '{blue}═══════════════════════════════════════════════════════════════════════════════',
+      '{yellow}                    ⚡ Kiroween 2024 - Built with Kiro ⚡                       '
     ];
 
     return {
@@ -827,20 +831,20 @@ export class StaticAdapter implements ContentAdapter {
   }
 
   /**
-   * Pads rows array to exactly 24 rows, each exactly 40 visible characters
+   * Pads rows array to exactly 24 rows, each exactly 80 visible characters (full screen width)
    */
   private padRows(rows: string[]): string[] {
     const paddedRows = rows.map(row => {
       const visibleLength = this.getVisibleLength(row);
       
-      if (visibleLength > 60) {
-        // Truncate to 60 visible characters
+      if (visibleLength > 80) {
+        // Truncate to 80 visible characters
         // This is tricky with emojis, so we'll just truncate the string
         // and accept some imperfection
-        return row.substring(0, 60);
-      } else if (visibleLength < 60) {
-        // Pad to exactly 60 visible characters
-        const paddingNeeded = 60 - visibleLength;
+        return row.substring(0, 80);
+      } else if (visibleLength < 80) {
+        // Pad to exactly 80 visible characters
+        const paddingNeeded = 80 - visibleLength;
         return row + ' '.repeat(paddingNeeded);
       }
       
@@ -849,7 +853,7 @@ export class StaticAdapter implements ContentAdapter {
 
     // Ensure exactly 24 rows
     while (paddedRows.length < 24) {
-      paddedRows.push(''.padEnd(60, ' '));
+      paddedRows.push(''.padEnd(80, ' '));
     }
 
     return paddedRows.slice(0, 24);
