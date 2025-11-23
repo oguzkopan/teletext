@@ -55,6 +55,7 @@ export function createEmulatorOfflinePage(pageId: string): TeletextPage {
 
 /**
  * Creates a fallback index page (100) with visual enhancements
+ * Full-screen 80-character layout matching the main index
  */
 export function createFallbackIndexPage(): TeletextPage {
   const now = new Date();
@@ -65,34 +66,37 @@ export function createFallbackIndexPage(): TeletextPage {
   });
   const timeStr = now.toLocaleTimeString('en-GB', { 
     hour: '2-digit', 
-    minute: '2-digit' 
+    minute: '2-digit',
+    second: '2-digit'
   });
   
   const rows = [
-    'MODERN TELETEXT                     P100',
-    '════════════════════════════════════════',
-    centerText(`${dateStr} ${timeStr}`, 40),
-    centerText('OFFLINE MODE', 40),
-    '',
-    '▓▓▓▓▓▓▓▓ MAGAZINES ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓',
-    '101 System      500 AI Oracle           ',
-    '110 Index       600 Games               ',
-    '200 News        700 Settings            ',
-    '300 Sport       800 Dev Tools           ',
-    '400 Markets     999 Help                ',
-    '420 Weather                             ',
-    '',
-    '▓▓▓▓▓▓▓▓ QUICK START ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓',
-    '  Enter 3-digit page number             ',
-    '  Use colored buttons for shortcuts     ',
-    '  Press 999 for help anytime            ',
-    '',
-    '  Start emulators for full features:    ',
-    '  npm run emulators:start               ',
-    '',
-    '',
-    '────────────────────────────────────────',
-    'RED=NEWS GREEN=SPORT YELLOW=WEATHER HELP'
+    `{cyan}100 {yellow}🎃 KIROWEEN TELETEXT 🎃{cyan} ${dateStr} ${timeStr} {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+    '{blue}═══════════════════════════════════════════════════════════════════════════════',
+    '{yellow}╔══════════════════════════════════════════════════════════════════════════╗',
+    '{yellow}║  {magenta}MODERN TELETEXT{yellow}  {white}░▒▓█▓▒░  {cyan}Your Gateway to Information{yellow}           ║',
+    '{yellow}╚══════════════════════════════════════════════════════════════════════════╝',
+    '{blue}═══════════════════════════════════════════════════════════════════════════════',
+    '{cyan}▓▓▓ NEWS & INFO ▓▓▓      {magenta}▓▓▓ ENTERTAINMENT ▓▓▓    {yellow}▓▓▓ SERVICES ▓▓▓       ',
+    '{green}101{white} System Status       {red}600{white} Games & Quizzes      {cyan}700{white} Settings          ',
+    '{green}200{white} News Headlines      {red}601{white} Quiz of the Day      {cyan}701{white} Themes            ',
+    '{green}201{white} UK News             {red}610{white} Bamboozle Quiz       {cyan}800{white} Dev Tools         ',
+    '{green}202{white} World News          {red}620{white} Random Facts         {cyan}999{white} Help              ',
+    '{green}203{white} Local News          {yellow}500{white} AI Chat             {magenta}666{white} Cursed Page       ',
+    '{blue}───────────────────────────────────────────────────────────────────────────────',
+    '{cyan}▓▓▓ SPORT & LEISURE ▓▓▓  {yellow}▓▓▓ MARKETS & MONEY ▓▓▓  {red}▓▓▓ WEATHER & TRAVEL ▓▓',
+    '{green}300{white} Sport Headlines     {green}400{white} Markets Overview    {green}420{white} Weather Forecast  ',
+    '{green}301{white} Football            {green}401{white} Stock Prices        {green}421{white} London Weather    ',
+    '{green}302{white} Cricket             {green}402{white} Crypto Markets      {green}422{white} New York Weather  ',
+    '{green}303{white} Tennis              {green}403{white} Commodities         {green}423{white} Tokyo Weather     ',
+    '{green}304{white} Live Scores         {green}404{white} Void Page           {green}424{white} Traffic Info      ',
+    '{blue}═══════════════════════════════════════════════════════════════════════════════',
+    '{cyan}🎃 NAVIGATION: {white}Type {yellow}3-digit{white} page number or use {red}R{white}/{green}G{white}/{yellow}Y{white}/{blue}B{white} buttons',
+    '{white}Press {cyan}999{white} for help • Press {magenta}666{white} if you dare... 👻',
+    '{blue}───────────────────────────────────────────────────────────────────────────────',
+    '{yellow}POPULAR PAGES: {green}200{white} News {green}300{white} Sport {green}400{white} Markets {green}500{white} AI {green}600{white} Games',
+    '{blue}═══════════════════════════════════════════════════════════════════════════════',
+    '{yellow}                    ⚡ Kiroween 2024 - Built with Kiro ⚡                       '
   ];
 
   return {
@@ -473,32 +477,60 @@ export function getFallbackPage(pageId: string): TeletextPage | null {
 }
 
 /**
- * Centers text within specified width
+ * Strips color codes and calculates visible length
  */
-function centerText(text: string, width: number): string {
-  if (text.length >= width) {
-    return text.slice(0, width);
+function getVisibleLength(text: string): number {
+  // Remove color codes like {red}, {green}, etc.
+  let cleaned = text.replace(/\{(red|green|yellow|blue|magenta|cyan|white|black)\}/gi, '');
+  
+  // Count emojis as 2 characters (they take up 2 character widths in monospace)
+  const emojiRegex = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu;
+  const emojis = cleaned.match(emojiRegex) || [];
+  const emojiCount = emojis.length;
+  
+  // Remove emojis to count regular characters
+  const withoutEmojis = cleaned.replace(emojiRegex, '');
+  
+  // Total visible length = regular chars + (emojis * 2)
+  return withoutEmojis.length + (emojiCount * 2);
+}
+
+/**
+ * Centers text within specified width (default 80 for full screen)
+ */
+function centerText(text: string, width: number = 80): string {
+  const visibleLength = getVisibleLength(text);
+  if (visibleLength >= width) {
+    return text;
   }
-  const padding = width - text.length;
+  const padding = width - visibleLength;
   const leftPad = Math.floor(padding / 2);
   const rightPad = padding - leftPad;
   return ' '.repeat(leftPad) + text + ' '.repeat(rightPad);
 }
 
 /**
- * Pads rows array to exactly 24 rows, each max 40 characters
+ * Pads rows array to exactly 24 rows, each exactly 80 visible characters (full screen width)
  */
 function padRows(rows: string[]): string[] {
   const paddedRows = rows.map(row => {
-    if (row.length > 40) {
-      return row.substring(0, 40);
+    const visibleLength = getVisibleLength(row);
+    
+    if (visibleLength > 80) {
+      // Don't truncate - let it overflow (color codes make this tricky)
+      return row;
+    } else if (visibleLength < 80) {
+      // Pad to exactly 80 visible characters
+      const paddingNeeded = 80 - visibleLength;
+      return row + ' '.repeat(paddingNeeded);
     }
-    return row.padEnd(40, ' ');
+    
+    return row;
   });
 
   // Ensure exactly 24 rows
   while (paddedRows.length < 24) {
-    paddedRows.push(''.padEnd(40, ' '));
+    paddedRows.push(''.padEnd(80, ' '));
   }
 
   return paddedRows.slice(0, 24);
