@@ -513,6 +513,11 @@ export default function PageRouter({
   // Calculate expected input length based on current page metadata
   const inputMode = currentPage?.meta?.inputMode || 'triple';
   const expectedInputLength = inputMode === 'single' ? 1 : inputMode === 'double' ? 2 : 3;
+  
+  // Debug log for expected input length
+  useEffect(() => {
+    console.log(`[PageRouter] Page ${currentPage?.id} - inputMode: ${inputMode}, expectedInputLength: ${expectedInputLength}`);
+  }, [currentPage?.id, inputMode, expectedInputLength]);
 
   return (
     <>
