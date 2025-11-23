@@ -216,7 +216,8 @@ export default function PageRouter({
     try {
       const { page, fromCache } = await fetchPage(pageId, abortController.signal, sessionId);
       
-      console.log(`[PageRouter] Received page: ${page?.id}, requested: ${pageId}, sessionId in response: ${page?.meta?.aiContextId}`);
+      console.log(`[PageRouter] Received page: ${page?.id}, requested: ${pageId}`);
+      console.log(`[PageRouter] Page metadata:`, page?.meta);
       
       // Check if this request is still active (not cancelled by a newer request)
       if (!isRequestActive(pageId)) {

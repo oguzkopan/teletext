@@ -197,7 +197,7 @@ export class NewsAdapter implements ContentAdapter {
     
     // Headline (wrapped)
     const headline = stripHtml(article.title || 'Untitled');
-    const headlineLines = wrapText(headline, 40);
+    const headlineLines = wrapText(headline, 75);
     headlineLines.forEach((line: string) => contentRows.push(line));
     contentRows.push('');
     
@@ -219,7 +219,7 @@ export class NewsAdapter implements ContentAdapter {
     // Description (wrapped)
     if (article.description) {
       const description = stripHtml(article.description);
-      const descLines = wrapText(description, 40);
+      const descLines = wrapText(description, 75);
       descLines.forEach((line: string) => contentRows.push(line));
     }
     
@@ -227,7 +227,7 @@ export class NewsAdapter implements ContentAdapter {
     if (article.content) {
       contentRows.push('');
       const content = stripHtml(article.content);
-      const contentLines = wrapText(content, 40);
+      const contentLines = wrapText(content, 75);
       contentLines.forEach((line: string) => contentRows.push(line));
     }
     
