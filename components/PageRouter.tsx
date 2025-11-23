@@ -88,17 +88,19 @@ export default function PageRouter({
   );
 
   // Re-process page when timestamp updates (every minute)
-  useEffect(() => {
-    if (shouldUpdate && currentPage && !loading) {
-      const processedPage = pageLayoutProcessor.processPage(currentPage, {
-        breadcrumbs: currentPage.id === '100' ? [] : breadcrumbs,
-        enableFullScreen: true,
-        contentAlignment: 'left'
-      });
-      setCurrentPage(processedPage);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentTime, shouldUpdate, currentPage?.id, breadcrumbs, loading]);
+  // DISABLED: This was causing duplicate headers by re-processing pages
+  // The timestamp updates are now handled by the layout processor on initial load
+  // useEffect(() => {
+  //   if (shouldUpdate && currentPage && !loading) {
+  //     const processedPage = pageLayoutProcessor.processPage(currentPage, {
+  //       breadcrumbs: currentPage.id === '100' ? [] : breadcrumbs,
+  //       enableFullScreen: true,
+  //       contentAlignment: 'left'
+  //     });
+  //     setCurrentPage(processedPage);
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [currentTime, shouldUpdate, currentPage?.id, breadcrumbs, loading]);
 
   /**
    * Validates page number is in valid range (100-899)
@@ -253,11 +255,14 @@ export default function PageRouter({
         
         // Process page with layout manager to apply full-screen layout
         // Requirements: 1.1, 1.2, 1.3, 1.4, 8.1, 8.2, 8.3, 8.4, 11.1, 11.2, 11.3, 11.4
-        const processedPage = pageLayoutProcessor.processPage(page, {
-          breadcrumbs: pageId === '100' ? [] : breadcrumbs,
-          enableFullScreen: true,
-          contentAlignment: 'left'
-        });
+        // Only process if page doesn't already have layout applied
+        const processedPage = page.meta?.useLayoutManager 
+          ? page 
+          : pageLayoutProcessor.processPage(page, {
+              breadcrumbs: pageId === '100' ? [] : breadcrumbs,
+              enableFullScreen: true,
+              contentAlignment: 'left'
+            });
         
         setCurrentPage(processedPage);
         setIsCached(fromCache);
@@ -302,45 +307,42 @@ export default function PageRouter({
     const validOptions = currentPage?.meta?.inputOptions || [];
     const digitStr = digit.toString();
     
+    console.log(`[PageRouter] Digit pressed: ${digitStr}, inputMode: ${inputMode}, maxLength: ${maxLength}, validOptions:`, validOptions);
+    
+    // For single-digit input mode, check if it's a valid option and navigate immediately
+    if (inputMode === 'single' && validOptions.includes(digitStr)) {
+      console.log(`[PageRouter] Single-digit input detected: ${digitStr}`);
+      console.log(`[PageRouter] Current page: ${currentPage?.id}, Links:`, currentPage?.links);
+      
+      // First, try to find a link that matches this digit (for games, AI menus, etc.)
+      const matchingLink = currentPage?.links?.find(link => link.label === digitStr);
+      
+      console.log(`[PageRouter] Matching link found:`, matchingLink);
+      
+      if (matchingLink && matchingLink.targetPage) {
+        // Navigate using the link's target page
+        console.log(`[PageRouter] Navigating to link target: ${matchingLink.targetPage}`);
+        navigateToPage(matchingLink.targetPage);
+      } else if (currentPage?.id) {
+        // No matching link found - use sub-page navigation (for news articles, etc.)
+        // Navigate to currentPageId-digit (e.g., "203-1", "203-2")
+        const subPageId = `${currentPage.id}-${digitStr}`;
+        console.log(`[PageRouter] No matching link, using sub-page navigation: ${subPageId}`);
+        navigateToPage(subPageId);
+      }
+      return; // Exit early - don't add to buffer
+    }
+    
+    // For multi-digit input, add to buffer
     if (inputBuffer.length < maxLength) {
       const newBuffer = inputBuffer + digitStr;
       setInputBuffer(newBuffer);
       
-      // For single-digit input mode, check if it's a valid option and navigate immediately
-      if (inputMode === 'single' && validOptions.includes(digitStr)) {
-        console.log(`[PageRouter] Single-digit input detected: ${digitStr}`);
-        console.log(`[PageRouter] Current page: ${currentPage?.id}, Links:`, currentPage?.links);
-        
-        // First, try to find a link that matches this digit (for games, AI menus, etc.)
-        const matchingLink = currentPage?.links?.find(link => link.label === digitStr);
-        
-        console.log(`[PageRouter] Matching link found:`, matchingLink);
-        
-        if (matchingLink && matchingLink.targetPage) {
-          // Navigate using the link's target page
-          console.log(`[PageRouter] Navigating to link target: ${matchingLink.targetPage}`);
-          setTimeout(() => {
-            navigateToPage(matchingLink.targetPage);
-            setInputBuffer('');
-          }, 100);
-        } else if (currentPage?.id) {
-          // No matching link found - use sub-page navigation (for news articles, etc.)
-          // Navigate to currentPageId-digit (e.g., "203-1", "203-2")
-          const subPageId = `${currentPage.id}-${digitStr}`;
-          console.log(`[PageRouter] No matching link, using sub-page navigation: ${subPageId}`);
-          setTimeout(() => {
-            navigateToPage(subPageId);
-            setInputBuffer('');
-          }, 100);
-        }
-      }
       // Auto-navigate when max digits are entered
-      else if (newBuffer.length === maxLength) {
+      if (newBuffer.length === maxLength) {
         console.log(`[PageRouter] Max digits entered (${maxLength}), navigating to: ${newBuffer}`);
-        setTimeout(() => {
-          navigateToPage(newBuffer);
-          setInputBuffer('');
-        }, 100);
+        navigateToPage(newBuffer);
+        setInputBuffer('');
       }
     }
   }, [inputBuffer, currentPage?.meta?.inputMode, currentPage?.meta?.inputOptions, currentPage?.links, currentPage?.id, navigateToPage]);
@@ -390,11 +392,14 @@ export default function PageRouter({
               setBreadcrumbs(newBreadcrumbs);
               
               // Process page with layout manager
-              const processedPage = pageLayoutProcessor.processPage(page, {
-                breadcrumbs: pageId === '100' ? [] : newBreadcrumbs,
-                enableFullScreen: true,
-                contentAlignment: 'left'
-              });
+              // Only process if page doesn't already have layout applied
+              const processedPage = page.meta?.useLayoutManager 
+                ? page 
+                : pageLayoutProcessor.processPage(page, {
+                    breadcrumbs: pageId === '100' ? [] : newBreadcrumbs,
+                    enableFullScreen: true,
+                    contentAlignment: 'left'
+                  });
               
               setCurrentPage(processedPage);
               setIsCached(fromCache);
@@ -440,11 +445,14 @@ export default function PageRouter({
               setBreadcrumbs(newBreadcrumbs);
               
               // Process page with layout manager
-              const processedPage = pageLayoutProcessor.processPage(page, {
-                breadcrumbs: pageId === '100' ? [] : newBreadcrumbs,
-                enableFullScreen: true,
-                contentAlignment: 'left'
-              });
+              // Only process if page doesn't already have layout applied
+              const processedPage = page.meta?.useLayoutManager 
+                ? page 
+                : pageLayoutProcessor.processPage(page, {
+                    breadcrumbs: pageId === '100' ? [] : newBreadcrumbs,
+                    enableFullScreen: true,
+                    contentAlignment: 'left'
+                  });
               
               setCurrentPage(processedPage);
               setIsCached(fromCache);
