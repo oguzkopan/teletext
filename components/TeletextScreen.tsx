@@ -388,7 +388,7 @@ const TeletextScreen = React.memo(function TeletextScreen({
         fontFamily: "'Courier New', Courier, monospace",
         fontSize: 'clamp(16px, 2vw, 28px)',
         lineHeight: '1.15',
-        padding: '0.5vh 1vw',
+        padding: 0,
         width: '100vw',
         height: '100vh',
         maxWidth: '100vw',
@@ -537,6 +537,8 @@ const TeletextScreen = React.memo(function TeletextScreen({
           display: flex;
           align-items: center;
           line-height: 1.15;
+          padding-left: 0.5vw;
+          padding-right: 0.5vw;
         }
         
         /* Interactive element highlighting - Requirements 25.1, 25.2, 25.3, 25.4, 25.5 */

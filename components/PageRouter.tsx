@@ -331,6 +331,7 @@ export default function PageRouter({
         console.log(`[PageRouter] No matching link, using sub-page navigation: ${subPageId}`);
         navigateToPage(subPageId);
       }
+      setInputBuffer(''); // Clear buffer after navigation
       return; // Exit early - don't add to buffer
     }
     
