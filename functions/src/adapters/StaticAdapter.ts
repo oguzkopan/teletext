@@ -43,9 +43,6 @@ export class StaticAdapter implements ContentAdapter {
       case 666:
         return this.getPage666(params);
       
-      case 720:
-        return this.getKeyboardShortcutsPage();
-      
       case 999:
         return this.getHelpPage();
       
@@ -384,59 +381,6 @@ export class StaticAdapter implements ContentAdapter {
         lastUpdated: new Date().toISOString(),
         kiroBadge: true, // Signal to frontend to animate Kiro badge
         kiroBadgeAnimation: 'kiro-badge-pulse'
-      }
-    };
-  }
-
-  /**
-   * Creates the keyboard shortcuts page (720)
-   * Requirements: 30.1, 30.2, 30.3
-   */
-  private getKeyboardShortcutsPage(): TeletextPage {
-    const rows = [
-      'KEYBOARD SHORTCUTS           P720',
-      '════════════════════════════════════',
-      '',
-      '┌─────────────────────────────────┐',
-      '│  NUMBER KEYS (Page Navigation)  │',
-      '└─────────────────────────────────┘',
-      '[0][1][2][3][4][5][6][7][8][9]',
-      'Enter 3-digit page numbers',
-      '',
-      '┌─────────────────────────────────┐',
-      '│  COLORED BUTTONS (Quick Links)  │',
-      '└─────────────────────────────────┘',
-      '[🔴 R] [🟢 G] [🟡 Y] [🔵 B]',
-      'Context-sensitive quick navigation',
-      '',
-      '┌─────────────────────────────────┐',
-      '│  ARROW KEYS (Navigation)        │',
-      '└─────────────────────────────────┘',
-      '    [↑] Scroll up / Previous',
-      '[←] [↓] [→] Back / Down / Forward',
-      '',
-      '[⏎ Enter] Go to page  [⌫] Back/Del',
-      '',
-      'TIP: Press 100 for main index',
-      'TIP: Press 999 for help',
-      '',
-      'INDEX   HELP   BACK'
-    ];
-
-    return {
-      id: '720',
-      title: 'Keyboard Shortcuts',
-      rows: this.padRows(rows),
-      links: [
-        { label: 'INDEX', targetPage: '100', color: 'red' },
-        { label: 'HELP', targetPage: '999', color: 'green' },
-        { label: 'BACK', targetPage: '700', color: 'yellow' }
-      ],
-      meta: {
-        source: 'StaticAdapter',
-        lastUpdated: new Date().toISOString(),
-        keyboardVisualization: true, // Signal to frontend for special highlighting
-        highlightedKeys: ['0-9', 'R', 'G', 'Y', 'B', 'Enter', 'Backspace', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']
       }
     };
   }

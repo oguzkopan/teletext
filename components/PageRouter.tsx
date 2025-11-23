@@ -305,11 +305,17 @@ export default function PageRouter({
       
       // For single-digit input mode, check if it's a valid option and navigate immediately
       if (inputMode === 'single' && validOptions.includes(digitStr)) {
+        console.log(`[PageRouter] Single-digit input detected: ${digitStr}`);
+        console.log(`[PageRouter] Current page: ${currentPage?.id}, Links:`, currentPage?.links);
+        
         // First, try to find a link that matches this digit (for games, AI menus, etc.)
         const matchingLink = currentPage?.links?.find(link => link.label === digitStr);
         
+        console.log(`[PageRouter] Matching link found:`, matchingLink);
+        
         if (matchingLink && matchingLink.targetPage) {
           // Navigate using the link's target page
+          console.log(`[PageRouter] Navigating to link target: ${matchingLink.targetPage}`);
           setTimeout(() => {
             navigateToPage(matchingLink.targetPage);
             setInputBuffer('');
@@ -318,6 +324,7 @@ export default function PageRouter({
           // No matching link found - use sub-page navigation (for news articles, etc.)
           // Navigate to currentPageId-digit (e.g., "203-1", "203-2")
           const subPageId = `${currentPage.id}-${digitStr}`;
+          console.log(`[PageRouter] No matching link, using sub-page navigation: ${subPageId}`);
           setTimeout(() => {
             navigateToPage(subPageId);
             setInputBuffer('');
@@ -326,6 +333,7 @@ export default function PageRouter({
       }
       // Auto-navigate when max digits are entered
       else if (newBuffer.length === maxLength) {
+        console.log(`[PageRouter] Max digits entered (${maxLength}), navigating to: ${newBuffer}`);
         setTimeout(() => {
           navigateToPage(newBuffer);
           setInputBuffer('');

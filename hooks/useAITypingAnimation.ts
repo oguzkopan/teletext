@@ -111,23 +111,8 @@ export function useAITypingAnimation(
         animationRef.current = null;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only run once on mount
-
-  // Update options when they change
-  useEffect(() => {
-    if (animationRef.current) {
-      // Recreate animation with new options
-      animationRef.current.destroy();
-      animationRef.current = new AITypingAnimation(options);
-      animationRef.current.onStateUpdate((newState) => {
-        setState(newState);
-        setDisplayText(animationRef.current!.getDisplayText());
-      });
-    }
-  // We intentionally don't include 'options' as a dependency to avoid recreating
-  // the animation on every render. Individual option properties are tracked instead.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [options.speed, options.showCursor, options.cursorChar, options.allowSkip, options.onComplete]);
 
   const startTyping = useCallback((text: string) => {
     if (animationRef.current) {
