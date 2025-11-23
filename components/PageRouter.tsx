@@ -305,12 +305,21 @@ export default function PageRouter({
       
       // For single-digit input mode, check if it's a valid option and navigate immediately
       if (inputMode === 'single' && validOptions.includes(digitStr)) {
-        // Find the link that matches this digit
+        // First, try to find a link that matches this digit (for games, AI menus, etc.)
         const matchingLink = currentPage?.links?.find(link => link.label === digitStr);
         
         if (matchingLink && matchingLink.targetPage) {
+          // Navigate using the link's target page
           setTimeout(() => {
             navigateToPage(matchingLink.targetPage);
+            setInputBuffer('');
+          }, 100);
+        } else if (currentPage?.id) {
+          // No matching link found - use sub-page navigation (for news articles, etc.)
+          // Navigate to currentPageId-digit (e.g., "203-1", "203-2")
+          const subPageId = `${currentPage.id}-${digitStr}`;
+          setTimeout(() => {
+            navigateToPage(subPageId);
             setInputBuffer('');
           }, 100);
         }
@@ -323,7 +332,7 @@ export default function PageRouter({
         }, 100);
       }
     }
-  }, [inputBuffer, currentPage?.meta?.inputMode, currentPage?.meta?.inputOptions, currentPage?.links, navigateToPage]);
+  }, [inputBuffer, currentPage?.meta?.inputMode, currentPage?.meta?.inputOptions, currentPage?.links, currentPage?.id, navigateToPage]);
 
   /**
    * Handles Enter key press
