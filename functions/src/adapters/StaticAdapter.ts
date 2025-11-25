@@ -59,42 +59,40 @@ export class StaticAdapter implements ContentAdapter {
 
 
   /**
-   * Creates the main index page (100) - clean, compact layout
+   * Creates the main index page (100) - simple single-column list
    * Requirements: 17.1, 17.2, 17.3, 17.4, 17.5
    */
   private getIndexPage(): TeletextPage {
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString('en-GB', { 
-      hour: '2-digit', 
-      minute: '2-digit'
-    });
-    
     const rows = [
-      'P100            MAIN INDEX          ' + timeStr,
-      '                                        ',
-      '      MODERN TELETEXT SERVICE          ',
-      '========================================',
-      'NEWS & INFO          MARKETS & MONEY   ',
-      '200 Headlines        400 Overview      ',
-      '201 UK News          401 Stocks        ',
-      '202 World News       402 Crypto        ',
-      '203 Local News       403 Commodities   ',
-      '                                        ',
-      'SPORT & LEISURE      WEATHER & TRAVEL  ',
-      '300 Headlines        420 Forecast      ',
-      '301 Football         421 London        ',
-      '302 Cricket          422 New York      ',
-      '304 Live Scores      423 Tokyo         ',
-      '                                        ',
-      'AI ORACLE            GAMES & QUIZZES   ',
-      '500 AI Chat          600 Games Menu    ',
-      '505 Ask Question     601 Quiz Daily    ',
-      '510 AI Topics        610 Bamboozle     ',
-      '                                        ',
-      'SETTINGS & SYSTEM                       ',
-      '700 Settings  800 Dev  999 Help        ',
-      '========================================',
-      '     Enter 3-digit page number         '
+      'MAIN INDEX                      P100',
+      '════════════════════════════════════',
+      '',
+      '       MODERN TELETEXT SERVICE      ',
+      '',
+      'NEWS & INFORMATION',
+      '  200 News Headlines',
+      '  201 UK News',
+      '  202 World News',
+      '',
+      'SPORT',
+      '  300 Sport Headlines',
+      '  301 Football',
+      '  304 Live Scores',
+      '',
+      'MARKETS',
+      '  400 Markets Overview',
+      '  401 Stock Prices',
+      '',
+      'WEATHER',
+      '  420 Weather Forecast',
+      '',
+      'AI & GAMES & SETTINGS',
+      '  500 AI  600 Games  700 Settings',
+      '',
+      '════════════════════════════════════',
+      'Enter 3-digit page number',
+      '',
+      'INDEX=100  HELP=999'
     ];
     
     return {
@@ -110,25 +108,7 @@ export class StaticAdapter implements ContentAdapter {
       meta: {
         source: 'StaticAdapter',
         lastUpdated: new Date().toISOString(),
-        inputMode: 'triple',
-        animatedLogo: true,
-        logoAnimation: 'logo-pulse',
-        specialPageAnimation: {
-          type: 'ascii-frames',
-          name: 'logo-pulse',
-          targetRows: [2, 3, 4], // The logo rows
-          frames: [
-            '╔══════════════════════════════════╗\n║  MODERN TELETEXT  ░▒▓█▓▒░       ║\n╚══════════════════════════════════╝',
-            '╔══════════════════════════════════╗\n║  MODERN TELETEXT  ▒▓█▓▒          ║\n╚══════════════════════════════════╝',
-            '╔══════════════════════════════════╗\n║  MODERN TELETEXT  ▓█▓            ║\n╚══════════════════════════════════╝',
-            '╔══════════════════════════════════╗\n║  MODERN TELETEXT  █              ║\n╚══════════════════════════════════╝',
-            '╔══════════════════════════════════╗\n║  MODERN TELETEXT  ▓█▓            ║\n╚══════════════════════════════════╝',
-            '╔══════════════════════════════════╗\n║  MODERN TELETEXT  ▒▓█▓▒          ║\n╚══════════════════════════════════╝',
-            '╔══════════════════════════════════╗\n║  MODERN TELETEXT  ░▒▓█▓▒░       ║\n╚══════════════════════════════════╝'
-          ],
-          duration: 2100, // 300ms per frame × 7 frames
-          loop: true
-        }
+        inputMode: 'triple'
       }
     };
   }
