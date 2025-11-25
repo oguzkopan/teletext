@@ -249,36 +249,55 @@ export class AIAdapter implements ContentAdapter {
   }
 
   /**
-   * Creates a spooky story input page for a specific theme
+   * Creates a spooky story input page for a specific theme using layout engine
    */
   private getSpookyStoryInputPage(themeId: string, themeName: string): TeletextPage {
     const pageNumber = 505 + parseInt(themeId);
     
+    // Build header (4 rows)
+    const headerRows = [
+      this.padText(`${this.truncateText(themeName.toUpperCase(), 28).padEnd(28)} P${pageNumber}`, 40),
+      this.padText('════════════════════════════════════════', 40),
+      this.padText('', 40),
+      this.centerText('🎃 KIROWEEN SPECIAL 🎃', 40)
+    ];
+    
+    // Build content (single-column layout with clear prompt display)
+    const contentRows = [
+      this.padText('', 40),
+      this.padText(`Theme: ${themeName}`, 40),
+      this.padText('', 40),
+      this.padText('Ready to generate a spine-chilling', 40),
+      this.padText('horror story?', 40),
+      this.padText('', 40),
+      this.padText('The AI will create a unique', 40),
+      this.padText(`${themeName.toLowerCase()} tale`, 40),
+      this.padText('formatted for teletext display.', 40),
+      this.padText('', 40),
+      this.padText('Story length: Medium (600-800 words)', 40),
+      this.padText('Reading time: ~5-7 minutes', 40),
+      this.padText('', 40),
+      this.padText('Press GREEN button to generate', 40),
+      this.padText('your personalized horror story!', 40),
+      this.padText('', 40)
+    ];
+    
+    // Pad content to 18 rows (24 - 4 header - 2 footer)
+    while (contentRows.length < 18) {
+      contentRows.push(' '.repeat(40));
+    }
+    
+    // Build footer (2 rows)
+    const footerRows = [
+      this.padText('', 40),
+      this.centerText('INDEX   GENERATE THEMES  AI', 40)
+    ];
+    
+    // Combine all rows
     const rows = [
-      `${this.truncateText(themeName.toUpperCase(), 28).padEnd(28)} P${pageNumber}`,
-      '════════════════════════════════════',
-      '',
-      '🎃 KIROWEEN SPECIAL 🎃',
-      '',
-      `Theme: ${themeName}`,
-      '',
-      'Ready to generate a spine-chilling',
-      'horror story?',
-      '',
-      'The AI will create a unique',
-      `${themeName.toLowerCase()} tale`,
-      'formatted for teletext display.',
-      '',
-      'Story length: Medium (600-800 words)',
-      'Reading time: ~5-7 minutes',
-      '',
-      'Press GREEN button to generate',
-      'your personalized horror story!',
-      '',
-      '',
-      '',
-      'INDEX   GENERATE THEMES  AI',
-      ''
+      ...headerRows,
+      ...contentRows,
+      ...footerRows
     ];
 
     // Calculate the story result page (530 + theme offset)
@@ -287,7 +306,7 @@ export class AIAdapter implements ContentAdapter {
     return {
       id: pageNumber.toString(),
       title: `${themeName} Story`,
-      rows: this.padRows(rows),
+      rows: this.normalizeRows(rows),
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'GENERATE', targetPage: storyPageNumber.toString(), color: 'green' },
@@ -377,42 +396,61 @@ export class AIAdapter implements ContentAdapter {
   }
 
   /**
-   * Creates a question input page for a specific topic
+   * Creates a question input page for a specific topic using layout engine
    */
   private getQAQuestionInputPage(topicId: string, topicName: string): TeletextPage {
     const pageNumber = 510 + parseInt(topicId);
     
+    // Build header (4 rows with progress indicator)
+    const headerRows = [
+      this.padText(`${this.truncateText(topicName.toUpperCase(), 28).padEnd(28)} P${pageNumber}`, 40),
+      this.padText('════════════════════════════════════════', 40),
+      this.centerText('Step 2 of 2', 40),
+      this.centerText('▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓', 40)
+    ];
+    
+    // Build content (single-column layout)
+    const contentRows = [
+      this.padText('', 40),
+      this.centerText('⚠ DEMO MODE ⚠', 40),
+      this.padText('', 40),
+      this.padText('This Q&A feature is not yet fully', 40),
+      this.padText('implemented. In the complete version,', 40),
+      this.padText('you would:', 40),
+      this.padText('', 40),
+      this.padText('1. Type your question about', 40),
+      this.padText(`   ${topicName.toLowerCase()}`, 40),
+      this.padText('2. Press ENTER to submit', 40),
+      this.padText('3. Receive an AI-generated answer', 40),
+      this.padText('   formatted for teletext', 40),
+      this.padText('', 40),
+      this.padText('For now, this is a demonstration', 40),
+      this.padText('of the interface design.', 40),
+      this.padText('', 40)
+    ];
+    
+    // Pad content to 18 rows (24 - 4 header - 2 footer)
+    while (contentRows.length < 18) {
+      contentRows.push(' '.repeat(40));
+    }
+    
+    // Build footer (2 rows)
+    const footerRows = [
+      this.padText('', 40),
+      this.centerText('INDEX   TOPICS  AI', 40)
+    ];
+    
+    // Combine all rows
     const rows = [
-      `${this.truncateText(topicName.toUpperCase(), 28).padEnd(28)} P${pageNumber}`,
-      '════════════════════════════════════',
-      this.centerText('Step 2 of 2'),
-      this.centerText('▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓'),
-      '',
-      '⚠ DEMO MODE ⚠',
-      '',
-      'This Q&A feature is not yet fully',
-      'implemented. In the complete version,',
-      'you would:',
-      '',
-      '1. Type your question about',
-      `   ${topicName.toLowerCase()}`,
-      '2. Press ENTER to submit',
-      '3. Receive an AI-generated answer',
-      '   formatted for teletext',
-      '',
-      'For now, this is a demonstration',
-      'of the interface design.',
-      '',
-      '',
-      '',
-      'INDEX   TOPICS  AI',
-      ''
+      ...headerRows,
+      ...contentRows,
+      ...footerRows
     ];
 
     return {
       id: pageNumber.toString(),
       title: `${topicName} Q&A`,
-      rows: this.padRows(rows),
+      rows: this.normalizeRows(rows),
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'TOPICS', targetPage: '510', color: 'green' },
@@ -527,7 +565,7 @@ Remember: This is for Halloween entertainment, so make it properly scary!`;
   }
 
   /**
-   * Formats spooky story response into teletext pages with haunting effects
+   * Formats spooky story response into teletext pages with haunting effects using layout engine
    */
   formatSpookyStoryResponse(
     response: string,
@@ -536,9 +574,11 @@ Remember: This is for Halloween entertainment, so make it properly scary!`;
     theme: string
   ): TeletextPage[] {
     const pages: TeletextPage[] = [];
+    
+    // Use layout engine to wrap text properly (40 chars wide)
     const wrappedLines = this.wrapText(response, 40);
     
-    // Split into pages of 18 rows (leaving 6 for header/footer/effects)
+    // Calculate content area: 24 rows - 4 header - 2 footer = 18 rows
     const linesPerPage = 18;
     const pageCount = Math.ceil(wrappedLines.length / linesPerPage);
     
@@ -559,23 +599,55 @@ Remember: This is for Halloween entertainment, so make it properly scary!`;
       const endLine = Math.min(startLine + linesPerPage, wrappedLines.length);
       const pageLines = wrappedLines.slice(startLine, endLine);
       
-      const rows = [
-        `${this.truncateText(themeTitle, 28).padEnd(28, ' ')} P${pageId}`,
-        '════════════════════════════════════',
-        '🎃 KIROWEEN SPECIAL 🎃',
-        '',
-        ...pageLines
+      // Build header (4 rows for spooky stories)
+      const headerRows = [
+        this.padText(`${this.truncateText(themeTitle, 28).padEnd(28, ' ')} P${pageId}`, 40),
+        this.padText('════════════════════════════════════════', 40),
+        this.centerText('🎃 KIROWEEN SPECIAL 🎃', 40),
+        this.padText('', 40)
       ];
       
-      // Add navigation hint if there are more pages
-      if (i < pageCount - 1) {
-        rows.push('');
-        rows.push('>>> TURN THE PAGE IF YOU DARE >>>');
-      } else {
-        rows.push('');
-        rows.push('═══════ THE END ═══════');
+      // Build content rows (single-column layout)
+      const contentRows: string[] = [];
+      
+      // Add story content
+      for (const line of pageLines) {
+        contentRows.push(this.padText(line, 40));
       }
       
+      // Pad to fill content area (18 rows)
+      while (contentRows.length < linesPerPage) {
+        contentRows.push(' '.repeat(40));
+      }
+      
+      // Build footer (2 rows)
+      const footerRows: string[] = [];
+      
+      // Add navigation hint
+      if (i < pageCount - 1) {
+        footerRows.push(this.centerText('>>> TURN THE PAGE IF YOU DARE >>>', 40));
+      } else {
+        footerRows.push(this.centerText('═══════ THE END ═══════', 40));
+      }
+      
+      // Navigation hints
+      const hints: string[] = ['INDEX', 'AI'];
+      if (i < pageCount - 1) {
+        hints.push('NEXT');
+      } else {
+        hints.push('AGAIN');
+      }
+      const hintsText = hints.join('  ');
+      footerRows.push(this.centerText(hintsText, 40));
+      
+      // Combine all rows
+      const rows = [
+        ...headerRows,
+        ...contentRows,
+        ...footerRows
+      ];
+      
+      // Build links
       const links: Array<{ label: string; targetPage: string; color?: 'red' | 'green' | 'yellow' | 'blue' }> = [
         { label: 'INDEX', targetPage: '100', color: 'red' as const },
         { label: 'AI', targetPage: '500', color: 'green' as const }
@@ -587,15 +659,28 @@ Remember: This is for Halloween entertainment, so make it properly scary!`;
         links.push({ label: 'AGAIN', targetPage: '505', color: 'yellow' as const });
       }
       
+      // Create continuation metadata for multi-page responses
+      // Requirements: 10.5
+      const continuation = pageCount > 1 ? {
+        currentPage: pageId,
+        nextPage: i < pageCount - 1 ? (pageNumber + 1).toString() : undefined,
+        previousPage: i > 0 ? (pageNumber - 1).toString() : undefined,
+        totalPages: pageCount,
+        currentIndex: i
+      } : undefined;
+      
       pages.push({
         id: pageId,
         title: themeTitle,
-        rows: this.padRows(rows),
+        rows: this.normalizeRows(rows),
         links,
         meta: {
           source: 'AIAdapter',
           lastUpdated: new Date().toISOString(),
-          aiContextId: contextId
+          aiContextId: contextId,
+          aiGenerated: true,
+          haunting: true, // Enable spooky effects
+          continuation
         }
       });
     }
@@ -1146,7 +1231,7 @@ Format your response in clear paragraphs without special formatting or markdown.
   }
 
   /**
-   * Formats AI response into teletext pages
+   * Formats AI response into teletext pages using the layout engine
    * @param response - The AI response text
    * @param startPageId - The starting page ID
    * @param contextId - The conversation context ID
@@ -1158,10 +1243,12 @@ Format your response in clear paragraphs without special formatting or markdown.
     contextId: string
   ): TeletextPage[] {
     const pages: TeletextPage[] = [];
+    
+    // Use layout engine to wrap text properly (40 chars wide)
     const wrappedLines = this.wrapText(response, 40);
     
-    // Split into pages of 19 rows (24 total - 3 header - 2 footer)
-    const linesPerPage = 19;
+    // Calculate content area: 24 rows - 2 header - 2 footer = 20 rows
+    const linesPerPage = 20;
     const pageCount = Math.ceil(wrappedLines.length / linesPerPage);
     
     for (let i = 0; i < pageCount; i++) {
@@ -1171,13 +1258,45 @@ Format your response in clear paragraphs without special formatting or markdown.
       const endLine = Math.min(startLine + linesPerPage, wrappedLines.length);
       const pageLines = wrappedLines.slice(startLine, endLine);
       
-      const rows = [
-        `AI RESPONSE                  P${pageId}`,
-        '════════════════════════════════════',
-        '',
-        ...pageLines
+      // Build content rows (single-column layout)
+      const contentRows: string[] = [];
+      
+      // Add content lines
+      for (const line of pageLines) {
+        contentRows.push(this.padText(line, 40));
+      }
+      
+      // Pad to fill content area (20 rows)
+      while (contentRows.length < linesPerPage) {
+        contentRows.push(' '.repeat(40));
+      }
+      
+      // Build header (2 rows)
+      const headerRows = [
+        this.padText(`AI RESPONSE                  P${pageId}`, 40),
+        this.padText('════════════════════════════════════════', 40)
       ];
       
+      // Build footer (2 rows)
+      const footerRows: string[] = [];
+      footerRows.push(' '.repeat(40)); // Empty separator
+      
+      // Navigation hints
+      const hints: string[] = ['INDEX', 'AI'];
+      if (i < pageCount - 1) {
+        hints.push('NEXT');
+      }
+      const hintsText = hints.join('  ');
+      footerRows.push(this.centerText(hintsText, 40));
+      
+      // Combine all rows
+      const rows = [
+        ...headerRows,
+        ...contentRows,
+        ...footerRows
+      ];
+      
+      // Build links
       const links: Array<{ label: string; targetPage: string; color?: 'red' | 'green' | 'yellow' | 'blue' }> = [
         { label: 'INDEX', targetPage: '100', color: 'red' as const },
         { label: 'AI', targetPage: '500', color: 'green' as const }
@@ -1188,7 +1307,7 @@ Format your response in clear paragraphs without special formatting or markdown.
       }
       
       // Create continuation metadata for multi-page responses
-      // Requirements: 35.1, 35.2, 35.3, 35.4, 35.5
+      // Requirements: 10.5
       const continuation = pageCount > 1 ? {
         currentPage: pageId,
         nextPage: i < pageCount - 1 ? (pageNumber + 1).toString() : undefined,
@@ -1200,7 +1319,7 @@ Format your response in clear paragraphs without special formatting or markdown.
       pages.push({
         id: pageId,
         title: 'AI Response',
-        rows: this.padRows(rows),
+        rows: this.normalizeRows(rows),
         links,
         meta: {
           source: 'AIAdapter',
@@ -1223,40 +1342,127 @@ Format your response in clear paragraphs without special formatting or markdown.
   }
 
   /**
-   * Creates an error page when operations fail
+   * Creates a loading page to display while AI is generating a response
+   * Requirements: 10.2
+   * Note: This method is available for future use when implementing real-time loading indicators
+   * Currently commented out as it's not yet integrated into the page flow
    */
-  private getErrorPage(pageId: string, title: string, error: any): TeletextPage {
+  /*
+  private getLoadingPage(pageId: string, title: string, prompt: string): TeletextPage {
+    // Build header (2 rows)
+    const headerRows = [
+      this.padText(`AI GENERATING...             P${pageId}`, 40),
+      this.padText('════════════════════════════════════════', 40)
+    ];
+    
+    // Build content (single-column layout)
+    const contentRows = [
+      this.padText('', 40),
+      this.centerText('⏳ GENERATING RESPONSE ⏳', 40),
+      this.padText('', 40),
+      this.padText('Your prompt:', 40),
+      this.padText('', 40)
+    ];
+    
+    // Add wrapped prompt text
+    const promptLines = this.wrapText(prompt, 38);
+    for (const line of promptLines.slice(0, 8)) { // Limit to 8 lines
+      contentRows.push(this.padText(`  ${line}`, 40));
+    }
+    
+    contentRows.push(this.padText('', 40));
+    contentRows.push(this.centerText('Please wait...', 40));
+    contentRows.push(this.padText('', 40));
+    
+    // Pad content to 20 rows (24 - 2 header - 2 footer)
+    while (contentRows.length < 20) {
+      contentRows.push(' '.repeat(40));
+    }
+    
+    // Build footer (2 rows)
+    const footerRows = [
+      this.padText('', 40),
+      this.centerText('Generating AI response...', 40)
+    ];
+    
+    // Combine all rows
     const rows = [
-      `${this.truncateText(title.toUpperCase(), 28).padEnd(28, ' ')} P${pageId}`,
-      '════════════════════════════════════',
-      '',
-      'SERVICE UNAVAILABLE',
-      '',
-      'Unable to process AI request.',
-      '',
-      'This could be due to:',
-      '• AI service is temporarily down',
-      '• Network connectivity issues',
-      '• Invalid conversation context',
-      '',
-      'Please try again in a few moments.',
-      '',
-      '',
-      '',
-      '',
-      '',
-      'Press 500 for AI index',
-      'Press 100 for main index',
-      '',
-      '',
-      'INDEX   AI',
-      ''
+      ...headerRows,
+      ...contentRows,
+      ...footerRows
     ];
 
     return {
       id: pageId,
       title: title,
-      rows: this.padRows(rows),
+      rows: this.normalizeRows(rows),
+      links: [
+        { label: 'INDEX', targetPage: '100', color: 'red' },
+        { label: 'AI', targetPage: '500', color: 'green' }
+      ],
+      meta: {
+        source: 'AIAdapter',
+        lastUpdated: new Date().toISOString(),
+        loading: true
+      }
+    };
+  }
+  */
+
+  /**
+   * Creates an error page when operations fail using layout engine
+   */
+  private getErrorPage(pageId: string, title: string, error: any): TeletextPage {
+    // Build header (2 rows)
+    const headerRows = [
+      this.padText(`${this.truncateText(title.toUpperCase(), 28).padEnd(28, ' ')} P${pageId}`, 40),
+      this.padText('════════════════════════════════════════', 40)
+    ];
+    
+    // Build content (single-column layout)
+    const contentRows = [
+      this.padText('', 40),
+      this.centerText('SERVICE UNAVAILABLE', 40),
+      this.padText('', 40),
+      this.padText('Unable to process AI request.', 40),
+      this.padText('', 40),
+      this.padText('This could be due to:', 40),
+      this.padText('• AI service is temporarily down', 40),
+      this.padText('• Network connectivity issues', 40),
+      this.padText('• Invalid conversation context', 40),
+      this.padText('', 40),
+      this.padText('Please try again in a few moments.', 40),
+      this.padText('', 40),
+      this.padText('', 40),
+      this.padText('', 40),
+      this.padText('Press 500 for AI index', 40),
+      this.padText('Press 100 for main index', 40),
+      this.padText('', 40),
+      this.padText('', 40)
+    ];
+    
+    // Pad content to 20 rows (24 - 2 header - 2 footer)
+    while (contentRows.length < 20) {
+      contentRows.push(' '.repeat(40));
+    }
+    
+    // Build footer (2 rows)
+    const footerRows = [
+      this.padText('', 40),
+      this.centerText('INDEX   AI', 40)
+    ];
+    
+    // Combine all rows
+    const rows = [
+      ...headerRows,
+      ...contentRows,
+      ...footerRows
+    ];
+
+    return {
+      id: pageId,
+      title: title,
+      rows: this.normalizeRows(rows),
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'AI', targetPage: '500', color: 'green' }
@@ -1269,39 +1475,59 @@ Format your response in clear paragraphs without special formatting or markdown.
   }
 
   /**
-   * Creates a placeholder page for pages not yet implemented
+   * Creates a placeholder page for pages not yet implemented using layout engine
    */
   private getPlaceholderPage(pageId: string): TeletextPage {
+    // Build header (2 rows)
+    const headerRows = [
+      this.padText(`AI PAGE ${pageId}                P${pageId}`, 40),
+      this.padText('════════════════════════════════════════', 40)
+    ];
+    
+    // Build content (single-column layout)
+    const contentRows = [
+      this.padText('', 40),
+      this.centerText('COMING SOON', 40),
+      this.padText('', 40),
+      this.padText(`AI page ${pageId} is under construction.`, 40),
+      this.padText('', 40),
+      this.padText('This page will be available when', 40),
+      this.padText('the full AI features are implemented.', 40),
+      this.padText('', 40),
+      this.padText('', 40),
+      this.padText('', 40),
+      this.padText('', 40),
+      this.padText('', 40),
+      this.padText('', 40),
+      this.padText('Press 500 for AI index', 40),
+      this.padText('Press 100 for main index', 40),
+      this.padText('', 40),
+      this.padText('', 40),
+      this.padText('', 40)
+    ];
+    
+    // Pad content to 20 rows (24 - 2 header - 2 footer)
+    while (contentRows.length < 20) {
+      contentRows.push(' '.repeat(40));
+    }
+    
+    // Build footer (2 rows)
+    const footerRows = [
+      this.padText('', 40),
+      this.centerText('INDEX   AI', 40)
+    ];
+    
+    // Combine all rows
     const rows = [
-      `AI PAGE ${pageId}                P${pageId}`,
-      '════════════════════════════════════',
-      '',
-      'COMING SOON',
-      '',
-      `AI page ${pageId} is under construction.`,
-      '',
-      'This page will be available when',
-      'the full AI features are implemented.',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      'Press 500 for AI index',
-      'Press 100 for main index',
-      '',
-      '',
-      'INDEX   AI',
-      ''
+      ...headerRows,
+      ...contentRows,
+      ...footerRows
     ];
 
     return {
       id: pageId,
       title: `AI Page ${pageId}`,
-      rows: this.padRows(rows),
+      rows: this.normalizeRows(rows),
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'AI', targetPage: '500', color: 'green' }
@@ -1362,7 +1588,40 @@ Format your response in clear paragraphs without special formatting or markdown.
   }
 
   /**
+   * Pads text to exactly the specified width
+   */
+  private padText(text: string, width: number = 40): string {
+    if (text.length >= width) {
+      return text.substring(0, width);
+    }
+    return text + ' '.repeat(width - text.length);
+  }
+
+  /**
+   * Normalizes rows to exactly 24 rows, each exactly 40 characters
+   */
+  private normalizeRows(rows: string[]): string[] {
+    const normalized: string[] = [];
+
+    // Take first 24 rows (or fewer if input is shorter)
+    const rowsToProcess = rows.slice(0, 24);
+
+    // Pad each row to exactly 40 characters
+    for (const row of rowsToProcess) {
+      normalized.push(this.padText(row, 40));
+    }
+
+    // Add empty rows if we have fewer than 24
+    while (normalized.length < 24) {
+      normalized.push(' '.repeat(40));
+    }
+
+    return normalized;
+  }
+
+  /**
    * Pads rows array to exactly 24 rows, each max 60 characters
+   * @deprecated Use normalizeRows instead for 40-character layout
    */
   private padRows(rows: string[]): string[] {
     const paddedRows = rows.map(row => {

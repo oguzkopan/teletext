@@ -150,12 +150,17 @@ export class GamesAdapter implements ContentAdapter {
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'QUIZ', targetPage: '601', color: 'green' },
-        { label: 'FACTS', targetPage: '620', color: 'yellow' }
+        { label: 'FACTS', targetPage: '620', color: 'yellow' },
+        { label: '1', targetPage: '601', color: undefined },
+        { label: '2', targetPage: '610', color: undefined },
+        { label: '3', targetPage: '620', color: undefined }
       ],
       meta: {
         source: 'GamesAdapter',
         lastUpdated: new Date().toISOString(),
-        customHints: ['Use colored buttons or type page number']
+        customHints: ['Use colored buttons or type page number'],
+        inputMode: 'single',
+        inputOptions: ['1', '2', '3']
       }
     };
   }
@@ -265,37 +270,43 @@ export class GamesAdapter implements ContentAdapter {
       const allAnswers = [question.correctAnswer, ...question.incorrectAnswers];
       const shuffledAnswers = this.shuffleArray(allAnswers);
 
-      // Create progress indicator
-      const progressBar = this.renderProgressBar(questionNumber, totalQuestions, 20);
-      const questionCounter = `Question ${questionNumber}/${totalQuestions}`;
+      // Build content with clear structure
+      const contentLines: string[] = [];
+      
+      // Question counter prominently displayed (Requirement 11.4)
+      contentLines.push(`Question ${questionNumber}/${totalQuestions}`);
+      contentLines.push('');
+      
+      // Category info
+      contentLines.push(`Category: ${this.truncateText(question.category, 30)}`);
+      contentLines.push('');
+      
+      // Question text prominently displayed (Requirement 11.1)
+      contentLines.push(this.decodeHtml(question.question));
+      contentLines.push('');
+      contentLines.push('');
+      
+      // Answer options numbered 1-4 with clear alignment (Requirement 11.2)
+      shuffledAnswers.forEach((answer, index) => {
+        const optionNumber = index + 1;
+        contentLines.push(`${optionNumber}. ${this.decodeHtml(answer)}`);
+        contentLines.push('');
+      });
 
       const rows = [
         `QUIZ OF THE DAY              P${pageId}`,
         '════════════════════════════════════',
-        this.centerText(questionCounter),
-        this.centerText(progressBar),
-        '',
-        `Category: ${this.truncateText(question.category, 30)}`,
-        '',
-        ...this.wrapText(this.decodeHtml(question.question), 40),
-        '',
-        'SELECT YOUR ANSWER:',
-        ''
+        ...contentLines.map(line => this.padText(line, 40, 'left')).slice(0, 20),
       ];
 
-      // Add answer options with color button indicators
-      const colorLabels = ['RED', 'GREEN', 'YELLOW', 'BLUE'];
-      const colorCodes = ['{red}', '{green}', '{yellow}', '{blue}'];
-      
-      shuffledAnswers.forEach((answer, index) => {
-        const colorLabel = colorLabels[index];
-        const colorCode = colorCodes[index];
-        const wrappedAnswer = this.wrapText(`${colorCode}${colorLabel}: ${this.decodeHtml(answer)}`, 38);
-        rows.push(...wrappedAnswer);
-        if (index < shuffledAnswers.length - 1) {
-          rows.push('');
-        }
-      });
+      // Pad to 22 rows (24 - 2 for footer)
+      while (rows.length < 22) {
+        rows.push(' '.repeat(40));
+      }
+
+      // Footer with navigation hints
+      rows.push(' '.repeat(40));
+      rows.push(this.padText('Enter 1-4 to answer', 40, 'center'));
 
       return {
         id: pageId,
@@ -303,12 +314,18 @@ export class GamesAdapter implements ContentAdapter {
         rows: this.padRows(rows),
         links: [
           { label: 'INDEX', targetPage: '100', color: 'red' },
-          { label: 'QUIT', targetPage: '600', color: 'blue' }
+          { label: 'QUIT', targetPage: '600', color: 'blue' },
+          { label: '1', targetPage: pageId, color: undefined },
+          { label: '2', targetPage: pageId, color: undefined },
+          { label: '3', targetPage: pageId, color: undefined },
+          { label: '4', targetPage: pageId, color: undefined }
         ],
         meta: {
           source: 'GamesAdapter',
           lastUpdated: new Date().toISOString(),
           aiContextId: sessionId,
+          inputMode: 'single',
+          inputOptions: ['1', '2', '3', '4'],
           progress: {
             current: questionNumber,
             total: totalQuestions,
@@ -323,15 +340,6 @@ export class GamesAdapter implements ContentAdapter {
   }
 
   /**
-   * Renders a progress bar for quiz questions
-   */
-  private renderProgressBar(current: number, total: number, width: number = 20): string {
-    const filledCount = Math.round((current / total) * width);
-    const emptyCount = width - filledCount;
-    return '▓'.repeat(filledCount) + '░'.repeat(emptyCount);
-  }
-
-  /**
    * Centers text within a given width
    */
   private centerText(text: string, width: number = 40): string {
@@ -342,6 +350,38 @@ export class GamesAdapter implements ContentAdapter {
     const leftPadding = Math.floor((width - text.length) / 2);
     const rightPadding = width - text.length - leftPadding;
     return ' '.repeat(leftPadding) + text + ' '.repeat(rightPadding);
+  }
+
+  /**
+   * Pads text to exact width with specified alignment
+   */
+  private padText(
+    text: string, 
+    width: number = 40, 
+    align: 'left' | 'center' | 'right' = 'left'
+  ): string {
+    const truncated = text.length > width ? text.substring(0, width) : text;
+    
+    if (truncated.length === width) {
+      return truncated;
+    }
+
+    const padding = width - truncated.length;
+
+    switch (align) {
+      case 'center': {
+        const leftPad = Math.floor(padding / 2);
+        const rightPad = padding - leftPad;
+        return ' '.repeat(leftPad) + truncated + ' '.repeat(rightPad);
+      }
+      case 'right': {
+        return ' '.repeat(padding) + truncated;
+      }
+      case 'left':
+      default: {
+        return truncated + ' '.repeat(padding);
+      }
+    }
   }
 
   /**
@@ -376,37 +416,54 @@ export class GamesAdapter implements ContentAdapter {
       
       await this.updateQuizSession(sessionId, session);
 
-      // Show result page
+      // Show result page with clear feedback (Requirement 11.3)
       const questionNumber = session.currentQuestionIndex;
+      const contentLines: string[] = [];
+      
+      contentLines.push('');
+      contentLines.push('');
+      
+      // Clear, prominent feedback
+      if (isCorrect) {
+        contentLines.push('✓ CORRECT!');
+        contentLines.push('');
+        contentLines.push('Well done! You got it right.');
+      } else {
+        contentLines.push('✗ INCORRECT');
+        contentLines.push('');
+        contentLines.push('The correct answer was:');
+        contentLines.push(this.decodeHtml(question.correctAnswer));
+      }
+
+      contentLines.push('');
+      contentLines.push('');
+      contentLines.push(`Score: ${session.score}/${questionNumber}`);
+      contentLines.push('');
+
+      if (session.currentQuestionIndex < session.questions.length) {
+        contentLines.push('');
+        contentLines.push('Press GREEN for the next question');
+      } else {
+        contentLines.push('');
+        contentLines.push('Quiz complete!');
+        contentLines.push('Press GREEN to see your score');
+      }
+
       const rows = [
         `ANSWER RESULT                P602`,
         '════════════════════════════════════',
-        ''
+        ...contentLines.map(line => this.padText(line, 40, 'left')).slice(0, 20),
       ];
 
-      if (isCorrect) {
-        rows.push('✓ CORRECT!');
-        rows.push('');
-        rows.push('Well done! You got it right.');
-      } else {
-        rows.push('✗ INCORRECT');
-        rows.push('');
-        rows.push('The correct answer was:');
-        rows.push(...this.wrapText(this.decodeHtml(question.correctAnswer), 40));
+      // Pad to 22 rows
+      while (rows.length < 22) {
+        rows.push(' '.repeat(40));
       }
 
-      rows.push('');
-      rows.push(`Score: ${session.score}/${questionNumber}`);
-      rows.push('');
-
-      if (session.currentQuestionIndex < session.questions.length) {
-        rows.push('');
-        rows.push('Press NEXT for the next question');
-      } else {
-        rows.push('');
-        rows.push('Quiz complete!');
-        rows.push('Press RESULTS to see your score');
-      }
+      // Footer
+      rows.push(' '.repeat(40));
+      const nextLabel = session.currentQuestionIndex < session.questions.length ? 'NEXT' : 'RESULTS';
+      rows.push(this.padText(`INDEX  ${nextLabel}  QUIT`, 40, 'center'));
 
       const nextPage = session.currentQuestionIndex < session.questions.length ? '602' : '603';
 
@@ -416,7 +473,8 @@ export class GamesAdapter implements ContentAdapter {
         rows: this.padRows(rows),
         links: [
           { label: 'INDEX', targetPage: '100', color: 'red' },
-          { label: session.currentQuestionIndex < session.questions.length ? 'NEXT' : 'RESULTS', targetPage: nextPage, color: 'green' }
+          { label: nextLabel, targetPage: nextPage, color: 'green' },
+          { label: 'QUIT', targetPage: '600', color: 'blue' }
         ],
         meta: {
           source: 'GamesAdapter',
@@ -757,7 +815,9 @@ Just provide the commentary text, nothing else.`;
       meta: {
         source: 'GamesAdapter',
         lastUpdated: new Date().toISOString(),
-        customHints: ['Press GREEN to start or type 611']
+        customHints: ['Press GREEN to start or type 611'],
+        inputMode: undefined,
+        inputOptions: undefined
       }
     };
   }
@@ -1704,18 +1764,18 @@ Just provide the commentary text, nothing else.`;
   }
 
   /**
-   * Pads rows array to exactly 24 rows, each max 60 characters
+   * Pads rows array to exactly 24 rows, each exactly 40 characters
    */
   private padRows(rows: string[]): string[] {
     const paddedRows = rows.map(row => {
-      if (row.length > 60) {
-        return row.substring(0, 60);
+      if (row.length > 40) {
+        return row.substring(0, 40);
       }
-      return row.padEnd(60, ' ');
+      return row.padEnd(40, ' ');
     });
 
     while (paddedRows.length < 24) {
-      paddedRows.push(''.padEnd(60, ' '));
+      paddedRows.push(''.padEnd(40, ' '));
     }
 
     return paddedRows.slice(0, 24);

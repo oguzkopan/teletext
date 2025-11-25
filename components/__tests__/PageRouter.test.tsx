@@ -187,7 +187,7 @@ describe('PageRouter', () => {
     });
   });
 
-  it('should handle channel up navigation', async () => {
+  it('should not navigate up when page has no continuation', async () => {
     render(
       <PageRouter initialPage={mockPage100}>
         {(state) => (
@@ -201,12 +201,14 @@ describe('PageRouter', () => {
 
     fireEvent.click(screen.getByText('Channel Up'));
     
+    // Should remain on same page since there's no continuation
+    // Requirement 35.3: Up arrow only works for multi-page navigation
     await waitFor(() => {
-      expect(screen.getByTestId('page-id')).toHaveTextContent('101');
+      expect(screen.getByTestId('page-id')).toHaveTextContent('100');
     });
   });
 
-  it('should handle channel down navigation', async () => {
+  it('should not navigate down when page has no continuation', async () => {
     render(
       <PageRouter initialPage={mockPage101}>
         {(state) => (
@@ -220,8 +222,10 @@ describe('PageRouter', () => {
 
     fireEvent.click(screen.getByText('Channel Down'));
     
+    // Should remain on same page since there's no continuation
+    // Requirement 35.2: Down arrow only works for multi-page navigation
     await waitFor(() => {
-      expect(screen.getByTestId('page-id')).toHaveTextContent('100');
+      expect(screen.getByTestId('page-id')).toHaveTextContent('101');
     });
   });
 
@@ -263,14 +267,17 @@ describe('PageRouter', () => {
 
     fireEvent.click(screen.getByText('2'));
     fireEvent.click(screen.getByText('0'));
+    
+    // After 2 digits, buffer should show "20"
+    expect(screen.getByTestId('input-buffer')).toHaveTextContent('20');
+    
     fireEvent.click(screen.getByText('0'));
     
-    expect(screen.getByTestId('input-buffer')).toHaveTextContent('200');
-    
-    fireEvent.click(screen.getByText('Enter'));
-    
+    // After 3 digits, auto-navigation should occur and buffer should be cleared
+    // Requirement 7.3: Auto-navigate when buffer is full
     await waitFor(() => {
       expect(screen.getByTestId('page-id')).toHaveTextContent('200');
+      expect(screen.getByTestId('input-buffer')).toHaveTextContent('');
     });
   });
 

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-Column Layout Demo</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background: #000;
+      color: #0f0;
+      padding: 20px;
+      line-height: 1.2;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      color: #0ff;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .demo-section {
+      margin-bottom: 40px;
+      border: 2px solid #0f0;
+      padding: 20px;
+      background: #001100;
+    }
+    
+    .demo-title {
+      color: #ff0;
+      font-size: 18px;
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+    
+    .teletext-display {
+      background: #000;
+      border: 1px solid #0f0;
+      padding: 10px;
+      font-size: 14px;
+      white-space: pre;
+      overflow-x: auto;
+    }
+    
+    .row {
+      height: 1.2em;
+    }
+    
+    .description {
+      color: #fff;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+    
+    .stats {
+      color: #0ff;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Multi-Column Layout Demo</h1>
+    
+    <div class="demo-section">
+      <div class="demo-title">2-Column Layout: News Headlines</div>
+      <div class="teletext-display" id="news-2col"></div>
+      <div class="description">
+        News headlines distributed across 2 columns with 2-character gutter spacing.
+        Each column is 19 characters wide.
+      </div>
+      <div class="stats" id="news-2col-stats"></div>
+    </div>
+    
+    <div class="demo-section">
+      <div class="demo-title">3-Column Layout: News Stories</div>
+      <div class="teletext-display" id="news-3col"></div>
+      <div class="description">
+        Multiple news stories distributed across 3 columns with 2-character gutter spacing.
+        Each column is 12 characters wide.
+      </div>
+      <div class="stats" id="news-3col-stats"></div>
+    </div>
+    
+    <div class="demo-section">
+      <div class="demo-title">2-Column Layout: Sports Scores</div>
+      <div class="teletext-display" id="sports-2col"></div>
+      <div class="description">
+        Sports scores and results displayed in 2-column format for efficient space usage.
+      </div>
+      <div class="stats" id="sports-2col-stats"></div>
+    </div>
+    
+    <div class="demo-section">
+      <div class="demo-title">Single Column: Full Article</div>
+      <div class="teletext-display" id="single-col"></div>
+      <div class="description">
+        Full article text in single column for maximum readability.
+        Uses full 40-character width.
+      </div>
+      <div class="stats" id="single-col-stats"></div>
+    </div>
+  </div>
+  
+  <script type="module">
+    // This is a demo visualization - in production, the layout engine would be imported
+    
+    function renderDemo(elementId, statsId, title, content) {
+      const element = document.getElementById(elementId);
+      const statsElement = document.getElementById(statsId);
+      
+      // Simulate the layout (in production, this would use the actual layout engine)
+      const demoContent = `${title}\n${content}`;
+      element.textContent = demoContent;
+      
+      const lines = demoContent.split('\n');
+      statsElement.textContent = `Lines: ${lines.length} | Max width: ${Math.max(...lines.map(l => l.length))} chars`;
+    }
+    
+    // Demo 1: 2-Column News
+    renderDemo('news-2col', 'news-2col-stats', '200     News Headlines        14:30', 
+`
+1. Breaking: Major    5. Tech: New product
+   event occurs          launched today
+2. Sports: Team wins  6. Politics: Important
+   championship          decision made
+3. Markets: Stocks    7. Entertainment: Movie
+   rise sharply          premiere tonight
+4. Weather: Sunny     8. Science: Discovery
+   skies ahead           announced
+`);
+    
+    // Demo 2: 3-Column News
+    renderDemo('news-3col', 'news-3col-stats', '200     News Stories          14:30',
+`
+Story 1:    Story 4:    Story 7:
+Breaking    Weather     Entertain
+news        forecast    ment news
+
+Story 2:    Story 5:    Story 8:
+Sports      Tech        Science
+update      news        update
+
+Story 3:    Story 6:    Story 9:
+Market      Politics    Health
+report      news        news
+`);
+    
+    // Demo 3: 2-Column Sports
+    renderDemo('sports-2col', 'sports-2col-stats', '300     Sports Scores        15:45',
+`
+Premier League        Championship
+Team A 2-1 Team B     Team G 1-1 Team H
+Team C 0-0 Team D     Team I 2-0 Team J
+Team E 3-2 Team F     Team K 3-3 Team L
+
+LIVE MATCHES          FULL TIME
+Team M 1-0 Team N     Team O 2-1 Team P
+(45')                 Team Q 0-3 Team R
+`);
+    
+    // Demo 4: Single Column
+    renderDemo('single-col', 'single-col-stats', '201     Full Article         14:35',
+`
+Breaking News: A major event has
+occurred today that will have
+significant implications for the
+region. Experts are analyzing the
+situation and more details will be
+available soon.
+
+The event took place earlier this
+morning and authorities are working
+to assess the full impact. Stay
+tuned for updates as the story
+develops.
+
+                200=BACK
+`);
+  </script>
+</body>
+</html>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Navigation Hints System Demo</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background: #000;
+      color: #0f0;
+      padding: 20px;
+      line-height: 1.2;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      color: #0ff;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .demo-section {
+      margin-bottom: 40px;
+      border: 1px solid #0f0;
+      padding: 20px;
+      background: #001100;
+    }
+    
+    .demo-section h2 {
+      color: #ff0;
+      margin-top: 0;
+    }
+    
+    .page-display {
+      background: #000;
+      border: 2px solid #0f0;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 14px;
+      white-space: pre;
+      overflow-x: auto;
+    }
+    
+    .hint-list {
+      background: #002200;
+      padding: 10px;
+      margin: 10px 0;
+      border-left: 3px solid #0f0;
+    }
+    
+    .hint-item {
+      margin: 5px 0;
+      padding: 5px;
+      background: #003300;
+    }
+    
+    .requirement {
+      color: #f90;
+      font-style: italic;
+      margin: 10px 0;
+    }
+    
+    .colored-hint {
+      padding: 2px 5px;
+      margin: 0 5px;
+      border-radius: 3px;
+    }
+    
+    .red { background: #800; color: #fff; }
+    .green { background: #080; color: #fff; }
+    .yellow { background: #880; color: #000; }
+    .blue { background: #008; color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Navigation Hints System Demo</h1>
+    
+    <div class="demo-section">
+      <h2>1. Selection Page Hints</h2>
+      <p class="requirement">Requirement 13.2: For selection pages: "Enter number to select"</p>
+      
+      <div class="page-display">P500    AI Topics                    12:34
+════════════════════════════════════════
+
+1. Technology News
+2. Science Updates
+3. Business Insights
+4. Entertainment
+5. Sports Analysis
+
+
+
+
+Enter number to select  100=INDEX</div>
+      
+      <div class="hint-list">
+        <strong>Generated Hints:</strong>
+        <div class="hint-item">• Enter number to select</div>
+        <div class="hint-item">• 100=INDEX</div>
+      </div>
+      
+      <p><strong>Context:</strong> Page has inputMode='single' and inputOptions=['1','2','3','4','5']</p>
+    </div>
+
+    <div class="demo-section">
+      <h2>2. Content Page Hints</h2>
+      <p class="requirement">Requirement 13.3: For content pages: "100=INDEX BACK=PREVIOUS"</p>
+      
+      <div class="page-display">P201    Breaking News                12:34
+════════════════════════════════════════
+
+Major tech company announces new AI
+breakthrough that could revolutionize
+the industry. Experts say this could
+change everything we know about...
+
+[Article continues...]
+
+
+
+
+100=INDEX  BACK=PREVIOUS</div>
+      
+      <div class="hint-list">
+        <strong>Generated Hints:</strong>
+        <div class="hint-item">• 100=INDEX</div>
+        <div class="hint-item">• BACK=PREVIOUS</div>
+      </div>
+      
+      <p><strong>Context:</strong> Standard content page with navigation history available</p>
+    </div>
+
+    <div class="demo-section">
+      <h2>3. Colored Button Hints</h2>
+      <p class="requirement">Requirement 13.4: For pages with colored buttons: show colored button hints</p>
+      
+      <div class="page-display">P300    Sports                       12:34
+════════════════════════════════════════
+
+FOOTBALL  Premier League
+CRICKET   Test Matches
+TENNIS    Grand Slam
+RUGBY     Six Nations
+
+
+
+
+100=INDEX  <span class="colored-hint red">RED=FOOTBALL</span>  <span class="colored-hint green">GREEN=CRICKET</span></div>
+      
+      <div class="hint-list">
+        <strong>Generated Hints:</strong>
+        <div class="hint-item">• 100=INDEX</div>
+        <div class="hint-item">• <span class="colored-hint red">RED=FOOTBALL</span></div>
+        <div class="hint-item">• <span class="colored-hint green">GREEN=CRICKET</span></div>
+        <div class="hint-item">• <span class="colored-hint yellow">YELLOW=TENNIS</span></div>
+        <div class="hint-item">• <span class="colored-hint blue">BLUE=RUGBY</span></div>
+      </div>
+      
+      <p><strong>Context:</strong> Page has links with color attributes (red, green, yellow, blue)</p>
+    </div>
+
+    <div class="demo-section">
+      <h2>4. Custom Hints</h2>
+      <p class="requirement">Requirement 13.5: Update hints based on current page context</p>
+      
+      <div class="page-display">P800    Settings                     12:34
+════════════════════════════════════════
+
+Animation Settings
+  Scanlines:     [ON]
+  Curvature:     [ON]
+  Noise:         [OFF]
+  
+Theme Settings
+  Current:       [CEEFAX]
+
+
+
+
+Use arrows to navigate  ENTER=Select</div>
+      
+      <div class="hint-list">
+        <strong>Generated Hints:</strong>
+        <div class="hint-item">• Use arrows to navigate</div>
+        <div class="hint-item">• ENTER=Select</div>
+      </div>
+      
+      <p><strong>Context:</strong> Page has customHints=['Use arrows to navigate', 'ENTER=Select']</p>
+    </div>
+
+    <div class="demo-section">
+      <h2>5. AI Loading Hints</h2>
+      <p class="requirement">Requirement 13.5: Context-specific hints for AI pages</p>
+      
+      <div class="page-display">P505    AI Response                  12:34
+════════════════════════════════════════
+
+Generating your response...
+
+[Loading animation]
+
+
+
+
+Generating response...  100=INDEX  500=AI</div>
+      
+      <div class="hint-list">
+        <strong>Generated Hints:</strong>
+        <div class="hint-item">• Generating response...</div>
+        <div class="hint-item">• 100=INDEX</div>
+        <div class="hint-item">• 500=AI</div>
+      </div>
+      
+      <p><strong>Context:</strong> AI page (500-599) with meta.loading=true</p>
+    </div>
+
+    <div class="demo-section">
+      <h2>6. Quiz Progress Hints</h2>
+      <p class="requirement">Requirement 13.5: Context-specific hints for quiz pages</p>
+      
+      <div class="page-display">P601    General Knowledge Quiz       12:34
+════════════════════════════════════════
+
+What is the capital of France?
+
+1. London
+2. Paris
+3. Berlin
+4. Madrid
+
+
+
+
+Question 3/10  Enter 1-4 to answer</div>
+      
+      <div class="hint-list">
+        <strong>Generated Hints:</strong>
+        <div class="hint-item">• Question 3/10</div>
+        <div class="hint-item">• Enter 1-4 to answer</div>
+        <div class="hint-item">• 100=INDEX</div>
+      </div>
+      
+      <p><strong>Context:</strong> Quiz page with meta.progress={current:3, total:10}</p>
+    </div>
+
+    <div class="demo-section">
+      <h2>7. Index Page Hints</h2>
+      <p class="requirement">Requirement 13.1: Always display navigation hints</p>
+      
+      <div class="page-display">P100    MODERN TELETEXT              12:34
+════════════════════════════════════════
+
+NEWS            200    MARKETS         400
+SPORTS          300    WEATHER         700
+AI              500    GAMES           600
+SETTINGS        800    ABOUT           900
+
+
+
+
+Enter page number to navigate</div>
+      
+      <div class="hint-list">
+        <strong>Generated Hints:</strong>
+        <div class="hint-item">• Enter page number to navigate</div>
+      </div>
+      
+      <p><strong>Context:</strong> Main index page (100) - no INDEX hint shown</p>
+    </div>
+
+    <div class="demo-section">
+      <h2>8. Error Page Hints</h2>
+      <p class="requirement">Requirement 14.2, 14.3: Error handling with recovery options</p>
+      
+      <div class="page-display">P999    PAGE NOT FOUND               12:34
+════════════════════════════════════════
+
+The page you requested (999) could not
+be found.
+
+Please check the page number and try
+again, or return to the main index.
+
+
+
+
+100=INDEX  BACK=PREVIOUS</div>
+      
+      <div class="hint-list">
+        <strong>Generated Hints:</strong>
+        <div class="hint-item">• 100=INDEX</div>
+        <div class="hint-item">• BACK=PREVIOUS</div>
+      </div>
+      
+      <p><strong>Context:</strong> Error page always provides recovery options</p>
+    </div>
+
+    <div class="demo-section">
+      <h2>Implementation Notes</h2>
+      <ul>
+        <li><strong>Automatic Detection:</strong> The system automatically detects page type and generates appropriate hints</li>
+        <li><strong>Priority System:</strong> Custom hints (highest) → Context-specific → Default hints</li>
+        <li><strong>Space Management:</strong> Hints are truncated if they exceed 40 characters</li>
+        <li><strong>Color Support:</strong> Colored button hints include color metadata for styling</li>
+        <li><strong>History Awareness:</strong> BACK hint only shown when navigation history exists</li>
+        <li><strong>Page-Specific:</strong> Special hints for AI (loading), Quiz (progress), Settings (controls)</li>
+      </ul>
+    </div>
+
+    <div class="demo-section">
+      <h2>API Usage Examples</h2>
+      <pre style="color: #0ff; background: #000; padding: 10px; overflow-x: auto;">
+// Basic usage
+const hints = generateNavigationHints(page, canGoBack);
+
+// Selection page
+const hints = generateSelectionHints(5);
+
+// Content page
+const hints = generateContentHints(true, false);
+
+// AI page
+const hints = generateAIHints(isLoading, canGoBack);
+
+// Quiz page
+const hints = generateQuizHints(3, 10, canGoBack);
+
+// Error page
+const hints = generateErrorHints();
+
+// Index page
+const hints = generateIndexHints();
+
+// Render with layout engine
+const rows = renderSingleColumn({
+  pageNumber: '201',
+  title: 'News',
+  content: 'Article text...',
+  hints: hints
+});
+      </pre>
+    </div>
+  </div>
+</body>
+</html>

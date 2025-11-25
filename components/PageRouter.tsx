@@ -5,6 +5,7 @@ import { TeletextPage, createOfflinePage } from '@/types/teletext';
 import { useRequestCancellation } from '@/hooks/useRequestCancellation';
 import { performanceMonitor } from '@/lib/performance-monitor';
 import { pageLayoutProcessor } from '@/lib/page-layout-processor';
+import { pageRenderer } from '@/lib/page-renderer';
 import { useTimestampUpdateCheck } from '@/hooks/useTimestampUpdates';
 
 interface PageRouterProps {
@@ -23,6 +24,7 @@ export interface PageRouterState {
   handleNavigate: (direction: 'back' | 'forward' | 'up' | 'down') => void;
   handleColorButton: (color: 'red' | 'green' | 'yellow' | 'blue') => void;
   handleFavoriteKey: (index: number) => void;
+  handleBackspace?: () => void; // Remove last digit from input buffer
   favoritePages: string[];
   canGoBack: boolean;
   canGoForward: boolean;
@@ -254,16 +256,28 @@ export default function PageRouter({
         // Clear breadcrumb highlight
         setHighlightBreadcrumb(false);
         
-        // Process page with layout manager to apply full-screen layout
-        // Requirements: 1.1, 1.2, 1.3, 1.4, 8.1, 8.2, 8.3, 8.4, 11.1, 11.2, 11.3, 11.4
-        // Only process if page doesn't already have layout applied
-        const processedPage = page.meta?.useLayoutManager 
-          ? page 
-          : pageLayoutProcessor.processPage(page, {
+        // Process page with layout engine for proper 40×24 rendering
+        // Requirements: 15.1, 15.2, 15.3, 15.4, 15.5
+        // First try the new layout engine, fall back to layout processor if needed
+        let processedPage: TeletextPage;
+        
+        // Use layout engine for pages that haven't been pre-processed
+        if (!page.meta?.useLayoutManager && !page.meta?.renderedWithLayoutEngine) {
+          try {
+            processedPage = pageRenderer.render(page, { useLayoutEngine: true });
+          } catch (error) {
+            console.error('Layout engine error, falling back to layout processor:', error);
+            // Fall back to existing layout processor
+            processedPage = pageLayoutProcessor.processPage(page, {
               breadcrumbs: pageId === '100' ? [] : breadcrumbs,
               enableFullScreen: true,
               contentAlignment: 'left'
             });
+          }
+        } else {
+          // Page already processed by adapter or layout engine
+          processedPage = page;
+        }
         
         setCurrentPage(processedPage);
         setIsCached(fromCache);
@@ -364,6 +378,16 @@ export default function PageRouter({
   }, [inputBuffer, navigateToPage]);
 
   /**
+   * Handles backspace to remove last digit from input buffer
+   * Requirement: 16.2 - Connect to input handler
+   */
+  const handleBackspace = useCallback(() => {
+    if (inputBuffer.length > 0) {
+      setInputBuffer(inputBuffer.slice(0, -1));
+    }
+  }, [inputBuffer]);
+
+  /**
    * Handles navigation controls with request cancellation
    * Requirement: 1.4, 1.5, 15.5, 33.1, 33.3, 35.2, 35.3
    */
@@ -393,15 +417,23 @@ export default function PageRouter({
               const newBreadcrumbs = history.slice(0, newIndex + 1).filter(id => id !== '100' || history.slice(0, newIndex + 1).length === 1);
               setBreadcrumbs(newBreadcrumbs);
               
-              // Process page with layout manager
-              // Only process if page doesn't already have layout applied
-              const processedPage = page.meta?.useLayoutManager 
-                ? page 
-                : pageLayoutProcessor.processPage(page, {
+              // Process page with layout engine
+              let processedPage: TeletextPage;
+              
+              if (!page.meta?.useLayoutManager && !page.meta?.renderedWithLayoutEngine) {
+                try {
+                  processedPage = pageRenderer.render(page, { useLayoutEngine: true });
+                } catch (error) {
+                  console.error('Layout engine error, falling back to layout processor:', error);
+                  processedPage = pageLayoutProcessor.processPage(page, {
                     breadcrumbs: pageId === '100' ? [] : newBreadcrumbs,
                     enableFullScreen: true,
                     contentAlignment: 'left'
                   });
+                }
+              } else {
+                processedPage = page;
+              }
               
               setCurrentPage(processedPage);
               setIsCached(fromCache);
@@ -446,15 +478,23 @@ export default function PageRouter({
               const newBreadcrumbs = history.slice(0, newIndex + 1).filter(id => id !== '100' || history.slice(0, newIndex + 1).length === 1);
               setBreadcrumbs(newBreadcrumbs);
               
-              // Process page with layout manager
-              // Only process if page doesn't already have layout applied
-              const processedPage = page.meta?.useLayoutManager 
-                ? page 
-                : pageLayoutProcessor.processPage(page, {
+              // Process page with layout engine
+              let processedPage: TeletextPage;
+              
+              if (!page.meta?.useLayoutManager && !page.meta?.renderedWithLayoutEngine) {
+                try {
+                  processedPage = pageRenderer.render(page, { useLayoutEngine: true });
+                } catch (error) {
+                  console.error('Layout engine error, falling back to layout processor:', error);
+                  processedPage = pageLayoutProcessor.processPage(page, {
                     breadcrumbs: pageId === '100' ? [] : newBreadcrumbs,
                     enableFullScreen: true,
                     contentAlignment: 'left'
                   });
+                }
+              } else {
+                processedPage = page;
+              }
               
               setCurrentPage(processedPage);
               setIsCached(fromCache);
@@ -544,6 +584,7 @@ export default function PageRouter({
         handleNavigate,
         handleColorButton,
         handleFavoriteKey,
+        handleBackspace,
         favoritePages,
         canGoBack,
         canGoForward,

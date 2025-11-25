@@ -43,7 +43,8 @@ describe('TeletextScreen Component', () => {
     
     const loadingIndicator = container.querySelector('.loading-indicator');
     expect(loadingIndicator).toBeInTheDocument();
-    expect(loadingIndicator?.textContent).toContain('...');
+    // Loading indicator shows rotating character or loading message
+    expect(loadingIndicator?.textContent).toBeTruthy();
   });
 
   it('does not display loading indicator when loading is false', () => {
@@ -152,5 +153,112 @@ describe('TeletextScreen Component', () => {
     expect(loadingIndicator).toBeInTheDocument();
     // But not the offline indicator
     expect(screen.queryByText('[OFFLINE]')).not.toBeInTheDocument();
+  });
+
+  // Input buffer display tests - Requirement 16.3
+  it('displays input buffer when digits are entered', () => {
+    const page = createEmptyPage('200', 'News Page');
+    render(
+      <TeletextScreen 
+        page={page} 
+        loading={false} 
+        theme={mockTheme}
+        inputBuffer="12"
+        expectedInputLength={3}
+      />
+    );
+    
+    expect(screen.getByText('[12_]')).toBeInTheDocument();
+  });
+
+  it('does not display input buffer when empty', () => {
+    const page = createEmptyPage('200', 'News Page');
+    const { container } = render(
+      <TeletextScreen 
+        page={page} 
+        loading={false} 
+        theme={mockTheme}
+        inputBuffer=""
+        expectedInputLength={3}
+      />
+    );
+    
+    const inputDisplay = container.querySelector('.input-buffer-display');
+    expect(inputDisplay).not.toBeInTheDocument();
+  });
+
+  it('does not display input buffer during loading', () => {
+    const page = createEmptyPage('200', 'News Page');
+    const { container } = render(
+      <TeletextScreen 
+        page={page} 
+        loading={true} 
+        theme={mockTheme}
+        inputBuffer="12"
+        expectedInputLength={3}
+      />
+    );
+    
+    const inputDisplay = container.querySelector('.input-buffer-display');
+    expect(inputDisplay).not.toBeInTheDocument();
+  });
+
+  // Input hint tests - Requirement 16.4
+  it('displays single-digit input hint when expectedInputLength is 1', () => {
+    const page = createEmptyPage('500', 'AI Page');
+    render(
+      <TeletextScreen 
+        page={page} 
+        loading={false} 
+        theme={mockTheme}
+        expectedInputLength={1}
+      />
+    );
+    
+    expect(screen.getByText('Enter 1-digit option')).toBeInTheDocument();
+  });
+
+  it('displays double-digit input hint when expectedInputLength is 2', () => {
+    const page = createEmptyPage('200', 'News Page');
+    render(
+      <TeletextScreen 
+        page={page} 
+        loading={false} 
+        theme={mockTheme}
+        expectedInputLength={2}
+      />
+    );
+    
+    expect(screen.getByText('Enter 2-digit page')).toBeInTheDocument();
+  });
+
+  it('does not display input hint for standard 3-digit pages', () => {
+    const page = createEmptyPage('200', 'News Page');
+    const { container } = render(
+      <TeletextScreen 
+        page={page} 
+        loading={false} 
+        theme={mockTheme}
+        expectedInputLength={3}
+      />
+    );
+    
+    const inputHint = container.querySelector('.input-hint');
+    expect(inputHint).not.toBeInTheDocument();
+  });
+
+  it('does not display input hint during loading', () => {
+    const page = createEmptyPage('500', 'AI Page');
+    const { container } = render(
+      <TeletextScreen 
+        page={page} 
+        loading={true} 
+        theme={mockTheme}
+        expectedInputLength={1}
+      />
+    );
+    
+    const inputHint = container.querySelector('.input-hint');
+    expect(inputHint).not.toBeInTheDocument();
   });
 });

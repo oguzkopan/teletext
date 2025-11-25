@@ -100,6 +100,7 @@ export interface PageMeta {
   themeName?: string; // Theme name for story-based content
   liveIndicator?: boolean; // Show live indicator for sports/events
   classicTeletextStyle?: boolean; // Use classic teletext styling
+  loading?: boolean; // Indicates page is in loading state (e.g., AI generating response)
 }
 
 export interface ContentAdapter {

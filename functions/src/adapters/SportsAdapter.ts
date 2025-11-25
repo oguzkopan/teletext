@@ -66,23 +66,31 @@ export class SportsAdapter implements ContentAdapter {
   /**
    * Creates the sports index page (300)
    * Classic teletext style with league table
+   * Requirements: 19.1, 19.2, 19.3, 19.5
    */
   private async getSportsIndex(): Promise<TeletextPage> {
     // Don't add header here - let applyAdapterLayout handle it
     const rows = [
       '',
       '━━━━━━ PREMIER LEAGUE ━━━━━━━━━━━━━',
-      '   Team            P  W  D  L  F  A Pts',
-      ' 1 Liverpool      15 11  3  1 36 16 36',
-      ' 2 Arsenal        15 10  4  1 33 14 34',
-      ' 3 Man City       15 10  3  2 35 18 33',
-      ' 4 Chelsea        15  9  4  2 35 19 31',
-      ' 5 Aston Villa   15  9  3  3 32 23 30',
-      ' 6 Tottenham      15  8  2  5 35 21 26',
-      ' 7 Newcastle      15  7  4  4 31 21 25',
-      ' 8 Man United     15  7  3  5 22 20 24',
-      ' 9 Brighton       15  6  5  4 28 24 23',
-      '10 West Ham       15  6  4  5 26 28 22',
+      // Column headers with proper alignment
+      // Requirements: 19.5 - Add column headers for standings
+      'POS TEAM              P  W  D  L PTS',
+      '────────────────────────────────────',
+      // Tabular layout with aligned columns
+      // Requirements: 19.1 - Use tabular layout with aligned columns
+      // Requirements: 19.2 - Truncate long team names to fit columns
+      // Requirements: 19.3 - Right-align numeric values
+      ' 1  Liverpool         15 11  3  1  36',
+      ' 2  Arsenal           15 10  4  1  34',
+      ' 3  Man City          15 10  3  2  33',
+      ' 4  Chelsea           15  9  4  2  31',
+      ' 5  Aston Villa       15  9  3  3  30',
+      ' 6  Tottenham         15  8  2  5  26',
+      ' 7  Newcastle         15  7  4  4  25',
+      ' 8  Man United        15  7  3  5  24',
+      ' 9  Brighton          15  6  5  4  23',
+      '10  West Ham          15  6  4  5  22',
       '',
       '301 Live Scores  302 Full Table',
       '310 My Teams     320 Fixtures',
@@ -291,8 +299,8 @@ export class SportsAdapter implements ContentAdapter {
 
   /**
    * Formats live scores into a teletext page with animations
-   * Requirements: 22.1, 22.2, 22.3, 22.4, 22.5
-   * Uses layout manager with live indicators
+   * Requirements: 19.1, 19.2, 19.3, 19.4, 22.1, 22.2, 22.3, 22.4, 22.5
+   * Uses tabular layout with color coding for live matches
    */
   private formatLiveScoresPage(fixtures: any[]): TeletextPage {
     const now = new Date();
@@ -330,6 +338,7 @@ export class SportsAdapter implements ContentAdapter {
       }
 
       // Display up to 8 fixtures with enhanced formatting
+      // Requirements: 19.1 - Use tabular layout with aligned columns
       fixtures.slice(0, 8).forEach((fixture, index) => {
         const homeTeam = fixture.teams?.home?.name || 'HOME';
         const awayTeam = fixture.teams?.away?.name || 'AWAY';
@@ -339,7 +348,7 @@ export class SportsAdapter implements ContentAdapter {
         const elapsed = fixture.fixture?.status?.elapsed;
         
         // Get match status info with color coding
-        // Requirements: 22.4 - Color coding for match status
+        // Requirements: 19.4, 22.4 - Color coding for live matches/match status
         const statusInfo = getMatchStatusInfo(statusShort, elapsed);
         
         // Check for score changes (for animation tracking)
@@ -347,11 +356,17 @@ export class SportsAdapter implements ContentAdapter {
         const matchId = fixture.fixture?.id?.toString() || `match-${index}`;
         const scoreChange = this.scoreTracker.checkScoreChange(matchId, homeScore, awayScore);
         
+        // Truncate team names to fit columns
+        // Requirements: 19.2 - Truncate long team names to fit columns
+        const truncatedHome = this.truncateTeamName(homeTeam, 12);
+        const truncatedAway = this.truncateTeamName(awayTeam, 12);
+        
         // Format score line with proper spacing and status
+        // Requirements: 19.3 - Right-align numeric values (scores, points)
         // Requirements: 22.3 - Animated time indicators
         const scoreLine = formatScoreLine(
-          homeTeam,
-          awayTeam,
+          truncatedHome,
+          truncatedAway,
           homeScore,
           awayScore,
           statusInfo,
@@ -363,13 +378,14 @@ export class SportsAdapter implements ContentAdapter {
         );
         
         // Add status indicator prefix for live/finished matches
+        // Requirements: 19.4 - Use color coding for live matches
         let prefix = '';
         if (statusInfo.isLive) {
-          prefix = '● '; // Live indicator
+          prefix = '{green}● '; // Live indicator in green
         } else if (statusInfo.status === 'FT') {
           prefix = '✓ '; // Finished indicator
         } else if (statusInfo.status === 'HT') {
-          prefix = '◐ '; // Half-time indicator
+          prefix = '{yellow}◐ '; // Half-time indicator in yellow
         }
         
         contentRows.push(prefix + scoreLine);
@@ -423,6 +439,7 @@ export class SportsAdapter implements ContentAdapter {
 
   /**
    * Formats league standings into a teletext page
+   * Requirements: 19.1, 19.2, 19.3, 19.5
    */
   private formatLeagueTablesPage(standings: any[]): TeletextPage {
     // Don't add header here - let applyAdapterLayout handle it
@@ -437,20 +454,28 @@ export class SportsAdapter implements ContentAdapter {
       rows.push('');
       rows.push('Please try again later.');
     } else {
-      // Header
+      // Column headers for standings
+      // Requirements: 19.5 - Add column headers for standings
+      // Requirements: 19.1 - Use tabular layout with aligned columns
       rows.push('POS TEAM              P  W  D  L  PTS');
       rows.push('────────────────────────────────────');
       
-      // Display top 10 teams
+      // Display top 10 teams with proper alignment
       standings.slice(0, 10).forEach((team) => {
+        // Requirements: 19.3 - Right-align numeric values (scores, points)
         const pos = team.rank?.toString().padStart(2, ' ') || '--';
+        
+        // Requirements: 19.2 - Truncate long team names to fit columns
         const name = this.truncateTeamName(team.team?.name || 'Unknown', 14);
+        
+        // Right-align all numeric values
         const played = team.all?.played?.toString().padStart(2, ' ') || '--';
         const wins = team.all?.win?.toString().padStart(2, ' ') || '--';
         const draws = team.all?.draw?.toString().padStart(2, ' ') || '--';
         const losses = team.all?.lose?.toString().padStart(2, ' ') || '--';
         const points = team.points?.toString().padStart(3, ' ') || '---';
         
+        // Build line with proper column alignment
         const line = `${pos}  ${name.padEnd(14)} ${played} ${wins} ${draws} ${losses} ${points}`;
         rows.push(truncateText(line, 40));
       });

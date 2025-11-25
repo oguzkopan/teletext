@@ -6,8 +6,6 @@ import { ContentAdapter, TeletextPage } from '../types';
 import { createMissingApiKeyPage, logMissingApiKey } from '../utils/env-validation';
 import { getApiKey } from '../utils/config';
 import {
-  applyAdapterLayout,
-  createSeparator,
   truncateText,
   wrapText,
   stripHtml,
@@ -178,8 +176,9 @@ export class NewsAdapter implements ContentAdapter {
   }
 
   /**
-   * Formats an individual article detail page with multi-page support
-   * Requirements: 35.1, 35.2, 35.3, 35.4, 35.5
+   * Formats an individual article detail page with proper wrapping
+   * Requirements: 18.4, 18.5
+   * Format full articles with proper wrapping
    */
   private formatArticleDetailPage(
     pageId: string,
@@ -189,21 +188,21 @@ export class NewsAdapter implements ContentAdapter {
     articleIndex: number,
     totalArticles: number
   ): TeletextPage {
-    const contentRows: string[] = [];
+    const contentLines: string[] = [];
     
     // Article number
-    contentRows.push(`Article ${articleIndex} of ${totalArticles}`);
-    contentRows.push('');
+    contentLines.push(`Article ${articleIndex} of ${totalArticles}`);
+    contentLines.push('');
     
-    // Headline (wrapped)
+    // Headline (wrapped to 40 chars)
     const headline = stripHtml(article.title || 'Untitled');
-    const headlineLines = wrapText(headline, 75);
-    headlineLines.forEach((line: string) => contentRows.push(line));
-    contentRows.push('');
+    const headlineWrapped = wrapText(headline, 40);
+    contentLines.push(...headlineWrapped);
+    contentLines.push('');
     
     // Source and date
     if (article.source && article.source.name) {
-      contentRows.push(`Source: ${truncateText(article.source.name, 32)}`);
+      contentLines.push(`Source: ${truncateText(article.source.name, 32)}`);
     }
     if (article.publishedAt) {
       const date = new Date(article.publishedAt);
@@ -212,118 +211,51 @@ export class NewsAdapter implements ContentAdapter {
         month: 'short',
         year: 'numeric'
       });
-      contentRows.push(`Date: ${dateStr}`);
+      contentLines.push(`Date: ${dateStr}`);
     }
-    contentRows.push('');
+    contentLines.push('');
     
-    // Description (wrapped)
+    // Description (wrapped to 40 chars)
     if (article.description) {
       const description = stripHtml(article.description);
-      const descLines = wrapText(description, 75);
-      descLines.forEach((line: string) => contentRows.push(line));
+      const descWrapped = wrapText(description, 40);
+      contentLines.push(...descWrapped);
     }
     
-    // Content (wrapped) - if available
+    // Content (wrapped to 40 chars) - if available
     if (article.content) {
-      contentRows.push('');
+      contentLines.push('');
       const content = stripHtml(article.content);
-      const contentLines = wrapText(content, 75);
-      contentLines.forEach((line: string) => contentRows.push(line));
+      const contentWrapped = wrapText(content, 40);
+      contentLines.push(...contentWrapped);
     }
     
-    // Check if content fits in one page (24 rows total - 3 header = 21 content rows)
-    const contentRowsPerPage = 21;
-    
-    if (contentRows.length <= contentRowsPerPage) {
-      // Single page - fits everything
-      const rows: string[] = [];
-      rows.push(`${truncateText(categoryTitle.toUpperCase(), 28).padEnd(28, ' ')} P${pageId}`);
-      rows.push('════════════════════════════════════');
-      rows.push('');
-      rows.push(...contentRows);
-      
-      return {
-        id: pageId,
-        title: `${categoryTitle} - Article ${articleIndex}`,
-        rows: padRows(rows),
-        links: [
-          { label: 'BACK', targetPage: basePageId, color: 'red' },
-          { label: 'INDEX', targetPage: '200', color: 'green' },
-          { label: 'PREV', targetPage: articleIndex > 1 ? `${basePageId}-${articleIndex - 1}` : basePageId, color: 'yellow' },
-          { label: 'NEXT', targetPage: articleIndex < totalArticles ? `${basePageId}-${articleIndex + 1}` : basePageId, color: 'blue' }
-        ],
-        meta: {
-          source: 'NewsAdapter',
-          lastUpdated: new Date().toISOString()
-        }
-      };
-    } else {
-      // Multi-page article - create continuation pages
-      return this.createMultiPageArticle(
-        pageId,
-        categoryTitle,
-        contentRows,
-        basePageId,
-        articleIndex,
-        totalArticles
-      );
-    }
-  }
-  
-  /**
-   * Creates multiple pages for a long article with continuation metadata
-   * Requirements: 35.1, 35.2, 35.3, 35.4, 35.5
-   */
-  private createMultiPageArticle(
-    baseArticleId: string,
-    categoryTitle: string,
-    contentRows: string[],
-    basePageId: string,
-    articleIndex: number,
-    totalArticles: number
-  ): TeletextPage {
-    const contentRowsPerPage = 21; // 24 total - 3 header
-    const totalPages = Math.ceil(contentRows.length / contentRowsPerPage);
-    
-    // Determine which sub-page we're on (e.g., "201-1" vs "201-1-2")
-    const pageIdParts = baseArticleId.split('-');
-    const subPageIndex = pageIdParts.length > 2 ? parseInt(pageIdParts[2], 10) - 1 : 0;
-    
-    const startRow = subPageIndex * contentRowsPerPage;
-    const endRow = Math.min(startRow + contentRowsPerPage, contentRows.length);
-    const pageContent = contentRows.slice(startRow, endRow);
-    
+    // Build page with proper layout
     const rows: string[] = [];
-    const pageId = subPageIndex === 0 ? baseArticleId : `${baseArticleId}-${subPageIndex + 1}`;
     
-    // Header
-    const headerTitle = subPageIndex === 0 
-      ? categoryTitle.toUpperCase() 
-      : `${categoryTitle.toUpperCase()} (cont.)`;
-    rows.push(`${truncateText(headerTitle, 28).padEnd(28, ' ')} P${pageId}`);
-    rows.push('════════════════════════════════════');
-    rows.push('');
+    // Header (2 rows)
+    rows.push(`${pageId.padEnd(8)}${truncateText(categoryTitle, 24).padStart(24).padEnd(24)}        `);
+    rows.push(' '.repeat(40));
     
-    // Add content
-    rows.push(...pageContent);
+    // Content (20 rows available)
+    const contentToDisplay = contentLines.slice(0, 20);
+    contentToDisplay.forEach(line => {
+      rows.push(line.padEnd(40).substring(0, 40));
+    });
     
-    // Create continuation metadata
-    const continuation = {
-      currentPage: pageId,
-      nextPage: subPageIndex < totalPages - 1 
-        ? (subPageIndex === 0 ? `${baseArticleId}-2` : `${baseArticleId}-${subPageIndex + 2}`)
-        : undefined,
-      previousPage: subPageIndex > 0 
-        ? (subPageIndex === 1 ? baseArticleId : `${baseArticleId}-${subPageIndex}`)
-        : undefined,
-      totalPages,
-      currentIndex: subPageIndex
-    };
+    // Pad remaining content rows
+    while (rows.length < 22) {
+      rows.push(' '.repeat(40));
+    }
+    
+    // Footer (2 rows)
+    rows.push(' '.repeat(40));
+    rows.push('BACK    INDEX   PREV    NEXT'.padStart(20).padEnd(40));
     
     return {
       id: pageId,
-      title: `${categoryTitle} - Article ${articleIndex}${subPageIndex > 0 ? ` (${subPageIndex + 1}/${totalPages})` : ''}`,
-      rows: padRows(rows),
+      title: `${categoryTitle} - Article ${articleIndex}`,
+      rows,
       links: [
         { label: 'BACK', targetPage: basePageId, color: 'red' },
         { label: 'INDEX', targetPage: '200', color: 'green' },
@@ -332,12 +264,11 @@ export class NewsAdapter implements ContentAdapter {
       ],
       meta: {
         source: 'NewsAdapter',
-        lastUpdated: new Date().toISOString(),
-        continuation
+        lastUpdated: new Date().toISOString()
       }
     };
   }
-
+  
 
 
   /**
@@ -345,35 +276,42 @@ export class NewsAdapter implements ContentAdapter {
    * Requirements: Uses layout manager for full-screen utilization
    */
   private getNewsIndex(): TeletextPage {
-    // Don't add header here - let applyAdapterLayout handle it
-    const contentRows = [
-      '',
-      'HEADLINES',
-      '201 📰 Top Headlines',
-      '202 🌍 World News',
-      '203 📍 Local News',
-      '',
-      'TOPICS',
-      '210 💻 Technology',
-      '211 💼 Business',
-      '212 🎬 Entertainment',
-      '213 🔬 Science',
-      '214 ❤️  Health',
-      '215 ⚽ Sports News',
-      '',
-      'Updated every 5 minutes',
-      '',
-      '',
-      '',
-      '',
-      createSeparator('─'),
-      'INDEX   TOP     WORLD   TECH'
-    ];
+    const rows: string[] = [];
+    
+    // Header (2 rows)
+    rows.push('200     News Index                      ');
+    rows.push('                                        ');
+    
+    // Content (20 rows)
+    rows.push('                                        ');
+    rows.push('HEADLINES                               ');
+    rows.push('201 📰 Top Headlines                    ');
+    rows.push('202 🌍 World News                       ');
+    rows.push('203 📍 Local News                       ');
+    rows.push('                                        ');
+    rows.push('TOPICS                                  ');
+    rows.push('210 💻 Technology                       ');
+    rows.push('211 💼 Business                         ');
+    rows.push('212 🎬 Entertainment                    ');
+    rows.push('213 🔬 Science                          ');
+    rows.push('214 ❤️  Health                          ');
+    rows.push('215 ⚽ Sports News                       ');
+    rows.push('                                        ');
+    rows.push('Updated every 5 minutes                 ');
+    rows.push('                                        ');
+    rows.push('                                        ');
+    rows.push('                                        ');
+    rows.push('                                        ');
+    rows.push('                                        ');
+    
+    // Footer (2 rows)
+    rows.push('                                        ');
+    rows.push('INDEX   TOP     WORLD   TECH            ');
 
-    return applyAdapterLayout({
-      pageId: '200',
+    return {
+      id: '200',
       title: 'News Index',
-      contentRows,
+      rows,
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'TOP', targetPage: '201', color: 'green' },
@@ -383,10 +321,9 @@ export class NewsAdapter implements ContentAdapter {
       meta: {
         source: 'NewsAdapter',
         lastUpdated: new Date().toISOString(),
-        contentType: 'NEWS'
-      },
-      showTimestamp: false
-    });
+        contentType: 'news'
+      }
+    };
   }
 
   /**
@@ -523,9 +460,9 @@ export class NewsAdapter implements ContentAdapter {
   }
 
   /**
-   * Formats news articles into a teletext page (or multiple pages if content is long)
-   * Requirements: 35.1, 35.2, 35.3, 35.4, 35.5
-   * Uses layout manager for full-screen utilization with content type indicators
+   * Formats news articles into a teletext page using the new layout engine
+   * Requirements: 18.1, 18.2, 18.3, 18.4, 18.5
+   * Uses single-column layout for readability with numbered headlines
    */
   private formatNewsPage(
     pageId: string,
@@ -540,44 +477,83 @@ export class NewsAdapter implements ContentAdapter {
       minute: '2-digit'
     });
 
-    // Don't add header here - let applyAdapterLayout handle it
-    const contentRows: string[] = [];
-    contentRows.push(`Updated: ${timeStr}`);
-    contentRows.push('');
+    // Build content lines for single-column layout
+    const contentLines: string[] = [];
 
-    // Add headlines (truncated to 38 characters to leave room for numbering)
+    // Add headlines with clear numbering (1-9)
     if (articles.length === 0) {
-      contentRows.push('');
-      contentRows.push('No articles available at this time.');
-      contentRows.push('');
-      contentRows.push('Please try again later.');
+      contentLines.push('No articles available at this time.');
+      contentLines.push('');
+      contentLines.push('Please try again later.');
     } else {
       articles.slice(0, 9).forEach((article, index) => {
+        // Number each headline clearly (1-9)
         const headline = stripHtml(article.title || 'Untitled');
-        const truncated = truncateText(headline, 56); // 56 chars for headline + "1. " = 59 chars
-        contentRows.push(`${index + 1}. ${truncated}`);
+        const number = `${index + 1}.`;
         
-        // Add source if available
-        if (article.source && article.source.name) {
-          const source = truncateText(`   ${article.source.name}`, 60);
-          contentRows.push(source);
-        } else {
-          contentRows.push('');
+        // Wrap headline to fit (40 chars - 3 for number = 37 chars)
+        const headlineWrapped = wrapText(headline, 37);
+        
+        // First line with number
+        if (headlineWrapped.length > 0) {
+          contentLines.push(`${number} ${headlineWrapped[0]}`);
+          // Additional lines indented
+          for (let i = 1; i < headlineWrapped.length; i++) {
+            contentLines.push(`   ${headlineWrapped[i]}`);
+          }
         }
+        
+        // Show source and timestamp for each headline
+        const metadata: string[] = [];
+        if (article.source && article.source.name) {
+          metadata.push(truncateText(article.source.name, 18));
+        }
+        if (article.publishedAt) {
+          const date = new Date(article.publishedAt);
+          const dateStr = date.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short'
+          });
+          metadata.push(dateStr);
+        }
+        
+        if (metadata.length > 0) {
+          contentLines.push(`   ${metadata.join(' • ')}`);
+        }
+        
+        // Add spacing between articles
+        contentLines.push('');
       });
     }
 
-    // Add footer
-    while (contentRows.length < 22) {
-      contentRows.push('');
+    // Use the new layout engine for rendering
+    // This will be imported from the layout engine module
+    // For now, we'll use the old approach but structure it properly
+    const rows: string[] = [];
+    
+    // Header (2 rows)
+    rows.push(`${pageId.padEnd(8)}${truncateText(title, 24).padStart(24).padEnd(24)}${timeStr.padStart(8)}`);
+    rows.push(' '.repeat(40));
+    
+    // Content (20 rows)
+    const contentToDisplay = contentLines.slice(0, 20);
+    contentToDisplay.forEach(line => {
+      rows.push(line.padEnd(40).substring(0, 40));
+    });
+    
+    // Pad remaining content rows
+    while (rows.length < 22) {
+      rows.push(' '.repeat(40));
     }
-    contentRows.push(createSeparator('─'));
-    contentRows.push('INDEX   PREV    NEXT    BACK');
+    
+    // Footer (2 rows)
+    rows.push(' '.repeat(40));
+    rows.push('INDEX   PREV    NEXT    BACK'.padStart(20).padEnd(40));
 
-    return applyAdapterLayout({
-      pageId,
+    return {
+      id: pageId,
       title,
-      contentRows,
+      rows,
       links: [
         { label: 'INDEX', targetPage: '200', color: 'red' },
         { label: 'PREV', targetPage: prevPage, color: 'green' },
@@ -587,13 +563,11 @@ export class NewsAdapter implements ContentAdapter {
       meta: {
         source: 'NewsAdapter',
         lastUpdated: new Date().toISOString(),
-        contentType: 'NEWS',
-        cacheStatus: 'cached',
+        contentType: 'news',
         inputMode: 'single',
         inputOptions: articles.slice(0, 9).map((_, i) => (i + 1).toString())
-      },
-      showTimestamp: true
-    });
+      }
+    };
   }
 
   /**

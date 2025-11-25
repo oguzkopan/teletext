@@ -86,6 +86,7 @@ export interface PageMeta {
   fullScreenLayout?: boolean; // Use full-screen layout (90%+ screen utilization)
   maxVisualEffects?: boolean; // Apply maximum visual effects regardless of user settings
   useLayoutManager?: boolean; // Indicates page was already processed by adapter layout helper
+  renderedWithLayoutEngine?: boolean; // Indicates page was rendered with the new layout engine
   specialPageAnimation?: {
     type: string;
     name: string;
@@ -104,6 +105,15 @@ export interface PageMeta {
   }>;
   keyboardVisualization?: boolean; // Enable special keyboard visualization
   highlightedKeys?: string[]; // Keys to highlight in keyboard shortcuts page
+  loading?: boolean; // Indicates page is in loading state (e.g., AI generating response)
+  storyTheme?: string; // Theme ID for story-based content
+  themeName?: string; // Theme name for story-based content
+  progress?: {             // Progress indicator metadata for multi-step processes
+    current: number;
+    total: number;
+    label?: string;
+    percentage?: number;
+  };
 }
 
 export interface PageContinuation {

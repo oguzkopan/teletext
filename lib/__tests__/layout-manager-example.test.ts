@@ -64,7 +64,10 @@ describe('Layout Manager Examples', () => {
 
     // Verify all rows are exactly 40 characters
     const allRows = [...layout.header, ...layout.content, ...layout.footer];
-    allRows.forEach(row => {
+    allRows.forEach((row, index) => {
+      if (row.length !== 40) {
+        console.log(`Row ${index} has length ${row.length}: "${row}"`);
+      }
       expect(row.length).toBe(40);
     });
   });

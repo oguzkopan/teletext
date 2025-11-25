@@ -170,7 +170,7 @@ export class LayoutManager {
           break;
         case 'left':
         default:
-          result.push(padText(row, 60, 'left'));
+          result.push(padText(row, 40, 'left'));
           break;
       }
     }
@@ -190,7 +190,7 @@ export class LayoutManager {
    * @param width - Target width
    * @returns Centered text
    */
-  centerText(text: string, width: number = 60): string {
+  centerText(text: string, width: number = 40): string {
     return centerText(text, width);
   }
 
@@ -201,7 +201,7 @@ export class LayoutManager {
    * @param width - Target width
    * @returns Justified text
    */
-  justifyText(text: string, width: number = 60): string {
+  justifyText(text: string, width: number = 40): string {
     return justifyText(text, width);
   }
 
@@ -216,20 +216,42 @@ export class LayoutManager {
     const header: string[] = [];
 
     // Row 0: Title and page number with content type indicator
+    const pageNum = `P${metadata.pageNumber}`;
+    
     const contentTypeIcon = metadata.contentType ? CONTENT_TYPE_ICONS[metadata.contentType] || '' : '';
     const contentTypeColor = metadata.contentType ? CONTENT_TYPE_COLORS[metadata.contentType] || '' : '';
     
-    // Apply color coding to content type indicator
-    const titlePrefix = contentTypeIcon && contentTypeColor 
-      ? `{${contentTypeColor}}${contentTypeIcon}{white} ` 
-      : contentTypeIcon 
-      ? `${contentTypeIcon} ` 
-      : '';
+    // Build title text (without icon/color for now)
+    const titleText = title.toUpperCase();
     
-    const titleText = truncateText(titlePrefix + title.toUpperCase(), 28);
-    const pageNum = `P${metadata.pageNumber}`;
+    // Build the complete row manually to handle emojis and color codes correctly
+    let row0 = '';
     
-    header.push(padText(titleText, 28) + pageNum.padStart(12));
+    if (contentTypeIcon && contentTypeColor) {
+      // Format: {color}emoji{white} TITLE...spaces...P###
+      row0 = `{${contentTypeColor}}${contentTypeIcon}{white} ${titleText}`;
+    } else if (contentTypeIcon) {
+      // Format: emoji TITLE...spaces...P###
+      row0 = `${contentTypeIcon} ${titleText}`;
+    } else {
+      // Format: TITLE...spaces...P###
+      row0 = titleText;
+    }
+    
+    // Add page number at the end
+    row0 = row0 + ' '.repeat(Math.max(0, 40 - row0.length - pageNum.length)) + pageNum;
+    
+    // Final safety: ensure exactly 40 characters by truncating or padding
+    if (row0.length > 40) {
+      // Keep the page number, truncate the title with ellipsis
+      const maxTitleLength = 40 - pageNum.length;
+      const titlePart = row0.substring(0, maxTitleLength - 3) + '...';
+      row0 = titlePart + pageNum;
+    } else if (row0.length < 40) {
+      row0 = row0 + ' '.repeat(40 - row0.length);
+    }
+    
+    header.push(row0);
 
     // Row 1: Separator with optional metadata
     if (metadata.pagePosition) {
@@ -308,10 +330,10 @@ export class LayoutManager {
 
       // Combine hints and buttons, truncating if necessary
       const combined = footerText ? `${footerText}  ${buttonHints}` : buttonHints;
-      footerText = truncateText(combined, 60, false);
+      footerText = truncateText(combined, 40, false);
     }
 
-    footer.push(padText(footerText, 60, 'left'));
+    footer.push(padText(footerText, 40, 'left'));
 
     return footer;
   }

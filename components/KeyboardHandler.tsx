@@ -13,6 +13,9 @@ interface KeyboardHandlerProps {
  * KeyboardHandler Component
  * 
  * Handles keyboard input for teletext navigation
+ * Integrated with new navigation router and input handler
+ * 
+ * Requirements: 16.1, 16.2, 16.3, 16.4, 16.5 - Navigation router integration
  * Requirements: 37.1, 37.2 - Theme selection on page 700
  * Requirements: 12.5 - Animation settings controls on page 701
  */
@@ -104,7 +107,8 @@ export default function KeyboardHandler({ routerState }: KeyboardHandlerProps) {
         }
       }
 
-      // Digit keys (0-9) - normal page navigation
+      // Requirement 16.2: Connect digit input to input handler
+      // Digit keys (0-9) - use new navigation router logic
       if (e.key >= '0' && e.key <= '9') {
         e.preventDefault();
         routerState.handleDigitPress(parseInt(e.key));
@@ -131,10 +135,17 @@ export default function KeyboardHandler({ routerState }: KeyboardHandlerProps) {
         e.preventDefault();
         routerState.handleNavigate('forward');
       }
-      // Backspace
+      // Backspace - remove last digit from input buffer
+      // Requirement 16.2: Connect to input handler
       else if (e.key === 'Backspace') {
         e.preventDefault();
-        routerState.handleNavigate('back');
+        // If there's input in the buffer, remove last digit
+        // Otherwise, navigate back
+        if (routerState.inputBuffer.length > 0) {
+          routerState.handleBackspace?.();
+        } else {
+          routerState.handleNavigate('back');
+        }
       }
       // Color buttons (R, G, Y, B)
       else if (e.key.toLowerCase() === 'r') {

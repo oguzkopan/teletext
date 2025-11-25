@@ -27,6 +27,7 @@ describe('KeyboardHandler', () => {
     handleNavigate: jest.fn(),
     handleColorButton: jest.fn(),
     handleFavoriteKey: jest.fn(),
+    handleBackspace: jest.fn(),
     favoritePages: [],
     canGoBack: false,
     canGoForward: false,
@@ -143,8 +144,8 @@ describe('KeyboardHandler', () => {
     expect(routerState.handleColorButton).toHaveBeenCalledWith('blue');
   });
 
-  it('should handle backspace as back navigation', () => {
-    const routerState = { ...mockRouterState };
+  it('should handle backspace as back navigation when buffer is empty', () => {
+    const routerState = { ...mockRouterState, inputBuffer: '' };
     render(
       <ThemeProvider>
         <KeyboardHandler routerState={routerState} />
@@ -153,6 +154,20 @@ describe('KeyboardHandler', () => {
 
     fireEvent.keyDown(window, { key: 'Backspace' });
     expect(routerState.handleNavigate).toHaveBeenCalledWith('back');
+    expect(routerState.handleBackspace).not.toHaveBeenCalled();
+  });
+
+  it('should handle backspace to remove digit when buffer has content', () => {
+    const routerState = { ...mockRouterState, inputBuffer: '12' };
+    render(
+      <ThemeProvider>
+        <KeyboardHandler routerState={routerState} />
+      </ThemeProvider>
+    );
+
+    fireEvent.keyDown(window, { key: 'Backspace' });
+    expect(routerState.handleBackspace).toHaveBeenCalled();
+    expect(routerState.handleNavigate).not.toHaveBeenCalled();
   });
 
   it('should not trigger theme selection on non-700 pages', () => {

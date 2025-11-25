@@ -11,8 +11,7 @@ import {
   padRows
 } from '../utils/adapter-layout-helper';
 import {
-  getTrendArrowFromChange,
-  formatTrendChange
+  getTrendArrowFromChange
 } from '../../../lib/market-trend-indicators';
 
 /**
@@ -233,20 +232,23 @@ export class MarketsAdapter implements ContentAdapter {
 
   /**
    * Formats cryptocurrency prices into a teletext page
-   * Requirements: 23.1, 23.2, 23.3 - Trend indicators with color coding
+   * Requirements: 20.1, 20.2, 20.3, 20.4, 20.5 - Tabular layout with aligned columns,
+   * right-aligned prices, color coding, percentage changes, and timestamp
    */
   private formatCryptoPricesPage(cryptoData: any[]): TeletextPage {
     const now = new Date();
     const timeStr = now.toLocaleTimeString('en-GB', {
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      second: '2-digit'
     });
 
     // Don't add header here - let applyAdapterLayout handle it
     const contentRows = [
-      `Updated: ${timeStr}`,
+      `{cyan}Data as of ${timeStr}`,
       '',
-      'COIN         PRICE       24H CHANGE',
+      // Requirement 20.1: Tabular layout with aligned columns
+      '{white}COIN      PRICE        CHANGE    %CHANGE',
       createSeparator('─')
     ];
 
@@ -258,18 +260,24 @@ export class MarketsAdapter implements ContentAdapter {
     } else {
       cryptoData.slice(0, 10).forEach((coin) => {
         const symbol = truncateText(coin.symbol?.toUpperCase() || '???', 6);
-        const price = this.formatPrice(coin.current_price);
-        const change = coin.price_change_percentage_24h || 0;
+        const price = coin.current_price || 0;
+        const change = coin.price_change_24h || 0;
+        const changePercent = coin.price_change_percentage_24h || 0;
         
-        // Requirements: 23.1 - Trend arrows (▲ up, ▼ down, ► stable)
-        const trendArrow = getTrendArrowFromChange(change);
+        // Requirement 20.2: Right-align prices with consistent decimal places
+        const priceStr = this.formatPriceAligned(price, 10);
         
-        // Requirements: 23.2, 23.3 - Color coding for price changes
-        const changeStr = formatTrendChange(change);
+        // Requirement 20.4: Display percentage changes alongside absolute changes
+        const changeStr = this.formatChangeAligned(change, 10);
+        const percentStr = this.formatPercentAligned(changePercent, 9);
         
-        // Format: "BTC      $45,123.45  ▲ +2.34%"
-        const line = `${symbol.padEnd(8)} ${price.padStart(12)} ${trendArrow} ${changeStr}`;
-        contentRows.push(line.substring(0, 60));
+        // Requirement 20.3: Color coding (green=up, red=down)
+        const color = changePercent > 0 ? '{green}' : changePercent < 0 ? '{red}' : '{white}';
+        const arrow = getTrendArrowFromChange(changePercent);
+        
+        // Format with tabular alignment: "BTC       $45,123.45   +$1,234.56  ▲ +2.34%"
+        const line = `{white}${symbol.padEnd(8)} ${color}${priceStr} ${changeStr} ${arrow}${percentStr}`;
+        contentRows.push(line);
       });
     }
 
@@ -302,49 +310,68 @@ export class MarketsAdapter implements ContentAdapter {
 
   /**
    * Formats stock market data into a teletext page
+   * Requirements: 20.1, 20.2, 20.3, 20.4, 20.5 - Tabular layout with aligned columns,
+   * right-aligned prices, color coding, percentage changes, and timestamp
    */
   private formatStockDataPage(stockData: any[]): TeletextPage {
     const now = new Date();
     const timeStr = now.toLocaleTimeString('en-GB', {
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      second: '2-digit'
     });
 
-    const rows = [
-      'STOCK MARKET DATA            P402',
-      '════════════════════════════════════',
-      `Updated: ${timeStr}`,
+    // Don't add header here - let applyAdapterLayout handle it
+    const contentRows = [
+      `{cyan}Data as of ${timeStr}`,
       '',
-      'SYMBOL       PRICE       CHANGE',
-      '────────────────────────────────────'
+      // Requirement 20.1: Tabular layout with aligned columns
+      '{white}SYMBOL    PRICE        CHANGE    %CHANGE',
+      createSeparator('─')
     ];
 
     if (stockData.length === 0) {
-      rows.push('');
-      rows.push('No stock data available.');
-      rows.push('');
-      rows.push('Please try again later.');
+      contentRows.push('');
+      contentRows.push('No stock data available.');
+      contentRows.push('');
+      contentRows.push('Please try again later.');
     } else {
       stockData.forEach((stock) => {
         const symbol = truncateText(stock.symbol, 8);
-        const price = this.formatPrice(stock.price);
-        const change = stock.change || 0;
-        const changeStr = this.formatPercentage(change);
+        const price = stock.price || 0;
+        const changePercent = stock.change || 0;
         
-        // Format: "AAPL     $175.43      +1.23%"
-        const line = `${symbol.padEnd(10)} ${price.padStart(10)} ${changeStr.padStart(10)}`;
-        rows.push(truncateText(line, 40));
+        // Calculate absolute change from percentage
+        const absoluteChange = (price * changePercent) / 100;
         
-        // Add company name on next line
-        const name = truncateText(stock.name, 40);
-        rows.push(name);
+        // Requirement 20.2: Right-align prices with consistent decimal places
+        const priceStr = this.formatPriceAligned(price, 10);
+        
+        // Requirement 20.4: Display percentage changes alongside absolute changes
+        const changeStr = this.formatChangeAligned(absoluteChange, 10);
+        const percentStr = this.formatPercentAligned(changePercent, 9);
+        
+        // Requirement 20.3: Color coding (green=up, red=down)
+        const color = changePercent > 0 ? '{green}' : changePercent < 0 ? '{red}' : '{white}';
+        const arrow = getTrendArrowFromChange(changePercent);
+        
+        // Format with tabular alignment: "AAPL      $175.43      +$2.15     ▲ +1.23%"
+        const line = `{white}${symbol.padEnd(8)} ${color}${priceStr} ${changeStr} ${arrow}${percentStr}`;
+        contentRows.push(line);
       });
     }
 
-    return {
-      id: '402',
+    // Add remaining empty rows
+    while (contentRows.length < 22) {
+      contentRows.push('');
+    }
+    contentRows.push(createSeparator('─'));
+    contentRows.push('INDEX   CRYPTO  FOREX   BACK');
+
+    return applyAdapterLayout({
+      pageId: '402',
       title: 'Stock Market Data',
-      rows: padRows(rows),
+      contentRows,
       links: [
         { label: 'INDEX', targetPage: '400', color: 'red' },
         { label: 'CRYPTO', targetPage: '401', color: 'green' },
@@ -354,50 +381,65 @@ export class MarketsAdapter implements ContentAdapter {
       meta: {
         source: 'MarketsAdapter',
         lastUpdated: new Date().toISOString(),
-      }
-    };
+        contentType: 'MARKETS'
+      },
+      showTimestamp: true
+    });
   }
 
   /**
    * Formats foreign exchange rates into a teletext page
+   * Requirements: 20.1, 20.2, 20.5 - Tabular layout with aligned columns,
+   * right-aligned rates with consistent decimal places, and timestamp
    */
   private formatForexRatesPage(forexData: any[]): TeletextPage {
     const now = new Date();
     const timeStr = now.toLocaleTimeString('en-GB', {
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      second: '2-digit'
     });
 
-    const rows = [
-      'FOREIGN EXCHANGE RATES       P410',
-      '════════════════════════════════════',
-      `Updated: ${timeStr}`,
+    // Don't add header here - let applyAdapterLayout handle it
+    const contentRows = [
+      `{cyan}Data as of ${timeStr}`,
       '',
-      'PAIR              RATE',
-      '────────────────────────────────────'
+      // Requirement 20.1: Tabular layout with aligned columns
+      '{white}PAIR              RATE',
+      createSeparator('─')
     ];
 
     if (forexData.length === 0) {
-      rows.push('');
-      rows.push('No forex data available.');
-      rows.push('');
-      rows.push('Please try again later.');
+      contentRows.push('');
+      contentRows.push('No forex data available.');
+      contentRows.push('');
+      contentRows.push('Please try again later.');
     } else {
       // Display rates relative to BTC (from CoinGecko) or USD
       forexData.slice(0, 10).forEach((forex) => {
         const pair = `BTC/${forex.currency}`;
-        const rate = this.formatForexRate(forex.value);
+        const rate = forex.value || 0;
         
-        // Format: "BTC/USD           45,123.45"
-        const line = `${pair.padEnd(18)} ${rate.padStart(12)}`;
-        rows.push(truncateText(line, 40));
+        // Requirement 20.2: Right-align rates with consistent decimal places
+        const rateStr = this.formatForexRateAligned(rate, 20);
+        
+        // Format with tabular alignment: "BTC/USD           45,123.45"
+        const line = `{white}${pair.padEnd(16)} ${rateStr}`;
+        contentRows.push(line);
       });
     }
 
-    return {
-      id: '410',
+    // Add remaining empty rows
+    while (contentRows.length < 22) {
+      contentRows.push('');
+    }
+    contentRows.push(createSeparator('─'));
+    contentRows.push('INDEX   CRYPTO  STOCKS  BACK');
+
+    return applyAdapterLayout({
+      pageId: '410',
       title: 'Foreign Exchange Rates',
-      rows: padRows(rows),
+      contentRows,
       links: [
         { label: 'INDEX', targetPage: '400', color: 'red' },
         { label: 'CRYPTO', targetPage: '401', color: 'green' },
@@ -407,13 +449,17 @@ export class MarketsAdapter implements ContentAdapter {
       meta: {
         source: 'MarketsAdapter',
         lastUpdated: new Date().toISOString(),
-      }
-    };
+        contentType: 'MARKETS'
+      },
+      showTimestamp: true
+    });
   }
 
   /**
    * Formats a price value with appropriate precision
+   * @deprecated Use formatPriceAligned instead
    */
+  // @ts-ignore - Keeping for backward compatibility
   private formatPrice(price: number): string {
     if (price === undefined || price === null) {
       return 'N/A';
@@ -430,7 +476,9 @@ export class MarketsAdapter implements ContentAdapter {
 
   /**
    * Formats a percentage change value
+   * @deprecated Use formatPercentAligned instead
    */
+  // @ts-ignore - Keeping for backward compatibility
   private formatPercentage(change: number): string {
     if (change === undefined || change === null) {
       return 'N/A';
@@ -442,7 +490,9 @@ export class MarketsAdapter implements ContentAdapter {
 
   /**
    * Formats a forex rate value
+   * @deprecated Use formatForexRateAligned instead
    */
+  // @ts-ignore - Keeping for backward compatibility
   private formatForexRate(rate: number): string {
     if (rate === undefined || rate === null) {
       return 'N/A';
@@ -455,6 +505,94 @@ export class MarketsAdapter implements ContentAdapter {
     } else {
       return rate.toFixed(6);
     }
+  }
+
+  /**
+   * Formats a price value with right-alignment and consistent decimal places
+   * Requirement 20.2: Right-align prices with consistent decimal places
+   */
+  private formatPriceAligned(price: number, width: number): string {
+    if (price === undefined || price === null) {
+      return 'N/A'.padStart(width);
+    }
+
+    let priceStr: string;
+    if (price >= 1000) {
+      priceStr = `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    } else if (price >= 1) {
+      priceStr = `$${price.toFixed(2)}`;
+    } else {
+      priceStr = `$${price.toFixed(4)}`;
+    }
+
+    return priceStr.padStart(width);
+  }
+
+  /**
+   * Formats an absolute change value with right-alignment and consistent decimal places
+   * Requirement 20.4: Display absolute changes alongside percentage changes
+   */
+  private formatChangeAligned(change: number, width: number): string {
+    if (change === undefined || change === null) {
+      return 'N/A'.padStart(width);
+    }
+
+    const sign = change >= 0 ? '+' : '';
+    let changeStr: string;
+    
+    if (Math.abs(change) >= 1000) {
+      changeStr = `${sign}$${Math.abs(change).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      if (change < 0) {
+        changeStr = `-$${Math.abs(change).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      }
+    } else if (Math.abs(change) >= 1) {
+      changeStr = `${sign}$${Math.abs(change).toFixed(2)}`;
+      if (change < 0) {
+        changeStr = `-$${Math.abs(change).toFixed(2)}`;
+      }
+    } else {
+      changeStr = `${sign}$${Math.abs(change).toFixed(4)}`;
+      if (change < 0) {
+        changeStr = `-$${Math.abs(change).toFixed(4)}`;
+      }
+    }
+
+    return changeStr.padStart(width);
+  }
+
+  /**
+   * Formats a percentage change value with right-alignment
+   * Requirement 20.4: Display percentage changes
+   */
+  private formatPercentAligned(change: number, width: number): string {
+    if (change === undefined || change === null) {
+      return 'N/A'.padStart(width);
+    }
+
+    const sign = change >= 0 ? '+' : '';
+    const percentStr = `${sign}${change.toFixed(2)}%`;
+    return percentStr.padStart(width);
+  }
+
+  /**
+   * Formats a forex rate value with right-alignment and consistent decimal places
+   * Requirement 20.2: Right-align rates with consistent decimal places
+   */
+  private formatForexRateAligned(rate: number, width: number): string {
+    if (rate === undefined || rate === null) {
+      return 'N/A'.padStart(width);
+    }
+
+    let rateStr: string;
+    if (rate >= 1000) {
+      rateStr = rate.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    } else if (rate >= 1) {
+      rateStr = rate.toFixed(4);
+    } else {
+      rateStr = rate.toFixed(6);
+    }
+
+    return rateStr.padStart(width);
   }
 
   /**

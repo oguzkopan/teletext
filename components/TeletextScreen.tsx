@@ -18,6 +18,32 @@ interface TeletextScreenProps {
 }
 
 /**
+ * Renders the input buffer with underscores for remaining digits
+ * Requirement: 16.3 - Display input buffer in UI
+ */
+function renderInputBuffer(buffer: string, expectedLength: number): string {
+  let display = buffer;
+  while (display.length < expectedLength) {
+    display += '_';
+  }
+  return `[${display}]`;
+}
+
+/**
+ * Gets the input hint based on expected input length
+ * Requirement: 16.4 - Show expected input length hint
+ */
+function getInputHint(expectedLength: number): string {
+  if (expectedLength === 1) {
+    return 'Enter 1-digit option';
+  } else if (expectedLength === 2) {
+    return 'Enter 2-digit page';
+  } else {
+    return 'Enter 3-digit page';
+  }
+}
+
+/**
  * TeletextScreen Component
  * 
  * Renders a teletext page in a 40×24 character grid with monospaced font.
@@ -493,6 +519,43 @@ const TeletextScreen = React.memo(function TeletextScreen({
           }}
         >
           [OFFLINE]
+        </div>
+      )}
+
+      {/* Input buffer display - Requirement 16.3 */}
+      {!loading && inputBuffer && inputBuffer.length > 0 && (
+        <div 
+          className="input-buffer-display"
+          style={{
+            position: 'absolute',
+            top: '40px',
+            right: '20px',
+            color: theme.colors.yellow,
+            fontSize: '18px',
+            fontWeight: 'bold',
+            zIndex: 10,
+            fontFamily: "'Courier New', Courier, monospace"
+          }}
+        >
+          {renderInputBuffer(inputBuffer, expectedInputLength)}
+        </div>
+      )}
+
+      {/* Expected input length hint - Requirement 16.4 */}
+      {!loading && expectedInputLength < 3 && (
+        <div 
+          className="input-hint"
+          style={{
+            position: 'absolute',
+            bottom: '20px',
+            right: '20px',
+            color: theme.colors.cyan,
+            fontSize: '12px',
+            fontWeight: 'bold',
+            zIndex: 10
+          }}
+        >
+          {getInputHint(expectedInputLength)}
         </div>
       )}
       

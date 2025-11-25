@@ -60,56 +60,76 @@ export class StaticAdapter implements ContentAdapter {
 
   /**
    * Creates the main index page (100) with visual enhancements
-   * Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 9.1, 9.2, 9.3, 9.4, 9.5, 29.3
-   * HALLOWEEN HACKATHON EDITION - Spooky themed full-screen layout
+   * Requirements: 17.1, 17.2, 17.3, 17.4, 17.5
+   * Uses new layout engine with 2-column layout
    */
   private getIndexPage(): TeletextPage {
     const now = new Date();
-    const dateStr = now.toLocaleDateString('en-GB', { 
-      weekday: 'short', 
-      day: '2-digit', 
-      month: 'short' 
-    });
     const timeStr = now.toLocaleTimeString('en-GB', { 
       hour: '2-digit', 
-      minute: '2-digit',
-      second: '2-digit'
+      minute: '2-digit'
     });
     
-    // Full-screen multi-column layout like Ceefax with ASCII art logo
-    const rows = [
-      `{cyan}100 {yellow}🎃 KIROWEEN TELETEXT 🎃{cyan} ${dateStr} ${timeStr} {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
-      '{blue}═══════════════════════════════════════════════════════════════════════════════',
-      '{yellow}╔══════════════════════════════════════════════════════════════════════════╗',
-      '{yellow}║  {magenta}MODERN TELETEXT{yellow}  {white}░▒▓█▓▒░  {cyan}Your Gateway to Information{yellow}           ║',
-      '{yellow}╚══════════════════════════════════════════════════════════════════════════╝',
-      '{blue}═══════════════════════════════════════════════════════════════════════════════',
-      '{cyan}▓▓▓ NEWS & INFO ▓▓▓      {magenta}▓▓▓ ENTERTAINMENT ▓▓▓    {yellow}▓▓▓ SERVICES ▓▓▓       ',
-      '{green}101{white} System Status       {red}600{white} Games & Quizzes      {cyan}700{white} Settings          ',
-      '{green}200{white} News Headlines      {red}601{white} Quiz of the Day      {cyan}701{white} Themes            ',
-      '{green}201{white} UK News             {red}610{white} Bamboozle Quiz       {cyan}800{white} Dev Tools         ',
-      '{green}202{white} World News          {red}620{white} Random Facts         {cyan}999{white} Help              ',
-      '{green}203{white} Local News          {yellow}500{white} AI Chat             {magenta}666{white} Cursed Page       ',
-      '{blue}───────────────────────────────────────────────────────────────────────────────',
-      '{cyan}▓▓▓ SPORT & LEISURE ▓▓▓  {yellow}▓▓▓ MARKETS & MONEY ▓▓▓  {red}▓▓▓ WEATHER & TRAVEL ▓▓',
-      '{green}300{white} Sport Headlines     {green}400{white} Markets Overview    {green}420{white} Weather Forecast  ',
-      '{green}301{white} Football            {green}401{white} Stock Prices        {green}421{white} London Weather    ',
-      '{green}302{white} Cricket             {green}402{white} Crypto Markets      {green}422{white} New York Weather  ',
-      '{green}303{white} Tennis              {green}403{white} Commodities         {green}423{white} Tokyo Weather     ',
-      '{green}304{white} Live Scores         {green}404{white} Void Page           {green}424{white} Traffic Info      ',
-      '{blue}═══════════════════════════════════════════════════════════════════════════════',
-      '{cyan}🎃 NAVIGATION: {white}Type {yellow}3-digit{white} page number or use {red}R{white}/{green}G{white}/{yellow}Y{white}/{blue}B{white} buttons',
-      '{white}Press {cyan}999{white} for help • Press {magenta}666{white} if you dare... 👻',
-      '{blue}───────────────────────────────────────────────────────────────────────────────',
-      '{yellow}POPULAR PAGES: {green}200{white} News {green}300{white} Sport {green}400{white} Markets {green}500{white} AI {green}600{white} Games',
-      '{blue}═══════════════════════════════════════════════════════════════════════════════',
-      '{yellow}                    ⚡ Kiroween 2024 - Built with Kiro ⚡                       '
+    // Build content in 2-column format
+    // Content is designed to flow naturally into 2 columns
+    const content = [
+      '    MODERN TELETEXT SERVICE',
+      '    Your Gateway to Information',
+      '',
+      '══════════════════════════════════',
+      '',
+      '200 News Headlines',
+      '201 UK News',
+      '202 World News',
+      '203 Local News',
+      '',
+      '300 Sport Headlines',
+      '301 Football',
+      '302 Cricket',
+      '303 Tennis',
+      '304 Live Scores',
+      '',
+      '400 Markets Overview',
+      '401 Stock Prices',
+      '402 Crypto Markets',
+      '403 Commodities',
+      '',
+      '420 Weather Forecast',
+      '421 London Weather',
+      '422 New York Weather',
+      '423 Tokyo Weather',
+      '',
+      '500 AI Chat',
+      '505 Ask a Question',
+      '510 AI Topics',
+      '',
+      '600 Games Menu',
+      '601 Quiz of the Day',
+      '610 Bamboozle Quiz',
+      '',
+      '700 Settings',
+      '701 Themes',
+      '800 Dev Tools',
+      '',
+      '101 System Status',
+      '110 System Pages',
+      '999 Help',
+      '666 Cursed Page'
     ];
 
     return {
       id: '100',
       title: 'Main Index',
-      rows: this.padRows(rows),
+      rows: this.renderWithLayoutEngine({
+        pageNumber: '100',
+        title: 'Main Index',
+        content: content,
+        columns: 2,
+        timestamp: timeStr,
+        hints: [
+          { text: 'Enter 3-digit page number' }
+        ]
+      }),
       links: [
         { label: 'NEWS', targetPage: '200', color: 'red' },
         { label: 'SPORT', targetPage: '300', color: 'green' },
@@ -119,12 +139,189 @@ export class StaticAdapter implements ContentAdapter {
       meta: {
         source: 'StaticAdapter',
         lastUpdated: new Date().toISOString(),
-        animatedLogo: true,
-        logoAnimation: 'logo-reveal',
-        halloweenTheme: true,
-        fullScreenLayout: true
+        inputMode: 'triple'
       }
     };
+  }
+
+  /**
+   * Helper method to render pages using the layout engine
+   * Implements a simplified version of the layout engine for the backend
+   */
+  private renderWithLayoutEngine(options: {
+    pageNumber: string;
+    title: string;
+    content: string | string[];
+    columns: number;
+    timestamp?: string;
+    hints?: Array<{ text: string; color?: string }>;
+  }): string[] {
+    const TELETEXT_WIDTH = 40;
+    const TELETEXT_HEIGHT = 24;
+    const HEADER_HEIGHT = 2;
+    const FOOTER_HEIGHT = 2;
+    const CONTENT_HEIGHT = TELETEXT_HEIGHT - HEADER_HEIGHT - FOOTER_HEIGHT;
+    
+    const rows: string[] = [];
+    
+    // Render header (2 rows)
+    const pageNumPadded = this.padText(options.pageNumber, 8, 'left');
+    const rightContent = options.timestamp || '';
+    const rightPadded = this.padText(rightContent, 8, 'right');
+    const centerWidth = TELETEXT_WIDTH - 8 - 8;
+    const titleCentered = this.padText(this.truncateText(options.title, centerWidth), centerWidth, 'center');
+    rows.push(pageNumPadded + titleCentered + rightPadded);
+    rows.push(' '.repeat(TELETEXT_WIDTH));
+    
+    // Prepare content lines
+    let contentLines: string[];
+    if (typeof options.content === 'string') {
+      contentLines = this.wrapText(options.content, TELETEXT_WIDTH);
+    } else {
+      contentLines = options.content.flatMap(line => this.wrapText(line, TELETEXT_WIDTH));
+    }
+    
+    // Calculate column widths
+    const gutter = 2;
+    const columnWidths = this.calculateColumnWidths(TELETEXT_WIDTH, options.columns, gutter);
+    
+    // Flow text to columns
+    const columnData = this.flowTextToColumns(contentLines, columnWidths);
+    
+    // Merge columns horizontally
+    const mergedContent = this.mergeColumns(columnData, columnWidths, gutter);
+    
+    // Take only the lines that fit in content area
+    const contentToDisplay = mergedContent.slice(0, CONTENT_HEIGHT);
+    rows.push(...contentToDisplay);
+    
+    // Fill remaining content area with empty lines
+    while (rows.length < TELETEXT_HEIGHT - FOOTER_HEIGHT) {
+      rows.push(' '.repeat(TELETEXT_WIDTH));
+    }
+    
+    // Render footer (2 rows)
+    rows.push(' '.repeat(TELETEXT_WIDTH));
+    if (options.hints && options.hints.length > 0) {
+      const hintsText = options.hints.map(h => h.text).join('  ');
+      rows.push(this.padText(this.truncateText(hintsText, TELETEXT_WIDTH), TELETEXT_WIDTH, 'center'));
+    } else {
+      rows.push(' '.repeat(TELETEXT_WIDTH));
+    }
+    
+    return rows;
+  }
+  
+  /**
+   * Pads text to exact width with alignment
+   */
+  private padText(text: string, width: number, align: 'left' | 'center' | 'right'): string {
+    const truncated = text.length > width ? text.substring(0, width) : text;
+    if (truncated.length === width) return truncated;
+    
+    const padding = width - truncated.length;
+    switch (align) {
+      case 'center': {
+        const leftPad = Math.floor(padding / 2);
+        const rightPad = padding - leftPad;
+        return ' '.repeat(leftPad) + truncated + ' '.repeat(rightPad);
+      }
+      case 'right':
+        return ' '.repeat(padding) + truncated;
+      case 'left':
+      default:
+        return truncated + ' '.repeat(padding);
+    }
+  }
+  
+  /**
+   * Truncates text with ellipsis
+   */
+  private truncateText(text: string, maxLength: number): string {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength - 3) + '...';
+  }
+  
+  /**
+   * Calculates column widths for multi-column layouts
+   */
+  private calculateColumnWidths(totalWidth: number, columns: number, gutter: number): number[] {
+    if (columns < 1) columns = 1;
+    if (columns === 1) return [totalWidth];
+    
+    const totalGutter = gutter * (columns - 1);
+    const availableWidth = totalWidth - totalGutter;
+    const baseWidth = Math.floor(availableWidth / columns);
+    const remainder = availableWidth - (baseWidth * columns);
+    
+    const widths: number[] = Array(columns).fill(baseWidth);
+    if (remainder > 0) {
+      widths[widths.length - 1] += remainder;
+    }
+    
+    return widths;
+  }
+  
+  /**
+   * Distributes text lines across multiple columns
+   */
+  private flowTextToColumns(lines: string[], columnWidths: number[]): string[][] {
+    const columns: string[][] = [];
+    const numColumns = columnWidths.length;
+    
+    if (numColumns === 0) return [];
+    if (numColumns === 1) return [lines];
+    
+    const linesPerColumn = Math.ceil(lines.length / numColumns);
+    
+    for (let col = 0; col < numColumns; col++) {
+      const start = col * linesPerColumn;
+      const end = Math.min(start + linesPerColumn, lines.length);
+      const columnLines = lines.slice(start, end);
+      
+      const wrappedLines: string[] = [];
+      for (const line of columnLines) {
+        const wrapped = this.wrapText(line, columnWidths[col]);
+        wrappedLines.push(...wrapped);
+      }
+      
+      columns.push(wrappedLines);
+    }
+    
+    return columns;
+  }
+  
+  /**
+   * Merges multiple columns horizontally into single rows
+   */
+  private mergeColumns(columns: string[][], columnWidths: number[], gutter: number): string[] {
+    if (columns.length === 0) return [];
+    if (columns.length === 1) {
+      return columns[0].map(line => this.padText(line, 40, 'left'));
+    }
+    
+    const maxRows = Math.max(...columns.map(col => col.length));
+    const mergedRows: string[] = [];
+    const gutterStr = ' '.repeat(gutter);
+    
+    for (let row = 0; row < maxRows; row++) {
+      let mergedLine = '';
+      
+      for (let col = 0; col < columns.length; col++) {
+        const cellText = columns[col][row] || '';
+        const paddedCell = this.padText(cellText, columnWidths[col], 'left');
+        
+        mergedLine += paddedCell;
+        
+        if (col < columns.length - 1) {
+          mergedLine += gutterStr;
+        }
+      }
+      
+      mergedRows.push(mergedLine);
+    }
+    
+    return mergedRows;
   }
 
   /**
@@ -754,41 +951,20 @@ export class StaticAdapter implements ContentAdapter {
     return lines;
   }
 
-  /**
-   * Strips color codes and emojis to get visible length
-   */
-  private getVisibleLength(text: string): number {
-    // Remove color codes like {red}, {green}, etc.
-    let cleaned = text.replace(/\{(red|green|yellow|blue|magenta|cyan|white|black)\}/gi, '');
-    
-    // Count emojis as 2 characters (they take up 2 character widths in monospace)
-    // This regex matches most common emojis
-    const emojiRegex = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu;
-    const emojis = cleaned.match(emojiRegex) || [];
-    const emojiCount = emojis.length;
-    
-    // Remove emojis to count regular characters
-    const withoutEmojis = cleaned.replace(emojiRegex, '');
-    
-    // Total visible length = regular chars + (emojis * 2)
-    return withoutEmojis.length + (emojiCount * 2);
-  }
+
 
   /**
-   * Pads rows array to exactly 24 rows, each exactly 80 visible characters (full screen width)
+   * Pads rows array to exactly 24 rows, each exactly 40 characters (teletext width)
+   * Note: For simplicity, we use actual string length, not visible length
    */
   private padRows(rows: string[]): string[] {
     const paddedRows = rows.map(row => {
-      const visibleLength = this.getVisibleLength(row);
-      
-      if (visibleLength > 80) {
-        // Truncate to 80 visible characters
-        // This is tricky with emojis, so we'll just truncate the string
-        // and accept some imperfection
-        return row.substring(0, 80);
-      } else if (visibleLength < 80) {
-        // Pad to exactly 80 visible characters
-        const paddingNeeded = 80 - visibleLength;
+      if (row.length > 40) {
+        // Truncate to 40 characters
+        return row.substring(0, 40);
+      } else if (row.length < 40) {
+        // Pad to exactly 40 characters
+        const paddingNeeded = 40 - row.length;
         return row + ' '.repeat(paddingNeeded);
       }
       
@@ -797,7 +973,7 @@ export class StaticAdapter implements ContentAdapter {
 
     // Ensure exactly 24 rows
     while (paddedRows.length < 24) {
-      paddedRows.push(''.padEnd(80, ' '));
+      paddedRows.push(''.padEnd(40, ' '));
     }
 
     return paddedRows.slice(0, 24);
