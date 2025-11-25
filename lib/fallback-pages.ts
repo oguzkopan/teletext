@@ -1,16 +1,23 @@
 /**
  * Fallback pages for development when Firebase emulators are not running
  * These provide a better developer experience with helpful error messages
+ * 
+ * Pages now use responsive dimensions that adapt to screen size
  */
 
 import { TeletextPage } from '@/types/teletext';
+import { DEFAULT_WIDTH, DEFAULT_HEIGHT } from './screen-dimensions';
+
+// Use responsive dimensions (defaults to 80×24 for modern screens)
+const SCREEN_WIDTH = DEFAULT_WIDTH;
+const SCREEN_HEIGHT = DEFAULT_HEIGHT;
 
 /**
  * Creates a fallback page when emulators are not running
  */
 export function createEmulatorOfflinePage(pageId: string): TeletextPage {
   const rows = [
-    `{cyan}${pageId} {yellow}EMULATOR OFFLINE{cyan}                                                  `,
+    `{cyan}${pageId} {yellow}EMULATOR OFFLINE`,
     '{blue}═══════════════════════════════════════════════════════════════════════════════',
     '',
     '{red}⚠ FIREBASE EMULATORS NOT RUNNING ⚠',
@@ -32,7 +39,7 @@ export function createEmulatorOfflinePage(pageId: string): TeletextPage {
     '',
     '',
     '{blue}═══════════════════════════════════════════════════════════════════════════════',
-    '{red}INDEX   {green}HELP',
+    '{red}100=INDEX   {green}999=HELP',
     ''
   ];
 
@@ -94,9 +101,7 @@ export function createFallbackIndexPage(): TeletextPage {
     '{cyan}🎃 NAVIGATION: {white}Type {yellow}3-digit{white} page number or use {red}R{white}/{green}G{white}/{yellow}Y{white}/{blue}B{white} buttons',
     '{white}Press {cyan}999{white} for help • Press {magenta}666{white} if you dare... 👻',
     '{blue}───────────────────────────────────────────────────────────────────────────────',
-    '{yellow}POPULAR PAGES: {green}200{white} News {green}300{white} Sport {green}400{white} Markets {green}500{white} AI {green}600{white} Games',
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
-    '{yellow}                    ⚡ Kiroween 2024 - Built with Kiro ⚡                       '
+    '{yellow}POPULAR PAGES: {green}200{white} News {green}300{white} Sport {green}400{white} Markets {green}500{white} AI {green}600{white} Games'
   ];
 
   return {
@@ -105,7 +110,8 @@ export function createFallbackIndexPage(): TeletextPage {
     rows: padRows(rows),
     links: [
       { label: 'HELP', targetPage: '999', color: 'red' },
-      { label: 'ABOUT', targetPage: '199', color: 'green' }
+      { label: 'SETTINGS', targetPage: '700', color: 'green' },
+      { label: 'DEV', targetPage: '800', color: 'yellow' }
     ],
     meta: {
       source: 'FallbackAdapter',
@@ -120,11 +126,17 @@ export function createFallbackIndexPage(): TeletextPage {
  * Creates a fallback news index page (200)
  */
 export function createFallbackNewsPage(): TeletextPage {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-GB', { 
+    hour: '2-digit', 
+    minute: '2-digit'
+  });
+  
   const rows = [
-    '{cyan}200 {yellow}NEWS INDEX{cyan}                                                           ',
+    `{cyan}200 {yellow}NEWS INDEX {cyan}${timeStr}`,
     '{blue}═══════════════════════════════════════════════════════════════════════════════',
     '',
-    '{red}NEWS SERVICE UNAVAILABLE',
+    '{red}📰 NEWS SERVICE UNAVAILABLE',
     '',
     '{white}The news service requires Firebase emulators to be running.',
     '',
@@ -143,7 +155,7 @@ export function createFallbackNewsPage(): TeletextPage {
     '',
     '',
     '{blue}═══════════════════════════════════════════════════════════════════════════════',
-    '{red}INDEX   {green}HELP',
+    '{red}100=INDEX   {green}999=HELP',
     ''
   ];
 
@@ -168,11 +180,17 @@ export function createFallbackNewsPage(): TeletextPage {
  * Creates a fallback sports page (300)
  */
 export function createFallbackSportsPage(): TeletextPage {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-GB', { 
+    hour: '2-digit', 
+    minute: '2-digit'
+  });
+  
   const rows = [
-    '{cyan}300 {yellow}SPORT INDEX{cyan}                                                          ',
+    `{cyan}300 {yellow}SPORT INDEX {cyan}${timeStr}`,
     '{blue}═══════════════════════════════════════════════════════════════════════════════',
     '',
-    '{red}SPORT SERVICE UNAVAILABLE',
+    '{red}⚽ SPORT SERVICE UNAVAILABLE',
     '',
     '{white}The sport service requires Firebase emulators to be running.',
     '',
@@ -191,7 +209,7 @@ export function createFallbackSportsPage(): TeletextPage {
     '',
     '',
     '{blue}═══════════════════════════════════════════════════════════════════════════════',
-    '{red}INDEX   {green}HELP',
+    '{red}100=INDEX   {green}999=HELP',
     ''
   ];
 
@@ -216,11 +234,17 @@ export function createFallbackSportsPage(): TeletextPage {
  * Creates a fallback markets page (400)
  */
 export function createFallbackMarketsPage(): TeletextPage {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-GB', { 
+    hour: '2-digit', 
+    minute: '2-digit'
+  });
+  
   const rows = [
-    '{cyan}400 {yellow}MARKETS INDEX{cyan}                                                        ',
+    `{cyan}400 {yellow}MARKETS INDEX {cyan}${timeStr}`,
     '{blue}═══════════════════════════════════════════════════════════════════════════════',
     '',
-    '{red}MARKETS SERVICE UNAVAILABLE',
+    '{red}📈 MARKETS SERVICE UNAVAILABLE',
     '',
     '{white}The markets service requires Firebase emulators to be running.',
     '',
@@ -239,7 +263,7 @@ export function createFallbackMarketsPage(): TeletextPage {
     '',
     '',
     '{blue}═══════════════════════════════════════════════════════════════════════════════',
-    '{red}INDEX   {green}HELP',
+    '{red}100=INDEX   {green}999=HELP',
     ''
   ];
 
@@ -264,11 +288,17 @@ export function createFallbackMarketsPage(): TeletextPage {
  * Creates a fallback AI page (500)
  */
 export function createFallbackAIPage(): TeletextPage {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-GB', { 
+    hour: '2-digit', 
+    minute: '2-digit'
+  });
+  
   const rows = [
-    '{cyan}500 {yellow}AI ORACLE{cyan}                                                            ',
+    `{cyan}500 {yellow}AI ORACLE {cyan}${timeStr}`,
     '{blue}═══════════════════════════════════════════════════════════════════════════════',
     '',
-    '{red}AI SERVICE UNAVAILABLE',
+    '{red}🤖 AI SERVICE UNAVAILABLE',
     '',
     '{white}The AI Oracle requires Firebase emulators and Vertex AI to be configured.',
     '',
@@ -287,7 +317,7 @@ export function createFallbackAIPage(): TeletextPage {
     '',
     '',
     '{blue}═══════════════════════════════════════════════════════════════════════════════',
-    '{red}INDEX   {green}HELP',
+    '{red}100=INDEX   {green}999=HELP',
     ''
   ];
 
@@ -312,11 +342,17 @@ export function createFallbackAIPage(): TeletextPage {
  * Creates a fallback games page (600)
  */
 export function createFallbackGamesPage(): TeletextPage {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-GB', { 
+    hour: '2-digit', 
+    minute: '2-digit'
+  });
+  
   const rows = [
-    '{cyan}600 {yellow}GAMES INDEX{cyan}                                                          ',
+    `{cyan}600 {yellow}GAMES INDEX {cyan}${timeStr}`,
     '{blue}═══════════════════════════════════════════════════════════════════════════════',
     '',
-    '{red}GAMES SERVICE UNAVAILABLE',
+    '{red}🎮 GAMES SERVICE UNAVAILABLE',
     '',
     '{white}The games service requires Firebase emulators to be running.',
     '',
@@ -335,7 +371,7 @@ export function createFallbackGamesPage(): TeletextPage {
     '',
     '',
     '{blue}═══════════════════════════════════════════════════════════════════════════════',
-    '{red}INDEX   {green}HELP',
+    '{red}100=INDEX   {green}999=HELP',
     ''
   ];
 
@@ -360,11 +396,17 @@ export function createFallbackGamesPage(): TeletextPage {
  * Creates a fallback settings page (700)
  */
 export function createFallbackSettingsPage(): TeletextPage {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-GB', { 
+    hour: '2-digit', 
+    minute: '2-digit'
+  });
+  
   const rows = [
-    '{cyan}700 {yellow}SETTINGS{cyan}                                                             ',
+    `{cyan}700 {yellow}SETTINGS {cyan}${timeStr}`,
     '{blue}═══════════════════════════════════════════════════════════════════════════════',
     '',
-    '{red}SETTINGS SERVICE UNAVAILABLE',
+    '{red}⚙️ SETTINGS SERVICE UNAVAILABLE',
     '',
     '{white}The settings service requires Firebase emulators to be running.',
     '',
@@ -383,7 +425,7 @@ export function createFallbackSettingsPage(): TeletextPage {
     '',
     '',
     '{blue}═══════════════════════════════════════════════════════════════════════════════',
-    '{red}INDEX   {green}HELP',
+    '{red}100=INDEX   {green}999=HELP',
     ''
   ];
 
@@ -408,11 +450,17 @@ export function createFallbackSettingsPage(): TeletextPage {
  * Creates a fallback dev tools page (800)
  */
 export function createFallbackDevPage(): TeletextPage {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-GB', { 
+    hour: '2-digit', 
+    minute: '2-digit'
+  });
+  
   const rows = [
-    '{cyan}800 {yellow}DEVELOPER TOOLS{cyan}                                                      ',
+    `{cyan}800 {yellow}DEVELOPER TOOLS {cyan}${timeStr}`,
     '{blue}═══════════════════════════════════════════════════════════════════════════════',
     '',
-    '{red}DEV TOOLS SERVICE UNAVAILABLE',
+    '{red}🔧 DEV TOOLS SERVICE UNAVAILABLE',
     '',
     '{white}The developer tools require Firebase emulators to be running.',
     '',
@@ -431,7 +479,7 @@ export function createFallbackDevPage(): TeletextPage {
     '',
     '',
     '{blue}═══════════════════════════════════════════════════════════════════════════════',
-    '{red}INDEX   {green}HELP',
+    '{red}100=INDEX   {green}999=HELP',
     ''
   ];
 
@@ -453,6 +501,63 @@ export function createFallbackDevPage(): TeletextPage {
 }
 
 /**
+ * Creates a fallback page for page 203 (Local News detail)
+ */
+export function createFallbackLocalNewsPage(): TeletextPage {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-GB', { 
+    hour: '2-digit', 
+    minute: '2-digit'
+  });
+  
+  const rows = [
+    `{cyan}203 {yellow}LOCAL NEWS {cyan}${timeStr}`,
+    '{blue}═══════════════════════════════════════════════════════════════════════════════',
+    '',
+    '{white}Updated: {green}18:00',
+    '{white}Use color buttons to navigate',
+    '',
+    '{yellow}1. {white}Judge dismisses cases against James...',
+    '{cyan}NBC News',
+    '',
+    '{yellow}2. {white}The complicated relationship between...',
+    '{cyan}The Washington Post',
+    '',
+    '{yellow}3. {white}Why the Idea That Shedeur Sanders...',
+    '{cyan}Sports Illustrated',
+    '',
+    '{yellow}4. {white}Pentagon probing misconduct allegations...',
+    '{cyan}CNBC',
+    '',
+    '{yellow}5. {white}Zach Bryan announces "With Heaven..." tour dates',
+    '{cyan}clevelandbrowns.com',
+    '',
+    '',
+    '',
+    '{blue}═══════════════════════════════════════════════════════════════════════════════',
+    '{red}100=INDEX   {green}201=UK NEWS   {yellow}202=WORLD NEWS   {blue}PREV   {magenta}NEXT',
+    ''
+  ];
+
+  return {
+    id: '203',
+    title: 'Local News',
+    rows: padRows(rows),
+    links: [
+      { label: 'INDEX', targetPage: '100', color: 'red' },
+      { label: 'UK', targetPage: '201', color: 'green' },
+      { label: 'WORLD', targetPage: '202', color: 'yellow' }
+    ],
+    meta: {
+      source: 'FallbackAdapter',
+      lastUpdated: new Date().toISOString(),
+      cacheStatus: 'fresh',
+      fallback: true
+    }
+  };
+}
+
+/**
  * Gets a fallback page based on page ID
  */
 export function getFallbackPage(pageId: string): TeletextPage | null {
@@ -461,6 +566,7 @@ export function getFallbackPage(pageId: string): TeletextPage | null {
   // Return specific fallback pages for major sections
   if (pageId === '100') return createFallbackIndexPage();
   if (pageId === '200') return createFallbackNewsPage();
+  if (pageId === '203') return createFallbackLocalNewsPage();
   if (pageId === '300') return createFallbackSportsPage();
   if (pageId === '400') return createFallbackMarketsPage();
   if (pageId === '500') return createFallbackAIPage();
@@ -496,9 +602,9 @@ function getVisibleLength(text: string): number {
 }
 
 /**
- * Centers text within specified width (default 80 for full screen)
+ * Centers text within specified width (default 40 for teletext screen)
  */
-function centerText(text: string, width: number = 80): string {
+function centerText(text: string, width: number = SCREEN_WIDTH): string {
   const visibleLength = getVisibleLength(text);
   if (visibleLength >= width) {
     return text;
@@ -510,28 +616,30 @@ function centerText(text: string, width: number = 80): string {
 }
 
 /**
- * Pads rows array to exactly 24 rows, each exactly 80 visible characters (full screen width)
+ * Pads rows array to exactly 24 rows, each exactly 40 visible characters (teletext screen width)
  */
 function padRows(rows: string[]): string[] {
   const paddedRows = rows.map(row => {
     const visibleLength = getVisibleLength(row);
     
-    if (visibleLength > 80) {
-      // Don't truncate - let it overflow (color codes make this tricky)
+    if (visibleLength > SCREEN_WIDTH) {
+      // Truncate if too long (shouldn't happen with proper design)
+      // This is tricky with color codes, so we'll just warn
+      console.warn(`Row exceeds ${SCREEN_WIDTH} characters:`, row);
       return row;
-    } else if (visibleLength < 80) {
-      // Pad to exactly 80 visible characters
-      const paddingNeeded = 80 - visibleLength;
+    } else if (visibleLength < SCREEN_WIDTH) {
+      // Pad to exactly SCREEN_WIDTH visible characters
+      const paddingNeeded = SCREEN_WIDTH - visibleLength;
       return row + ' '.repeat(paddingNeeded);
     }
     
     return row;
   });
 
-  // Ensure exactly 24 rows
-  while (paddedRows.length < 24) {
-    paddedRows.push(''.padEnd(80, ' '));
+  // Ensure exactly SCREEN_HEIGHT rows
+  while (paddedRows.length < SCREEN_HEIGHT) {
+    paddedRows.push(''.padEnd(SCREEN_WIDTH, ' '));
   }
 
-  return paddedRows.slice(0, 24);
+  return paddedRows.slice(0, SCREEN_HEIGHT);
 }
