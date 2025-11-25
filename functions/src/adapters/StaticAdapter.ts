@@ -59,9 +59,8 @@ export class StaticAdapter implements ContentAdapter {
 
 
   /**
-   * Creates the main index page (100) with visual enhancements
-   * Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 9.1, 9.2, 9.3, 9.4, 9.5
-   * Enhanced with ASCII art logo, pixelated shapes, colored blocks, icons, and visual navigation
+   * Creates the main index page (100) - clean, compact layout
+   * Requirements: 17.1, 17.2, 17.3, 17.4, 17.5
    */
   private getIndexPage(): TeletextPage {
     const now = new Date();
@@ -70,79 +69,42 @@ export class StaticAdapter implements ContentAdapter {
       minute: '2-digit'
     });
     
-    // Build enhanced content with ASCII art logo, visual separators, and icons
-    const rows: string[] = [];
-    
-    // Row 0: Page header with page number and time
-    rows.push(this.padText('P100', 8, 'left') + this.padText('MAIN INDEX', 24, 'center') + this.padText(timeStr, 8, 'right'));
-    
-    // Row 1: Empty separator
-    rows.push('');
-    
-    // Rows 2-4: ASCII art logo banner
-    rows.push('╔══════════════════════════════════╗');
-    rows.push('║  MODERN TELETEXT  ░▒▓█▓▒░       ║');
-    rows.push('╚══════════════════════════════════╝');
-    
-    // Row 5: Subtitle
-    rows.push(this.centerText('Your Gateway to Information', 40));
-    
-    // Row 6: Empty separator
-    rows.push('');
-    
-    // Row 7: Section header with pixelated decoration
-    rows.push('▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓');
-    
-    // Rows 8-9: News section (RED)
-    rows.push('📰 NEWS                  ►200 Headlines');
-    rows.push('  201 UK  202 World  203 Local        ');
-    
-    // Row 10: Separator
-    rows.push('════════════════════════════════════════');
-    
-    // Rows 11-12: Sport section (GREEN)
-    rows.push('⚽ SPORT                  ►300 Headlines');
-    rows.push('  301 Football  302 Cricket  304 Live  ');
-    
-    // Row 13: Separator
-    rows.push('════════════════════════════════════════');
-    
-    // Rows 14-15: Markets section (YELLOW)
-    rows.push('📈 MARKETS               ►400 Overview ');
-    rows.push('  401 Stocks  402 Crypto  403 Commodit.');
-    
-    // Row 16: Separator
-    rows.push('════════════════════════════════════════');
-    
-    // Row 17: Weather section (CYAN)
-    rows.push('🌤  WEATHER              ►420 Forecast ');
-    
-    // Row 18: Separator
-    rows.push('════════════════════════════════════════');
-    
-    // Row 19: AI & Games section (BLUE/MAGENTA)
-    rows.push('🤖 AI ►500  🎮 GAMES ►600  ⚙️  SET ►700');
-    
-    // Row 20: Separator with decoration
-    rows.push('▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓');
-    
-    // Row 21: Navigation legend
-    rows.push(this.centerText('NAVIGATION: Enter 3-digit page #', 40));
-    
-    // Row 22: Empty
-    rows.push('');
-    
-    // Row 23: Footer with colored button hints
-    rows.push('🔴NEWS 🟢SPORT 🟡MARKETS 🔵AI  999=HELP');
+    const rows = [
+      'P100            MAIN INDEX          ' + timeStr,
+      '                                        ',
+      '      MODERN TELETEXT SERVICE          ',
+      '========================================',
+      'NEWS & INFO          MARKETS & MONEY   ',
+      '200 Headlines        400 Overview      ',
+      '201 UK News          401 Stocks        ',
+      '202 World News       402 Crypto        ',
+      '203 Local News       403 Commodities   ',
+      '                                        ',
+      'SPORT & LEISURE      WEATHER & TRAVEL  ',
+      '300 Headlines        420 Forecast      ',
+      '301 Football         421 London        ',
+      '302 Cricket          422 New York      ',
+      '304 Live Scores      423 Tokyo         ',
+      '                                        ',
+      'AI ORACLE            GAMES & QUIZZES   ',
+      '500 AI Chat          600 Games Menu    ',
+      '505 Ask Question     601 Quiz Daily    ',
+      '510 AI Topics        610 Bamboozle     ',
+      '                                        ',
+      'SETTINGS & SYSTEM                       ',
+      '700 Settings  800 Dev  999 Help        ',
+      '========================================',
+      '     Enter 3-digit page number         '
+    ];
     
     return {
       id: '100',
       title: 'Main Index',
-      rows: rows.map(row => this.padText(row, 40, 'left')),
+      rows: this.padRows(rows),
       links: [
         { label: 'NEWS', targetPage: '200', color: 'red' },
         { label: 'SPORT', targetPage: '300', color: 'green' },
-        { label: 'MARKETS', targetPage: '400', color: 'yellow' },
+        { label: 'HELP', targetPage: '999', color: 'yellow' },
         { label: 'AI', targetPage: '500', color: 'blue' }
       ],
       meta: {
@@ -169,28 +131,6 @@ export class StaticAdapter implements ContentAdapter {
         }
       }
     };
-  }
-
-  /**
-   * Pads text to exact width with alignment
-   */
-  private padText(text: string, width: number, align: 'left' | 'center' | 'right'): string {
-    const truncated = text.length > width ? text.substring(0, width) : text;
-    if (truncated.length === width) return truncated;
-    
-    const padding = width - truncated.length;
-    switch (align) {
-      case 'center': {
-        const leftPad = Math.floor(padding / 2);
-        const rightPad = padding - leftPad;
-        return ' '.repeat(leftPad) + truncated + ' '.repeat(rightPad);
-      }
-      case 'right':
-        return ' '.repeat(padding) + truncated;
-      case 'left':
-      default:
-        return truncated + ' '.repeat(padding);
-    }
   }
 
   /**
