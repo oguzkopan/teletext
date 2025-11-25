@@ -31,40 +31,38 @@ const createDemoPage = (showWelcome: boolean = false): TeletextPage => {
     second: '2-digit'
   });
   
-  // Full-screen multi-column layout like Ceefax with ASCII art logo
+  // Full-screen layout optimized for 40×24 teletext
   page.rows = [
-    `{cyan}100 {yellow}🎃 KIROWEEN TELETEXT 🎃{cyan} ${dateStr} ${timeStr} {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
+    `{cyan}100 {yellow}KIROWEEN {cyan}${timeStr}`,
+    '{blue}════════════════════════════════════',
     showWelcome 
-      ? '{green}                    👻 SYSTEM READY - WELCOME! 👻                              '
-      : '{yellow}╔══════════════════════════════════════════════════════════════════════════╗',
+      ? '{green}    👻 SYSTEM READY - WELCOME! 👻'
+      : '',
     showWelcome
-      ? '{blue}═══════════════════════════════════════════════════════════════════════════════'
-      : '{yellow}║  {magenta}MODERN TELETEXT{yellow}  {white}░▒▓█▓▒░  {cyan}Your Gateway to Information{yellow}           ║',
+      ? '{blue}════════════════════════════════════'
+      : '{yellow}🎃 {magenta}MODERN TELETEXT{yellow} 🎃',
     showWelcome
       ? ''
-      : '{yellow}╚══════════════════════════════════════════════════════════════════════════╝',
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
-    '{cyan}▓▓▓ NEWS & INFO ▓▓▓      {magenta}▓▓▓ ENTERTAINMENT ▓▓▓    {yellow}▓▓▓ SERVICES ▓▓▓       ',
-    '{green}101{white} System Status       {red}600{white} Games & Quizzes      {cyan}700{white} Settings          ',
-    '{green}200{white} News Headlines      {red}601{white} Quiz of the Day      {cyan}701{white} Themes            ',
-    '{green}201{white} UK News             {red}610{white} Bamboozle Quiz       {cyan}800{white} Dev Tools         ',
-    '{green}202{white} World News          {red}620{white} Random Facts         {cyan}999{white} Help              ',
-    '{green}203{white} Local News          {yellow}500{white} AI Chat             {magenta}666{white} Cursed Page       ',
-    '{blue}───────────────────────────────────────────────────────────────────────────────',
-    '{cyan}▓▓▓ SPORT & LEISURE ▓▓▓  {yellow}▓▓▓ MARKETS & MONEY ▓▓▓  {red}▓▓▓ WEATHER & TRAVEL ▓▓',
-    '{green}300{white} Sport Headlines     {green}400{white} Markets Overview    {green}420{white} Weather Forecast  ',
-    '{green}301{white} Football            {green}401{white} Stock Prices        {green}421{white} London Weather    ',
-    '{green}302{white} Cricket             {green}402{white} Crypto Markets      {green}422{white} New York Weather  ',
-    '{green}303{white} Tennis              {green}403{white} Commodities         {green}423{white} Tokyo Weather     ',
-    '{green}304{white} Live Scores         {green}404{white} Void Page           {green}424{white} Traffic Info      ',
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
-    '{cyan}🎃 NAVIGATION: {white}Type {yellow}3-digit{white} page number or use {red}R{white}/{green}G{white}/{yellow}Y{white}/{blue}B{white} buttons',
-    '{white}Press {cyan}999{white} for help • Press {magenta}666{white} if you dare... 👻',
-    '{blue}───────────────────────────────────────────────────────────────────────────────',
-    '{yellow}POPULAR PAGES: {green}200{white} News {green}300{white} Sport {green}400{white} Markets {green}500{white} AI {green}600{white} Games',
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
-    '{yellow}                    ⚡ Kiroween 2024 - Built with Kiro ⚡                       '
+      : '',
+    '{cyan}▓▓▓ NEWS & INFO ▓▓▓',
+    '{green}101{white} System Status',
+    '{green}200{white} News Headlines',
+    '{green}201{white} UK News',
+    '{green}202{white} World News',
+    '{green}203{white} Local News',
+    '',
+    '{cyan}▓▓▓ SPORT & LEISURE ▓▓▓',
+    '{green}300{white} Sport Headlines',
+    '{green}301{white} Football',
+    '{green}302{white} Cricket',
+    '{green}303{white} Tennis',
+    '{green}304{white} Live Scores',
+    '',
+    '{cyan}▓▓▓ MORE SERVICES ▓▓▓',
+    '{green}400{white} Markets  {green}500{white} AI  {green}600{white} Games',
+    '',
+    '{blue}════════════════════════════════════',
+    '{red}100{white}=INDEX {green}999{white}=HELP'
   ];
   
   page.links = [

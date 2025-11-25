@@ -8,9 +8,9 @@
 import { TeletextPage } from '@/types/teletext';
 import { DEFAULT_WIDTH, DEFAULT_HEIGHT } from './screen-dimensions';
 
-// Use responsive dimensions (defaults to 80×24 for modern screens)
-const SCREEN_WIDTH = DEFAULT_WIDTH;
-const SCREEN_HEIGHT = DEFAULT_HEIGHT;
+// Use standard teletext dimensions (40×24)
+const SCREEN_WIDTH = 40;
+const SCREEN_HEIGHT = 24;
 
 /**
  * Creates a fallback page when emulators are not running
@@ -18,29 +18,29 @@ const SCREEN_HEIGHT = DEFAULT_HEIGHT;
 export function createEmulatorOfflinePage(pageId: string): TeletextPage {
   const rows = [
     `{cyan}${pageId} {yellow}EMULATOR OFFLINE`,
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
+    '{blue}════════════════════════════════════',
     '',
     '{red}⚠ FIREBASE EMULATORS NOT RUNNING ⚠',
     '',
-    '{white}The Firebase emulators need to be running to fetch this page.',
+    '{white}Firebase emulators need to be',
+    '{white}running to fetch this page.',
     '',
     '{yellow}TO START EMULATORS:',
     '',
     '{white}1. Open a new terminal',
-    '{white}2. Run: {green}npm run emulators:start',
+    '{white}2. Run:',
+    '   {green}npm run emulators:start',
     '{white}3. Wait for "All emulators ready"',
     '{white}4. Refresh this page',
     '',
     '{yellow}ALTERNATIVE:',
-    '{white}Use fallback pages below for offline-first development.',
+    '{white}Use fallback pages for offline',
+    '{white}development.',
     '',
     '{white}See SETUP.md for more details.',
     '',
-    '',
-    '',
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
-    '{red}100=INDEX   {green}999=HELP',
-    ''
+    '{blue}════════════════════════════════════',
+    '{red}100{white}=INDEX {green}999{white}=HELP'
   ];
 
   return {
@@ -78,30 +78,30 @@ export function createFallbackIndexPage(): TeletextPage {
   });
   
   const rows = [
-    `{cyan}100 {yellow}🎃 KIROWEEN TELETEXT 🎃{cyan} ${dateStr} ${timeStr} {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
-    '{yellow}╔══════════════════════════════════════════════════════════════════════════╗',
-    '{yellow}║  {magenta}MODERN TELETEXT{yellow}  {white}░▒▓█▓▒░  {cyan}Your Gateway to Information{yellow}           ║',
-    '{yellow}╚══════════════════════════════════════════════════════════════════════════╝',
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
-    '{cyan}▓▓▓ NEWS & INFO ▓▓▓      {magenta}▓▓▓ ENTERTAINMENT ▓▓▓    {yellow}▓▓▓ SERVICES ▓▓▓       ',
-    '{green}101{white} System Status       {red}600{white} Games & Quizzes      {cyan}700{white} Settings          ',
-    '{green}200{white} News Headlines      {red}601{white} Quiz of the Day      {cyan}701{white} Themes            ',
-    '{green}201{white} UK News             {red}610{white} Bamboozle Quiz       {cyan}800{white} Dev Tools         ',
-    '{green}202{white} World News          {red}620{white} Random Facts         {cyan}999{white} Help              ',
-    '{green}203{white} Local News          {yellow}500{white} AI Chat             {magenta}666{white} Cursed Page       ',
-    '{blue}───────────────────────────────────────────────────────────────────────────────',
-    '{cyan}▓▓▓ SPORT & LEISURE ▓▓▓  {yellow}▓▓▓ MARKETS & MONEY ▓▓▓  {red}▓▓▓ WEATHER & TRAVEL ▓▓',
-    '{green}300{white} Sport Headlines     {green}400{white} Markets Overview    {green}420{white} Weather Forecast  ',
-    '{green}301{white} Football            {green}401{white} Stock Prices        {green}421{white} London Weather    ',
-    '{green}302{white} Cricket             {green}402{white} Crypto Markets      {green}422{white} New York Weather  ',
-    '{green}303{white} Tennis              {green}403{white} Commodities         {green}423{white} Tokyo Weather     ',
-    '{green}304{white} Live Scores         {green}404{white} Void Page           {green}424{white} Traffic Info      ',
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
-    '{cyan}🎃 NAVIGATION: {white}Type {yellow}3-digit{white} page number or use {red}R{white}/{green}G{white}/{yellow}Y{white}/{blue}B{white} buttons',
-    '{white}Press {cyan}999{white} for help • Press {magenta}666{white} if you dare... 👻',
-    '{blue}───────────────────────────────────────────────────────────────────────────────',
-    '{yellow}POPULAR PAGES: {green}200{white} News {green}300{white} Sport {green}400{white} Markets {green}500{white} AI {green}600{white} Games'
+    `{cyan}100 {yellow}KIROWEEN {cyan}${timeStr}`,
+    '{blue}════════════════════════════════════',
+    '',
+    '{yellow}🎃 {magenta}MODERN TELETEXT{yellow} 🎃',
+    '',
+    '{cyan}▓▓▓ NEWS & INFO ▓▓▓',
+    '{green}101{white} System Status',
+    '{green}200{white} News Headlines',
+    '{green}201{white} UK News',
+    '{green}202{white} World News',
+    '{green}203{white} Local News',
+    '',
+    '{cyan}▓▓▓ SPORT & LEISURE ▓▓▓',
+    '{green}300{white} Sport Headlines',
+    '{green}301{white} Football',
+    '{green}302{white} Cricket',
+    '{green}303{white} Tennis',
+    '{green}304{white} Live Scores',
+    '',
+    '{cyan}▓▓▓ MORE SERVICES ▓▓▓',
+    '{green}400{white} Markets  {green}500{white} AI  {green}600{white} Games',
+    '',
+    '{blue}════════════════════════════════════',
+    '{red}100{white}=INDEX {green}999{white}=HELP'
   ];
 
   return {
@@ -134,29 +134,29 @@ export function createFallbackNewsPage(): TeletextPage {
   
   const rows = [
     `{cyan}200 {yellow}NEWS INDEX {cyan}${timeStr}`,
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
+    '{blue}════════════════════════════════════',
     '',
     '{red}📰 NEWS SERVICE UNAVAILABLE',
     '',
-    '{white}The news service requires Firebase emulators to be running.',
+    '{white}News service requires Firebase',
+    '{white}emulators to be running.',
     '',
     '{yellow}TO ACCESS NEWS:',
     '',
     '{white}1. Start Firebase emulators',
     '   {green}npm run emulators:start',
     '',
-    '{white}2. Ensure {cyan}NEWS_API_KEY{white} is set in {cyan}.env.local',
+    '{white}2. Ensure {cyan}NEWS_API_KEY{white} is set',
+    '   in {cyan}.env.local',
     '',
     '{white}3. Refresh this page',
     '',
-    '{white}See {cyan}NEWS_API_SETUP.md{white} for details.',
+    '{white}See {cyan}NEWS_API_SETUP.md{white} for',
+    '{white}details.',
     '',
     '',
-    '',
-    '',
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
-    '{red}100=INDEX   {green}999=HELP',
-    ''
+    '{blue}════════════════════════════════════',
+    '{red}100{white}=INDEX {green}999{white}=HELP'
   ];
 
   return {
@@ -188,29 +188,28 @@ export function createFallbackSportsPage(): TeletextPage {
   
   const rows = [
     `{cyan}300 {yellow}SPORT INDEX {cyan}${timeStr}`,
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
+    '{blue}════════════════════════════════════',
     '',
     '{red}⚽ SPORT SERVICE UNAVAILABLE',
     '',
-    '{white}The sport service requires Firebase emulators to be running.',
+    '{white}Sport service requires Firebase',
+    '{white}emulators to be running.',
     '',
     '{yellow}TO ACCESS SPORT:',
     '',
     '{white}1. Start Firebase emulators',
     '   {green}npm run emulators:start',
     '',
-    '{white}2. Ensure {cyan}SPORTS_API_KEY{white} is set in {cyan}.env.local{white} (optional)',
+    '{white}2. Ensure {cyan}SPORTS_API_KEY{white} is',
+    '   set in {cyan}.env.local{white} (optional)',
     '',
     '{white}3. Refresh this page',
     '',
-    '{white}See {cyan}SPORTS_API_SETUP.md{white} for details.',
+    '{white}See {cyan}SPORTS_API_SETUP.md{white} for',
+    '{white}details.',
     '',
-    '',
-    '',
-    '',
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
-    '{red}100=INDEX   {green}999=HELP',
-    ''
+    '{blue}════════════════════════════════════',
+    '{red}100{white}=INDEX {green}999{white}=HELP'
   ];
 
   return {
@@ -242,11 +241,12 @@ export function createFallbackMarketsPage(): TeletextPage {
   
   const rows = [
     `{cyan}400 {yellow}MARKETS INDEX {cyan}${timeStr}`,
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
+    '{blue}════════════════════════════════════',
     '',
     '{red}📈 MARKETS SERVICE UNAVAILABLE',
     '',
-    '{white}The markets service requires Firebase emulators to be running.',
+    '{white}Markets service requires Firebase',
+    '{white}emulators to be running.',
     '',
     '{yellow}TO ACCESS MARKETS:',
     '',
@@ -255,16 +255,14 @@ export function createFallbackMarketsPage(): TeletextPage {
     '',
     '{white}2. Refresh this page',
     '',
-    '{white}Market data is fetched from free APIs (CoinGecko, etc.)',
+    '{white}Market data is fetched from',
+    '{white}free APIs (CoinGecko, etc.)',
     '',
-    '{white}See {cyan}MARKETS_API_SETUP.md{white} for details.',
+    '{white}See {cyan}MARKETS_API_SETUP.md{white} for',
+    '{white}details.',
     '',
-    '',
-    '',
-    '',
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
-    '{red}100=INDEX   {green}999=HELP',
-    ''
+    '{blue}════════════════════════════════════',
+    '{red}100{white}=INDEX {green}999{white}=HELP'
   ];
 
   return {
@@ -296,29 +294,28 @@ export function createFallbackAIPage(): TeletextPage {
   
   const rows = [
     `{cyan}500 {yellow}AI ORACLE {cyan}${timeStr}`,
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
+    '{blue}════════════════════════════════════',
     '',
     '{red}🤖 AI SERVICE UNAVAILABLE',
     '',
-    '{white}The AI Oracle requires Firebase emulators and Vertex AI to be configured.',
+    '{white}AI Oracle requires Firebase',
+    '{white}emulators and Vertex AI to be',
+    '{white}configured.',
     '',
     '{yellow}TO ACCESS AI ORACLE:',
     '',
     '{white}1. Start Firebase emulators',
     '   {green}npm run emulators:start',
     '',
-    '{white}2. Ensure Vertex AI is configured',
+    '{white}2. Ensure Vertex AI is',
+    '   configured',
     '   See {cyan}AI_ADAPTER_SETUP.md',
     '',
     '{white}3. Refresh this page',
     '',
     '',
-    '',
-    '',
-    '',
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
-    '{red}100=INDEX   {green}999=HELP',
-    ''
+    '{blue}════════════════════════════════════',
+    '{red}100{white}=INDEX {green}999{white}=HELP'
   ];
 
   return {
@@ -350,11 +347,12 @@ export function createFallbackGamesPage(): TeletextPage {
   
   const rows = [
     `{cyan}600 {yellow}GAMES INDEX {cyan}${timeStr}`,
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
+    '{blue}════════════════════════════════════',
     '',
     '{red}🎮 GAMES SERVICE UNAVAILABLE',
     '',
-    '{white}The games service requires Firebase emulators to be running.',
+    '{white}Games service requires Firebase',
+    '{white}emulators to be running.',
     '',
     '{yellow}TO ACCESS GAMES:',
     '',
@@ -363,16 +361,14 @@ export function createFallbackGamesPage(): TeletextPage {
     '',
     '{white}2. Refresh this page',
     '',
-    '{white}Games include quizzes, Bamboozle, and random facts.',
+    '{white}Games include quizzes,',
+    '{white}Bamboozle, and random facts.',
     '',
-    '{white}See {cyan}GAMES_ADAPTER_SETUP.md{white} for details.',
+    '{white}See {cyan}GAMES_ADAPTER_SETUP.md{white} for',
+    '{white}details.',
     '',
-    '',
-    '',
-    '',
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
-    '{red}100=INDEX   {green}999=HELP',
-    ''
+    '{blue}════════════════════════════════════',
+    '{red}100{white}=INDEX {green}999{white}=HELP'
   ];
 
   return {
@@ -404,11 +400,12 @@ export function createFallbackSettingsPage(): TeletextPage {
   
   const rows = [
     `{cyan}700 {yellow}SETTINGS {cyan}${timeStr}`,
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
+    '{blue}════════════════════════════════════',
     '',
     '{red}⚙️ SETTINGS SERVICE UNAVAILABLE',
     '',
-    '{white}The settings service requires Firebase emulators to be running.',
+    '{white}Settings service requires Firebase',
+    '{white}emulators to be running.',
     '',
     '{yellow}TO ACCESS SETTINGS:',
     '',
@@ -417,16 +414,14 @@ export function createFallbackSettingsPage(): TeletextPage {
     '',
     '{white}2. Refresh this page',
     '',
-    '{white}Settings include themes, CRT effects, and keyboard shortcuts.',
+    '{white}Settings include themes, CRT',
+    '{white}effects, and keyboard shortcuts.',
     '',
     '{white}See {cyan}SETTINGS_ADAPTER_SETUP.md',
     '',
     '',
-    '',
-    '',
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
-    '{red}100=INDEX   {green}999=HELP',
-    ''
+    '{blue}════════════════════════════════════',
+    '{red}100{white}=INDEX {green}999{white}=HELP'
   ];
 
   return {
@@ -458,11 +453,12 @@ export function createFallbackDevPage(): TeletextPage {
   
   const rows = [
     `{cyan}800 {yellow}DEVELOPER TOOLS {cyan}${timeStr}`,
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
+    '{blue}════════════════════════════════════',
     '',
     '{red}🔧 DEV TOOLS SERVICE UNAVAILABLE',
     '',
-    '{white}The developer tools require Firebase emulators to be running.',
+    '{white}Developer tools require Firebase',
+    '{white}emulators to be running.',
     '',
     '{yellow}TO ACCESS DEV TOOLS:',
     '',
@@ -471,16 +467,13 @@ export function createFallbackDevPage(): TeletextPage {
     '',
     '{white}2. Refresh this page',
     '',
-    '{white}Dev tools include API explorer, raw JSON viewer, and documentation.',
+    '{white}Dev tools include API explorer,',
+    '{white}raw JSON viewer, and docs.',
     '',
     '{white}See {cyan}DEV_ADAPTER_SETUP.md',
     '',
-    '',
-    '',
-    '',
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
-    '{red}100=INDEX   {green}999=HELP',
-    ''
+    '{blue}════════════════════════════════════',
+    '{red}100{white}=INDEX {green}999{white}=HELP'
   ];
 
   return {
@@ -512,31 +505,27 @@ export function createFallbackLocalNewsPage(): TeletextPage {
   
   const rows = [
     `{cyan}203 {yellow}LOCAL NEWS {cyan}${timeStr}`,
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
+    '{blue}════════════════════════════════════',
     '',
     '{white}Updated: {green}18:00',
     '{white}Use color buttons to navigate',
     '',
-    '{yellow}1. {white}Judge dismisses cases against James...',
-    '{cyan}NBC News',
+    '{yellow}1. {white}Judge dismisses cases',
+    '   {white}against James...',
+    '   {cyan}NBC News',
     '',
-    '{yellow}2. {white}The complicated relationship between...',
-    '{cyan}The Washington Post',
+    '{yellow}2. {white}The complicated',
+    '   {white}relationship between...',
+    '   {cyan}The Washington Post',
     '',
-    '{yellow}3. {white}Why the Idea That Shedeur Sanders...',
-    '{cyan}Sports Illustrated',
-    '',
-    '{yellow}4. {white}Pentagon probing misconduct allegations...',
-    '{cyan}CNBC',
-    '',
-    '{yellow}5. {white}Zach Bryan announces "With Heaven..." tour dates',
-    '{cyan}clevelandbrowns.com',
+    '{yellow}3. {white}Why the Idea That',
+    '   {white}Shedeur Sanders...',
+    '   {cyan}Sports Illustrated',
     '',
     '',
     '',
-    '{blue}═══════════════════════════════════════════════════════════════════════════════',
-    '{red}100=INDEX   {green}201=UK NEWS   {yellow}202=WORLD NEWS   {blue}PREV   {magenta}NEXT',
-    ''
+    '{blue}════════════════════════════════════',
+    '{red}100{white}=INDEX {green}201{white}=UK {yellow}202{white}=WORLD'
   ];
 
   return {
