@@ -12,7 +12,7 @@ import {
   getScoreFlashClass,
   getFullTimeAnimationClass,
   ScoreChangeTracker
-} from '../../../lib/sports-live-indicators';
+} from '../lib/sports-live-indicators';
 import {
   applyAdapterLayout,
   createSeparator,

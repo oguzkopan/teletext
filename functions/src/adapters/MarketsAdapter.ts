@@ -12,7 +12,7 @@ import {
 } from '../utils/adapter-layout-helper';
 import {
   getTrendArrowFromChange
-} from '../../../lib/market-trend-indicators';
+} from '../lib/market-trend-indicators';
 
 /**
  * MarketsAdapter serves market pages (400-499)

@@ -10,7 +10,7 @@ import {
   formatTemperature,
   getTemperatureTrend,
   getTemperatureColor
-} from '../../../lib/weather-icons';
+} from '../lib/weather-icons';
 import {
   applyAdapterLayout,
   createSeparator,
