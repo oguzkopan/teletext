@@ -596,12 +596,13 @@ const TeletextScreen = React.memo(function TeletextScreen({
           height: calc(100vh / 24);
           min-height: calc(100vh / 24);
           width: 100%;
-          overflow: visible;
+          overflow: hidden;
           display: flex;
           align-items: center;
           line-height: 1.15;
-          padding-left: 0.5vw;
-          padding-right: 0.5vw;
+          padding-left: 1ch;
+          padding-right: 1ch;
+          box-sizing: border-box;
         }
         
         /* Interactive element highlighting - Requirements 25.1, 25.2, 25.3, 25.4, 25.5 */

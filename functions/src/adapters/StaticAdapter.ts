@@ -60,8 +60,8 @@ export class StaticAdapter implements ContentAdapter {
 
   /**
    * Creates the main index page (100) with visual enhancements
-   * Requirements: 17.1, 17.2, 17.3, 17.4, 17.5
-   * Uses new layout engine with 2-column layout
+   * Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 9.1, 9.2, 9.3, 9.4, 9.5
+   * Enhanced with ASCII art logo, pixelated shapes, colored blocks, icons, and visual navigation
    */
   private getIndexPage(): TeletextPage {
     const now = new Date();
@@ -70,148 +70,107 @@ export class StaticAdapter implements ContentAdapter {
       minute: '2-digit'
     });
     
-    // Build content in 2-column format
-    // Content is designed to flow naturally into 2 columns
-    const content = [
-      '    MODERN TELETEXT SERVICE',
-      '    Your Gateway to Information',
-      '',
-      '══════════════════════════════════',
-      '',
-      '200 News Headlines',
-      '201 UK News',
-      '202 World News',
-      '203 Local News',
-      '',
-      '300 Sport Headlines',
-      '301 Football',
-      '302 Cricket',
-      '303 Tennis',
-      '304 Live Scores',
-      '',
-      '400 Markets Overview',
-      '401 Stock Prices',
-      '402 Crypto Markets',
-      '403 Commodities',
-      '',
-      '420 Weather Forecast',
-      '421 London Weather',
-      '422 New York Weather',
-      '423 Tokyo Weather',
-      '',
-      '500 AI Chat',
-      '505 Ask a Question',
-      '510 AI Topics',
-      '',
-      '600 Games Menu',
-      '601 Quiz of the Day',
-      '610 Bamboozle Quiz',
-      '',
-      '700 Settings',
-      '701 Themes',
-      '800 Dev Tools',
-      '',
-      '101 System Status',
-      '110 System Pages',
-      '999 Help',
-      '666 Cursed Page'
-    ];
-
+    // Build enhanced content with ASCII art logo, visual separators, and icons
+    const rows: string[] = [];
+    
+    // Row 0: Page header with page number and time
+    rows.push(this.padText('P100', 8, 'left') + this.padText('MAIN INDEX', 24, 'center') + this.padText(timeStr, 8, 'right'));
+    
+    // Row 1: Empty separator
+    rows.push('');
+    
+    // Rows 2-4: ASCII art logo banner
+    rows.push('╔══════════════════════════════════╗');
+    rows.push('║  MODERN TELETEXT  ░▒▓█▓▒░       ║');
+    rows.push('╚══════════════════════════════════╝');
+    
+    // Row 5: Subtitle
+    rows.push(this.centerText('Your Gateway to Information', 40));
+    
+    // Row 6: Empty separator
+    rows.push('');
+    
+    // Row 7: Section header with pixelated decoration
+    rows.push('▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓');
+    
+    // Rows 8-9: News section (RED)
+    rows.push('📰 NEWS                  ►200 Headlines');
+    rows.push('  201 UK  202 World  203 Local        ');
+    
+    // Row 10: Separator
+    rows.push('════════════════════════════════════════');
+    
+    // Rows 11-12: Sport section (GREEN)
+    rows.push('⚽ SPORT                  ►300 Headlines');
+    rows.push('  301 Football  302 Cricket  304 Live  ');
+    
+    // Row 13: Separator
+    rows.push('════════════════════════════════════════');
+    
+    // Rows 14-15: Markets section (YELLOW)
+    rows.push('📈 MARKETS               ►400 Overview ');
+    rows.push('  401 Stocks  402 Crypto  403 Commodit.');
+    
+    // Row 16: Separator
+    rows.push('════════════════════════════════════════');
+    
+    // Row 17: Weather section (CYAN)
+    rows.push('🌤  WEATHER              ►420 Forecast ');
+    
+    // Row 18: Separator
+    rows.push('════════════════════════════════════════');
+    
+    // Row 19: AI & Games section (BLUE/MAGENTA)
+    rows.push('🤖 AI ►500  🎮 GAMES ►600  ⚙️  SET ►700');
+    
+    // Row 20: Separator with decoration
+    rows.push('▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓');
+    
+    // Row 21: Navigation legend
+    rows.push(this.centerText('NAVIGATION: Enter 3-digit page #', 40));
+    
+    // Row 22: Empty
+    rows.push('');
+    
+    // Row 23: Footer with colored button hints
+    rows.push('🔴NEWS 🟢SPORT 🟡MARKETS 🔵AI  999=HELP');
+    
     return {
       id: '100',
       title: 'Main Index',
-      rows: this.renderWithLayoutEngine({
-        pageNumber: '100',
-        title: 'Main Index',
-        content: content,
-        columns: 2,
-        timestamp: timeStr,
-        hints: [
-          { text: 'Enter 3-digit page number' }
-        ]
-      }),
+      rows: rows.map(row => this.padText(row, 40, 'left')),
       links: [
         { label: 'NEWS', targetPage: '200', color: 'red' },
         { label: 'SPORT', targetPage: '300', color: 'green' },
-        { label: 'WEATHER', targetPage: '420', color: 'yellow' },
+        { label: 'MARKETS', targetPage: '400', color: 'yellow' },
         { label: 'AI', targetPage: '500', color: 'blue' }
       ],
       meta: {
         source: 'StaticAdapter',
         lastUpdated: new Date().toISOString(),
-        inputMode: 'triple'
+        inputMode: 'triple',
+        animatedLogo: true,
+        logoAnimation: 'logo-pulse',
+        specialPageAnimation: {
+          type: 'ascii-frames',
+          name: 'logo-pulse',
+          targetRows: [2, 3, 4], // The logo rows
+          frames: [
+            '╔══════════════════════════════════╗\n║  MODERN TELETEXT  ░▒▓█▓▒░       ║\n╚══════════════════════════════════╝',
+            '╔══════════════════════════════════╗\n║  MODERN TELETEXT  ▒▓█▓▒          ║\n╚══════════════════════════════════╝',
+            '╔══════════════════════════════════╗\n║  MODERN TELETEXT  ▓█▓            ║\n╚══════════════════════════════════╝',
+            '╔══════════════════════════════════╗\n║  MODERN TELETEXT  █              ║\n╚══════════════════════════════════╝',
+            '╔══════════════════════════════════╗\n║  MODERN TELETEXT  ▓█▓            ║\n╚══════════════════════════════════╝',
+            '╔══════════════════════════════════╗\n║  MODERN TELETEXT  ▒▓█▓▒          ║\n╚══════════════════════════════════╝',
+            '╔══════════════════════════════════╗\n║  MODERN TELETEXT  ░▒▓█▓▒░       ║\n╚══════════════════════════════════╝'
+          ],
+          duration: 2100, // 300ms per frame × 7 frames
+          loop: true
+        }
       }
     };
   }
 
-  /**
-   * Helper method to render pages using the layout engine
-   * Implements a simplified version of the layout engine for the backend
-   */
-  private renderWithLayoutEngine(options: {
-    pageNumber: string;
-    title: string;
-    content: string | string[];
-    columns: number;
-    timestamp?: string;
-    hints?: Array<{ text: string; color?: string }>;
-  }): string[] {
-    const TELETEXT_WIDTH = 40;
-    const TELETEXT_HEIGHT = 24;
-    const HEADER_HEIGHT = 2;
-    const FOOTER_HEIGHT = 2;
-    const CONTENT_HEIGHT = TELETEXT_HEIGHT - HEADER_HEIGHT - FOOTER_HEIGHT;
-    
-    const rows: string[] = [];
-    
-    // Render header (2 rows)
-    const pageNumPadded = this.padText(options.pageNumber, 8, 'left');
-    const rightContent = options.timestamp || '';
-    const rightPadded = this.padText(rightContent, 8, 'right');
-    const centerWidth = TELETEXT_WIDTH - 8 - 8;
-    const titleCentered = this.padText(this.truncateText(options.title, centerWidth), centerWidth, 'center');
-    rows.push(pageNumPadded + titleCentered + rightPadded);
-    rows.push(' '.repeat(TELETEXT_WIDTH));
-    
-    // Prepare content lines
-    let contentLines: string[];
-    if (typeof options.content === 'string') {
-      contentLines = this.wrapText(options.content, TELETEXT_WIDTH);
-    } else {
-      contentLines = options.content.flatMap(line => this.wrapText(line, TELETEXT_WIDTH));
-    }
-    
-    // Calculate column widths
-    const gutter = 2;
-    const columnWidths = this.calculateColumnWidths(TELETEXT_WIDTH, options.columns, gutter);
-    
-    // Flow text to columns
-    const columnData = this.flowTextToColumns(contentLines, columnWidths);
-    
-    // Merge columns horizontally
-    const mergedContent = this.mergeColumns(columnData, columnWidths, gutter);
-    
-    // Take only the lines that fit in content area
-    const contentToDisplay = mergedContent.slice(0, CONTENT_HEIGHT);
-    rows.push(...contentToDisplay);
-    
-    // Fill remaining content area with empty lines
-    while (rows.length < TELETEXT_HEIGHT - FOOTER_HEIGHT) {
-      rows.push(' '.repeat(TELETEXT_WIDTH));
-    }
-    
-    // Render footer (2 rows)
-    rows.push(' '.repeat(TELETEXT_WIDTH));
-    if (options.hints && options.hints.length > 0) {
-      const hintsText = options.hints.map(h => h.text).join('  ');
-      rows.push(this.padText(this.truncateText(hintsText, TELETEXT_WIDTH), TELETEXT_WIDTH, 'center'));
-    } else {
-      rows.push(' '.repeat(TELETEXT_WIDTH));
-    }
-    
-    return rows;
-  }
-  
   /**
    * Pads text to exact width with alignment
    */
@@ -232,96 +191,6 @@ export class StaticAdapter implements ContentAdapter {
       default:
         return truncated + ' '.repeat(padding);
     }
-  }
-  
-  /**
-   * Truncates text with ellipsis
-   */
-  private truncateText(text: string, maxLength: number): string {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength - 3) + '...';
-  }
-  
-  /**
-   * Calculates column widths for multi-column layouts
-   */
-  private calculateColumnWidths(totalWidth: number, columns: number, gutter: number): number[] {
-    if (columns < 1) columns = 1;
-    if (columns === 1) return [totalWidth];
-    
-    const totalGutter = gutter * (columns - 1);
-    const availableWidth = totalWidth - totalGutter;
-    const baseWidth = Math.floor(availableWidth / columns);
-    const remainder = availableWidth - (baseWidth * columns);
-    
-    const widths: number[] = Array(columns).fill(baseWidth);
-    if (remainder > 0) {
-      widths[widths.length - 1] += remainder;
-    }
-    
-    return widths;
-  }
-  
-  /**
-   * Distributes text lines across multiple columns
-   */
-  private flowTextToColumns(lines: string[], columnWidths: number[]): string[][] {
-    const columns: string[][] = [];
-    const numColumns = columnWidths.length;
-    
-    if (numColumns === 0) return [];
-    if (numColumns === 1) return [lines];
-    
-    const linesPerColumn = Math.ceil(lines.length / numColumns);
-    
-    for (let col = 0; col < numColumns; col++) {
-      const start = col * linesPerColumn;
-      const end = Math.min(start + linesPerColumn, lines.length);
-      const columnLines = lines.slice(start, end);
-      
-      const wrappedLines: string[] = [];
-      for (const line of columnLines) {
-        const wrapped = this.wrapText(line, columnWidths[col]);
-        wrappedLines.push(...wrapped);
-      }
-      
-      columns.push(wrappedLines);
-    }
-    
-    return columns;
-  }
-  
-  /**
-   * Merges multiple columns horizontally into single rows
-   */
-  private mergeColumns(columns: string[][], columnWidths: number[], gutter: number): string[] {
-    if (columns.length === 0) return [];
-    if (columns.length === 1) {
-      return columns[0].map(line => this.padText(line, 40, 'left'));
-    }
-    
-    const maxRows = Math.max(...columns.map(col => col.length));
-    const mergedRows: string[] = [];
-    const gutterStr = ' '.repeat(gutter);
-    
-    for (let row = 0; row < maxRows; row++) {
-      let mergedLine = '';
-      
-      for (let col = 0; col < columns.length; col++) {
-        const cellText = columns[col][row] || '';
-        const paddedCell = this.padText(cellText, columnWidths[col], 'left');
-        
-        mergedLine += paddedCell;
-        
-        if (col < columns.length - 1) {
-          mergedLine += gutterStr;
-        }
-      }
-      
-      mergedRows.push(mergedLine);
-    }
-    
-    return mergedRows;
   }
 
   /**
