@@ -233,8 +233,9 @@ export class NewsAdapter implements ContentAdapter {
     // Build page with proper layout
     const rows: string[] = [];
     
-    // Header (2 rows)
-    rows.push(`${pageId.padEnd(8)}${truncateText(categoryTitle, 24).padStart(24).padEnd(24)}        `);
+    // Header (2 rows) - properly formatted
+    const headerLine1 = `${pageId.padEnd(8)}${categoryTitle.substring(0, 24).padStart(16).padEnd(24)}        `;
+    rows.push(headerLine1.padEnd(40).substring(0, 40));
     rows.push(' '.repeat(40));
     
     // Content (20 rows available)
@@ -248,9 +249,10 @@ export class NewsAdapter implements ContentAdapter {
       rows.push(' '.repeat(40));
     }
     
-    // Footer (2 rows)
+    // Footer (2 rows) - properly formatted
     rows.push(' '.repeat(40));
-    rows.push('BACK    INDEX   PREV    NEXT'.padStart(20).padEnd(40));
+    const footerLine = 'BACK    INDEX   PREV    NEXT';
+    rows.push(footerLine.padEnd(40).substring(0, 40));
     
     return {
       id: pageId,
@@ -264,7 +266,8 @@ export class NewsAdapter implements ContentAdapter {
       ],
       meta: {
         source: 'NewsAdapter',
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
+        renderedWithLayoutEngine: true  // Prevent re-processing
       }
     };
   }
@@ -279,7 +282,7 @@ export class NewsAdapter implements ContentAdapter {
     const rows: string[] = [];
     
     // Header (2 rows)
-    rows.push('200     News Index                      ');
+    rows.push('200         News Index                  ');
     rows.push('                                        ');
     
     // Content (20 rows)
@@ -321,7 +324,8 @@ export class NewsAdapter implements ContentAdapter {
       meta: {
         source: 'NewsAdapter',
         lastUpdated: new Date().toISOString(),
-        contentType: 'news'
+        contentType: 'news',
+        renderedWithLayoutEngine: true  // Prevent re-processing
       }
     };
   }
@@ -526,13 +530,12 @@ export class NewsAdapter implements ContentAdapter {
       });
     }
 
-    // Use the new layout engine for rendering
-    // This will be imported from the layout engine module
-    // For now, we'll use the old approach but structure it properly
+    // Build the page with proper 40×24 layout
     const rows: string[] = [];
     
-    // Header (2 rows)
-    rows.push(`${pageId.padEnd(8)}${truncateText(title, 24).padStart(24).padEnd(24)}${timeStr.padStart(8)}`);
+    // Header (2 rows) - properly formatted
+    const headerLine1 = `${pageId.padEnd(8)}${title.substring(0, 24).padStart(16).padEnd(24)}${timeStr.padStart(8)}`;
+    rows.push(headerLine1.padEnd(40).substring(0, 40));
     rows.push(' '.repeat(40));
     
     // Content (20 rows)
@@ -546,9 +549,10 @@ export class NewsAdapter implements ContentAdapter {
       rows.push(' '.repeat(40));
     }
     
-    // Footer (2 rows)
+    // Footer (2 rows) - properly formatted
     rows.push(' '.repeat(40));
-    rows.push('INDEX   PREV    NEXT    BACK'.padStart(20).padEnd(40));
+    const footerLine = 'INDEX   PREV    NEXT    BACK';
+    rows.push(footerLine.padEnd(40).substring(0, 40));
 
     return {
       id: pageId,
@@ -565,7 +569,8 @@ export class NewsAdapter implements ContentAdapter {
         lastUpdated: new Date().toISOString(),
         contentType: 'news',
         inputMode: 'single',
-        inputOptions: articles.slice(0, 9).map((_, i) => (i + 1).toString())
+        inputOptions: articles.slice(0, 9).map((_, i) => (i + 1).toString()),
+        renderedWithLayoutEngine: true  // Prevent re-processing
       }
     };
   }

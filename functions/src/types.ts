@@ -101,6 +101,8 @@ export interface PageMeta {
   liveIndicator?: boolean; // Show live indicator for sports/events
   classicTeletextStyle?: boolean; // Use classic teletext styling
   loading?: boolean; // Indicates page is in loading state (e.g., AI generating response)
+  renderedWithLayoutEngine?: boolean; // Indicates page was already rendered with layout engine
+  useLayoutManager?: boolean; // Indicates page was processed by adapter layout manager
 }
 
 export interface ContentAdapter {
