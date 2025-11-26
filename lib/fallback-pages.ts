@@ -8,9 +8,8 @@
 import { TeletextPage } from '@/types/teletext';
 import { DEFAULT_WIDTH, DEFAULT_HEIGHT } from './screen-dimensions';
 
-// Use standard teletext dimensions (40×24)
-const SCREEN_WIDTH = 40;
-const SCREEN_HEIGHT = 24;
+// No character width constraint - use full screen
+const SCREEN_HEIGHT = 30;
 
 /**
  * Creates a fallback page when emulators are not running
@@ -606,29 +605,15 @@ function centerText(text: string, width: number = SCREEN_WIDTH): string {
 }
 
 /**
- * Pads rows array to exactly 24 rows, each exactly 40 visible characters (teletext screen width)
+ * Pads rows array to exactly 24 rows - no width constraint
  */
 function padRows(rows: string[]): string[] {
-  const paddedRows = rows.map(row => {
-    const visibleLength = getVisibleLength(row);
-    
-    if (visibleLength > SCREEN_WIDTH) {
-      // Truncate if too long (shouldn't happen with proper design)
-      // This is tricky with color codes, so we'll just warn
-      console.warn(`Row exceeds ${SCREEN_WIDTH} characters:`, row);
-      return row;
-    } else if (visibleLength < SCREEN_WIDTH) {
-      // Pad to exactly SCREEN_WIDTH visible characters
-      const paddingNeeded = SCREEN_WIDTH - visibleLength;
-      return row + ' '.repeat(paddingNeeded);
-    }
-    
-    return row;
-  });
+  // Just return rows as-is, no padding needed
+  const paddedRows = [...rows];
 
   // Ensure exactly SCREEN_HEIGHT rows
   while (paddedRows.length < SCREEN_HEIGHT) {
-    paddedRows.push(''.padEnd(SCREEN_WIDTH, ' '));
+    paddedRows.push('');
   }
 
   return paddedRows.slice(0, SCREEN_HEIGHT);

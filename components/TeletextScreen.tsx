@@ -412,14 +412,16 @@ const TeletextScreen = React.memo(function TeletextScreen({
         backgroundColor: theme.colors.background,
         color: theme.colors.text,
         fontFamily: "'Courier New', Courier, monospace",
-        fontSize: 'clamp(11px, 1.3vw, 20px)',
-        lineHeight: '1.1',
-        padding: 0,
+        fontSize: 'clamp(10px, 1.2vw, 16px)',
+        lineHeight: '1.0',
+        padding: '0.5vh 1vw',
         width: '100vw',
         height: '100vh',
         maxWidth: '100vw',
         maxHeight: '100vh',
-        position: 'relative',
+        position: 'fixed',
+        top: 0,
+        left: 0,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
@@ -592,14 +594,16 @@ const TeletextScreen = React.memo(function TeletextScreen({
       
       <style jsx>{`
         .teletext-row {
-          white-space: pre;
-          flex: 1;
+          white-space: pre-wrap;
+          word-wrap: break-word;
+          flex: 1 1 auto;
           width: 100%;
-          overflow: hidden;
+          min-height: 0;
+          overflow: visible;
           display: flex;
           align-items: center;
-          line-height: 1.1;
-          padding: 0 0.5vw;
+          line-height: 1.0;
+          padding: 0;
           box-sizing: border-box;
         }
         

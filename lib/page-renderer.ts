@@ -187,20 +187,13 @@ export function renderPageWithLayoutEngine(
  * 
  * Pages that have already been processed by adapters with useLayoutManager flag
  * should not be re-processed by the layout engine.
+ * 
+ * DISABLED: Layout engine enforces 40-character width constraint.
+ * We want full-width content, so skip layout engine processing.
  */
 export function shouldUseLayoutEngine(page: TeletextPage): boolean {
-  // Don't re-process pages that were already processed by adapters
-  if (page.meta?.useLayoutManager) {
-    return false;
-  }
-  
-  // Don't re-process pages that were already rendered with layout engine
-  if (page.meta?.renderedWithLayoutEngine) {
-    return false;
-  }
-  
-  // Use layout engine for all other pages
-  return true;
+  // Disable layout engine to allow full-width content
+  return false;
 }
 
 /**

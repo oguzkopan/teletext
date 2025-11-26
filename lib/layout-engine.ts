@@ -1,23 +1,22 @@
 /**
  * Layout Engine for Modern Teletext
  * 
- * Core system responsible for rendering text in proper columns and rows.
- * All output must be exactly 40 characters wide × 24 rows tall.
+ * Core system responsible for rendering text in proper rows.
+ * Output is 24 rows tall with flexible width to use full screen.
  * 
  * For navigation hints generation, see lib/navigation-hints.ts
  */
 
-export const TELETEXT_WIDTH = 40;
-export const TELETEXT_HEIGHT = 24;
+export const TELETEXT_HEIGHT = 30;
 
 /**
  * Wraps text to fit within a specified width, breaking at word boundaries when possible.
  * 
  * @param text - The text to wrap
- * @param width - Maximum width per line (default: 40 characters)
+ * @param width - Maximum width per line (default: no limit)
  * @returns Array of wrapped lines
  */
-export function wrapText(text: string, width: number = TELETEXT_WIDTH): string[] {
+export function wrapText(text: string, width: number = Infinity): string[] {
   if (!text) {
     return [];
   }
@@ -85,7 +84,7 @@ export function wrapText(text: string, width: number = TELETEXT_WIDTH): string[]
  */
 export function padText(
   text: string, 
-  width: number = TELETEXT_WIDTH, 
+  width: number = Infinity, 
   align: 'left' | 'center' | 'right' = 'left'
 ): string {
   // First truncate if too long
