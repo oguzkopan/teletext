@@ -10,76 +10,8 @@ import KeyboardHandler from '@/components/KeyboardHandler';
 import HalloweenDecorations from '@/components/HalloweenDecorations';
 import { ThemeProvider, useTheme, themes } from '@/lib/theme-context';
 import { TeletextPage } from '@/types/teletext';
-import { createEmptyPage, padText } from '@/lib/teletext-utils';
 import { validateEnvironmentVariablesWithWarnings } from '@/lib/env-validation';
-
-// Demo page with welcome message after boot
-// Requirements: 34.2, 34.3 - Full-width layout with centered titles
-// HALLOWEEN HACKATHON EDITION - Colorful spooky theme
-const createDemoPage = (showWelcome: boolean = false): TeletextPage => {
-  const page = createEmptyPage('100', 'KIROWEEN TELETEXT');
-  
-  const now = new Date();
-  const dateStr = now.toLocaleDateString('en-GB', { 
-    weekday: 'short', 
-    day: '2-digit', 
-    month: 'short' 
-  });
-  const timeStr = now.toLocaleTimeString('en-GB', { 
-    hour: '2-digit', 
-    minute: '2-digit',
-    second: '2-digit'
-  });
-  
-  // Full-screen layout optimized for 40×24 teletext
-  page.rows = [
-    `{cyan}100 {yellow}KIROWEEN {cyan}${timeStr}`,
-    '{blue}════════════════════════════════════',
-    showWelcome 
-      ? '{green}    👻 SYSTEM READY - WELCOME! 👻'
-      : '',
-    showWelcome
-      ? '{blue}════════════════════════════════════'
-      : '{yellow}🎃 {magenta}MODERN TELETEXT{yellow} 🎃',
-    showWelcome
-      ? ''
-      : '',
-    '{cyan}▓▓▓ NEWS & INFO ▓▓▓',
-    '{green}101{white} System Status',
-    '{green}200{white} News Headlines',
-    '{green}201{white} UK News',
-    '{green}202{white} World News',
-    '{green}203{white} Local News',
-    '',
-    '{cyan}▓▓▓ SPORT & LEISURE ▓▓▓',
-    '{green}300{white} Sport Headlines',
-    '{green}301{white} Football',
-    '{green}302{white} Cricket',
-    '{green}303{white} Tennis',
-    '{green}304{white} Live Scores',
-    '',
-    '{cyan}▓▓▓ MORE SERVICES ▓▓▓',
-    '{green}400{white} Markets  {green}500{white} AI  {green}600{white} Games',
-    '',
-    '{blue}════════════════════════════════════',
-    '{red}100{white}=INDEX {green}999{white}=HELP'
-  ];
-  
-  page.links = [
-    { label: 'NEWS', targetPage: '200', color: 'red' },
-    { label: 'SPORT', targetPage: '300', color: 'green' },
-    { label: 'WEATHER', targetPage: '420', color: 'yellow' },
-    { label: 'AI', targetPage: '500', color: 'blue' }
-  ];
-  
-  page.meta = {
-    ...page.meta,
-    halloweenTheme: true,
-    fullScreenLayout: true
-  };
-  
-  return page;
-};
+import { createIndexPage } from '@/lib/index-page';
 
 function HomeContent() {
   const { currentTheme, confirmationMessage } = useTheme();
@@ -141,7 +73,7 @@ function HomeContent() {
       <HalloweenDecorations />
       
       <PageRouter 
-        initialPage={createDemoPage(showWelcome)}
+        initialPage={createIndexPage(showWelcome)}
         onPageChange={(page) => setCurrentPage(page)}
       >
         {(routerState) => (
@@ -152,7 +84,7 @@ function HomeContent() {
               hauntingMode={currentPage?.meta?.haunting || false}
             >
               <TeletextScreen 
-                page={routerState.currentPage || createDemoPage(showWelcome)} 
+                page={routerState.currentPage || createIndexPage(showWelcome)} 
                 loading={routerState.loading} 
                 theme={effectiveTheme}
                 isOnline={routerState.isOnline}

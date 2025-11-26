@@ -11,15 +11,14 @@ export async function GET(
 ) {
   const { pageNumber } = params;
 
-  // Always return static fallback for page 100 (index page)
+  // Always return static index page for page 100
   if (pageNumber === '100') {
-    const { createFallbackIndexPage } = await import('@/lib/fallback-pages');
-    const indexPage = createFallbackIndexPage();
+    const { createIndexPage } = await import('@/lib/index-page');
+    const indexPage = createIndexPage(false); // No welcome message when navigating
     return NextResponse.json(
       { 
         success: true, 
-        page: indexPage,
-        fallback: false
+        page: indexPage
       },
       { 
         status: 200,
