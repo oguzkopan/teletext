@@ -412,9 +412,9 @@ const TeletextScreen = React.memo(function TeletextScreen({
         backgroundColor: theme.colors.background,
         color: theme.colors.text,
         fontFamily: "'Courier New', Courier, monospace",
-        fontSize: 'clamp(12px, 1.2vw, 18px)',
+        fontSize: 'clamp(9px, 1vw, 15px)',
         lineHeight: '1.0',
-        padding: '0.5vh 1vw',
+        padding: 0,
         width: '100vw',
         height: '100vh',
         maxWidth: '100vw',
@@ -599,6 +599,7 @@ const TeletextScreen = React.memo(function TeletextScreen({
           display: flex;
           align-items: center;
           line-height: 1.0;
+          padding: 0 0.3vw;
           box-sizing: border-box;
         }
         

@@ -11,6 +11,25 @@ export async function GET(
 ) {
   const { pageNumber } = params;
 
+  // Always return static fallback for page 100 (index page)
+  if (pageNumber === '100') {
+    const { createFallbackIndexPage } = await import('@/lib/fallback-pages');
+    const indexPage = createFallbackIndexPage();
+    return NextResponse.json(
+      { 
+        success: true, 
+        page: indexPage,
+        fallback: false
+      },
+      { 
+        status: 200,
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
+        }
+      }
+    );
+  }
+
   try {
     // Determine if we're in development or production
     const isDevelopment = process.env.NODE_ENV === 'development';

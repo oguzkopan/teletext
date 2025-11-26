@@ -109,9 +109,10 @@ export function createFallbackIndexPage(): TeletextPage {
     title: 'Main Index',
     rows: padRows(rows),
     links: [
-      { label: 'HELP', targetPage: '999', color: 'red' },
-      { label: 'SETTINGS', targetPage: '700', color: 'green' },
-      { label: 'DEV', targetPage: '800', color: 'yellow' }
+      { label: 'NEWS', targetPage: '200', color: 'red' },
+      { label: 'SPORT', targetPage: '300', color: 'green' },
+      { label: 'WEATHER', targetPage: '420', color: 'yellow' },
+      { label: 'AI', targetPage: '500', color: 'blue' }
     ],
     meta: {
       source: 'FallbackAdapter',
