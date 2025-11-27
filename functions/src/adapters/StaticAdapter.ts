@@ -1,4 +1,6 @@
 // Static page adapter for system pages (100-199)
+// This adapter only handles routing and special pages (404, 666)
+// UI pages are imported from the shared lib directory
 
 import { ContentAdapter, TeletextPage } from '../types';
 import { VertexAI } from '@google-cloud/vertexai';
@@ -13,18 +15,16 @@ export class StaticAdapter implements ContentAdapter {
    * @param pageId - The page ID to retrieve
    * @param params - Optional parameters for dynamic content
    * @returns A TeletextPage object
+   * 
+   * Note: StaticAdapter only handles special system pages (404, 666, etc.)
+   * Regular index pages (100, 101, 200, 300, etc.) are handled by the client-side
+   * API route which imports from the lib directory.
    */
   async getPage(pageId: string, params?: Record<string, any>): Promise<TeletextPage> {
     const pageNumber = parseInt(pageId, 10);
 
     // Route to specific static pages
     switch (pageNumber) {
-      case 100:
-        return this.getIndexPage();
-      
-      case 101:
-        return this.getHowItWorksPage();
-      
       case 110:
         return this.getSystemPagesIndex();
       
@@ -43,9 +43,6 @@ export class StaticAdapter implements ContentAdapter {
       case 666:
         return this.getPage666(params);
       
-      case 999:
-        return this.getHelpPage();
-      
       default:
         // For other pages in 100-199 range, return placeholder
         if (pageNumber >= 100 && pageNumber < 200) {
@@ -57,61 +54,6 @@ export class StaticAdapter implements ContentAdapter {
   }
 
 
-
-  /**
-   * Creates the main index page (100) - simple single-column list
-   * Requirements: 17.1, 17.2, 17.3, 17.4, 17.5
-   */
-  private getIndexPage(): TeletextPage {
-    const rows = [
-      'MAIN INDEX                      P100',
-      '════════════════════════════════════',
-      '',
-      '       MODERN TELETEXT SERVICE      ',
-      '',
-      'NEWS & INFORMATION',
-      '  200 News Headlines',
-      '  201 UK News',
-      '  202 World News',
-      '',
-      'SPORT',
-      '  300 Sport Headlines',
-      '  301 Football',
-      '  304 Live Scores',
-      '',
-      'MARKETS',
-      '  400 Markets Overview',
-      '  401 Stock Prices',
-      '',
-      'WEATHER',
-      '  420 Weather Forecast',
-      '',
-      'AI & GAMES & SETTINGS',
-      '  500 AI  600 Games  700 Settings',
-      '',
-      '════════════════════════════════════',
-      'Enter 3-digit page number',
-      '',
-      'INDEX=100  HELP=999'
-    ];
-    
-    return {
-      id: '100',
-      title: 'Main Index',
-      rows: this.padRows(rows),
-      links: [
-        { label: 'NEWS', targetPage: '200', color: 'red' },
-        { label: 'SPORT', targetPage: '300', color: 'green' },
-        { label: 'HELP', targetPage: '999', color: 'yellow' },
-        { label: 'AI', targetPage: '500', color: 'blue' }
-      ],
-      meta: {
-        source: 'StaticAdapter',
-        lastUpdated: new Date().toISOString(),
-        inputMode: 'triple'
-      }
-    };
-  }
 
   /**
    * Centers text within specified width
@@ -131,30 +73,42 @@ export class StaticAdapter implements ContentAdapter {
    * Requirements: 3.2, 3.3, 32.2
    */
   private getSystemPagesIndex(): TeletextPage {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-GB', { 
+      hour: '2-digit', 
+      minute: '2-digit'
+    });
+    
     const rows = [
-      'SYSTEM PAGES                 P110',
-      '════════════════════════════════════',
+      `{cyan}110 {yellow}System Pages Index {cyan}${timeStr}                                                                                                                    {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
       '',
-      'AVAILABLE SYSTEM PAGES:',
+      '{cyan}▓▓▓ AVAILABLE SYSTEM PAGES ▓▓▓',
       '',
-      '100 Main index',
-      '101 How it works',
-      '110 System pages (this page)',
-      '120 Emergency bulletins',
-      '199 About & credits',
+      '{green}100{white} Main index',
+      '{green}101{white} System Status & Diagnostics',
+      '{green}110{white} System pages (this page)',
+      '{green}120{white} Emergency bulletins',
+      '{green}199{white} About & credits',
       '',
-      'SPECIAL PAGES:',
-      '404 Page not found (error)',
-      '666 The cursed page',
-      '999 Help & navigation guide',
+      '{cyan}▓▓▓ SPECIAL PAGES ▓▓▓',
+      '{green}404{white} Page not found (error)',
+      '{green}666{white} The cursed page',
+      '{green}999{white} Help & navigation guide',
       '',
-      'System pages provide information',
-      'about the teletext service itself.',
+      '{white}System pages provide information about the teletext service itself.',
       '',
-      'Press 100 to return to main index',
+      '{white}Press {green}100{white} to return to main index',
       '',
       '',
-      'INDEX   HELP',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      '{cyan}NAVIGATION: {red}100{white}=INDEX {green}999{white}=HELP',
       ''
     ];
 
@@ -169,52 +123,7 @@ export class StaticAdapter implements ContentAdapter {
       meta: {
         source: 'StaticAdapter',
         lastUpdated: new Date().toISOString(),
-      }
-    };
-  }
-
-  /**
-   * Creates the "How it works" page (101)
-   */
-  private getHowItWorksPage(): TeletextPage {
-    const rows = [
-      'HOW IT WORKS                 P101',
-      '════════════════════════════════════',
-      '',
-      'WHAT IS TELETEXT?',
-      '',
-      'Teletext was a broadcast technology',
-      'from the 1970s that transmitted text',
-      'information over TV signals.',
-      '',
-      'This modern web version recreates',
-      'the classic 40×24 character grid',
-      'interface while adding contemporary',
-      'features like live APIs and AI.',
-      '',
-      'NAVIGATION:',
-      '• Enter 3-digit page numbers (100-899)',
-      '• Use colored buttons for quick jumps',
-      '• Press BACK to return to previous',
-      '',
-      'See page 999 for full help',
-      '',
-      '',
-      'INDEX   HELP',
-      ''
-    ];
-
-    return {
-      id: '101',
-      title: 'How It Works',
-      rows: this.padRows(rows),
-      links: [
-        { label: 'INDEX', targetPage: '100', color: 'red' },
-        { label: 'HELP', targetPage: '999', color: 'green' }
-      ],
-      meta: {
-        source: 'StaticAdapter',
-        lastUpdated: new Date().toISOString(),
+        fullScreenLayout: true
       }
     };
   }
@@ -371,61 +280,7 @@ export class StaticAdapter implements ContentAdapter {
     };
   }
 
-  /**
-   * Creates the help page (999)
-   */
-  private getHelpPage(): TeletextPage {
-    const rows = [
-      'HELP                         P999',
-      '════════════════════════════════════',
-      '',
-      'NAVIGATION INSTRUCTIONS',
-      '',
-      'KEYBOARD SHORTCUTS:',
-      '• 0-9: Enter page numbers',
-      '• Enter: Go to entered page',
-      '• Backspace: Delete last digit',
-      '• Arrow Up/Down: Channel up/down',
-      '• Arrow Left: Back to previous page',
-      '',
-      'COLORED BUTTONS:',
-      '• RED: Quick link (varies by page)',
-      '• GREEN: Quick link (varies by page)',
-      '• YELLOW: Quick link (varies by page)',
-      '• BLUE: Quick link (varies by page)',
-      '',
-      'PAGE RANGES:',
-      '100-199: System pages',
-      '200-299: News',
-      '300-399: Sport',
-      '400-499: Markets',
-      '500-599: AI Oracle',
-      '600-699: Games',
-      '700-799: Settings',
-      '800-899: Developer tools',
-      '',
-      'See page 720 for full keyboard guide',
-      'Press 100 for main index',
-      '',
-      '',
-      'INDEX   SHORTCUTS',
-      ''
-    ];
 
-    return {
-      id: '999',
-      title: 'Help',
-      rows: this.padRows(rows),
-      links: [
-        { label: 'INDEX', targetPage: '100', color: 'red' },
-        { label: 'SHORTCUTS', targetPage: '720', color: 'green' }
-      ],
-      meta: {
-        source: 'StaticAdapter',
-        lastUpdated: new Date().toISOString(),
-      }
-    };
-  }
 
   /**
    * Creates a 404 error page with animated glitching ASCII art of broken TV
@@ -743,28 +598,16 @@ export class StaticAdapter implements ContentAdapter {
 
 
   /**
-   * Pads rows array to exactly 24 rows, each exactly 40 characters (teletext width)
-   * Note: For simplicity, we use actual string length, not visible length
+   * Pads rows array to exactly 30 rows - no width constraint for full-screen layout
    */
   private padRows(rows: string[]): string[] {
-    const paddedRows = rows.map(row => {
-      if (row.length > 40) {
-        // Truncate to 40 characters
-        return row.substring(0, 40);
-      } else if (row.length < 40) {
-        // Pad to exactly 40 characters
-        const paddingNeeded = 40 - row.length;
-        return row + ' '.repeat(paddingNeeded);
-      }
-      
-      return row;
-    });
+    const paddedRows = [...rows];
 
-    // Ensure exactly 24 rows
-    while (paddedRows.length < 24) {
-      paddedRows.push(''.padEnd(40, ' '));
+    // Ensure exactly 30 rows
+    while (paddedRows.length < 30) {
+      paddedRows.push('');
     }
 
-    return paddedRows.slice(0, 24);
+    return paddedRows.slice(0, 30);
   }
 }

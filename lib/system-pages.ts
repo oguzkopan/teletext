@@ -73,3 +73,65 @@ export function createSystemStatusPage(): TeletextPage {
     }
   };
 }
+
+
+/**
+ * Creates page 999 - Help & Documentation
+ */
+export function createHelpPage(): TeletextPage {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-GB', { 
+    hour: '2-digit', 
+    minute: '2-digit'
+  });
+  
+  const rows = [
+    `{cyan}999 {yellow}📖 HELP & DOCUMENTATION 📖 {cyan}${timeStr}                                                                                                            {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+    '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+    '',
+    '{cyan}▓▓▓ NAVIGATION INSTRUCTIONS ▓▓▓',
+    '',
+    '{yellow}KEYBOARD SHORTCUTS:',
+    '{white}• {green}0-9{white}: Enter page numbers',
+    '{white}• {green}Enter{white}: Go to entered page',
+    '{white}• {green}Backspace{white}: Delete last digit',
+    '{white}• {green}Arrow Up/Down{white}: Channel up/down',
+    '{white}• {green}Arrow Left{white}: Back to previous page',
+    '',
+    '{yellow}COLORED BUTTONS:',
+    '{white}• {red}RED{white}: Quick link (varies by page)',
+    '{white}• {green}GREEN{white}: Quick link (varies by page)',
+    '{white}• {yellow}YELLOW{white}: Quick link (varies by page)',
+    '{white}• {blue}BLUE{white}: Quick link (varies by page)',
+    '',
+    '{cyan}▓▓▓ PAGE RANGES ▓▓▓',
+    '{green}100-199{white}: System pages          {green}500-599{white}: AI Oracle',
+    '{green}200-299{white}: News                  {green}600-699{white}: Games',
+    '{green}300-399{white}: Sport                 {green}700-799{white}: Settings',
+    '{green}400-499{white}: Markets               {green}800-899{white}: Developer tools',
+    '',
+    '{white}See page {cyan}720{white} for full keyboard guide',
+    '{white}Press {green}100{white} for main index',
+    '',
+    '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+    '{cyan}NAVIGATION: {red}100{white}=INDEX {green}720{white}=SHORTCUTS',
+    ''
+  ];
+  
+  return {
+    id: '999',
+    title: 'Help',
+    rows,
+    links: [
+      { label: 'INDEX', targetPage: '100', color: 'red' },
+      { label: 'SHORTCUTS', targetPage: '720', color: 'green' }
+    ],
+    meta: {
+      source: 'StaticAdapter',
+      lastUpdated: new Date().toISOString(),
+      fullScreenLayout: true,
+      useLayoutManager: true,
+      renderedWithLayoutEngine: true
+    }
+  };
+}

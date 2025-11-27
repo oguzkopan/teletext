@@ -67,6 +67,12 @@ async function getStaticIndexPage(pageNumber: string): Promise<TeletextPage | nu
     return createDevToolsIndexPage();
   }
   
+  // Help page (999)
+  if (pageNum === 999) {
+    const { createHelpPage } = await import('@/lib/system-pages');
+    return createHelpPage();
+  }
+  
   return null;
 }
 
