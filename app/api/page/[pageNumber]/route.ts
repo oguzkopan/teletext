@@ -1,4 +1,74 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { TeletextPage } from '@/types/teletext';
+
+/**
+ * Helper function to get static index pages for development fallback
+ */
+async function getStaticIndexPage(pageNumber: string): Promise<TeletextPage | null> {
+  const pageNum = parseInt(pageNumber, 10);
+  
+  // System pages (1xx)
+  if (pageNum === 101) {
+    const { createSystemStatusPage } = await import('@/lib/system-pages');
+    return createSystemStatusPage();
+  }
+  
+  // News pages (2xx)
+  if (pageNum === 200) {
+    const { createNewsIndexPage } = await import('@/lib/news-pages');
+    return createNewsIndexPage();
+  }
+  if (pageNum === 201) {
+    const { createUKNewsPage } = await import('@/lib/news-pages');
+    return createUKNewsPage();
+  }
+  if (pageNum === 202) {
+    const { createWorldNewsPage } = await import('@/lib/news-pages');
+    return createWorldNewsPage();
+  }
+  if (pageNum === 203) {
+    const { createLocalNewsPage } = await import('@/lib/news-pages');
+    return createLocalNewsPage();
+  }
+  
+  // Sports pages (3xx)
+  if (pageNum === 300) {
+    const { createSportsIndexPage } = await import('@/lib/sports-pages');
+    return createSportsIndexPage();
+  }
+  
+  // Markets pages (4xx)
+  if (pageNum === 400) {
+    const { createMarketsIndexPage } = await import('@/lib/markets-pages');
+    return createMarketsIndexPage();
+  }
+  
+  // AI pages (5xx)
+  if (pageNum === 500) {
+    const { createAIOraclePage } = await import('@/lib/services-pages');
+    return createAIOraclePage();
+  }
+  
+  // Games pages (6xx)
+  if (pageNum === 600) {
+    const { createGamesIndexPage } = await import('@/lib/services-pages');
+    return createGamesIndexPage();
+  }
+  
+  // Settings pages (7xx)
+  if (pageNum === 700) {
+    const { createSettingsIndexPage } = await import('@/lib/services-pages');
+    return createSettingsIndexPage();
+  }
+  
+  // Developer tools (8xx)
+  if (pageNum === 800) {
+    const { createDevToolsIndexPage } = await import('@/lib/services-pages');
+    return createDevToolsIndexPage();
+  }
+  
+  return null;
+}
 
 /**
  * API Route: GET /api/page/[pageNumber]
@@ -75,10 +145,9 @@ export async function GET(
     const isConnectionError = error instanceof Error && 
       (error.message.includes('ECONNREFUSED') || error.message.includes('fetch failed'));
     
-    // In development, if emulator is not running, use fallback pages
+    // In development, if emulator is not running, use static index pages
     if (process.env.NODE_ENV === 'development' && isConnectionError) {
-      const { getFallbackPage } = await import('@/lib/fallback-pages');
-      const fallbackPage = getFallbackPage(pageNumber);
+      const fallbackPage = await getStaticIndexPage(pageNumber);
       
       if (fallbackPage) {
         return NextResponse.json(
