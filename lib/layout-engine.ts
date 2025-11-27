@@ -2,12 +2,13 @@
  * Layout Engine for Modern Teletext
  * 
  * Core system responsible for rendering text in proper rows.
- * Output is 24 rows tall with flexible width to use full screen.
+ * Output is 30 rows tall with flexible width to use full screen.
  * 
  * For navigation hints generation, see lib/navigation-hints.ts
  */
 
 export const TELETEXT_HEIGHT = 30;
+export const TELETEXT_WIDTH = 120; // Flexible width for full-screen display
 
 /**
  * Wraps text to fit within a specified width, breaking at word boundaries when possible.
