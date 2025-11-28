@@ -7,6 +7,12 @@ import { TeletextPage } from '@/types/teletext';
 async function getStaticIndexPage(pageNumber: string): Promise<TeletextPage | null> {
   const pageNum = parseInt(pageNumber, 10);
   
+  // Main index page (100)
+  if (pageNum === 100) {
+    const { createIndexPage } = await import('@/lib/index-page');
+    return createIndexPage(false); // No welcome message when navigating
+  }
+  
   // System pages (1xx)
   if (pageNum === 101) {
     const { createSystemStatusPage } = await import('@/lib/system-pages');
