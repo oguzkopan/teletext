@@ -87,14 +87,14 @@ export async function GET(
 ) {
   const { pageNumber } = params;
 
-  // Always return static index page for page 100
-  if (pageNumber === '100') {
-    const { createIndexPage } = await import('@/lib/index-page');
-    const indexPage = createIndexPage(false); // No welcome message when navigating
+  // Check if this is a static index page that should be served from lib/
+  // These pages have full-width layouts and should NOT go through Firebase Functions
+  const staticIndexPage = await getStaticIndexPage(pageNumber);
+  if (staticIndexPage) {
     return NextResponse.json(
       { 
         success: true, 
-        page: indexPage
+        page: staticIndexPage
       },
       { 
         status: 200,
@@ -105,6 +105,7 @@ export async function GET(
     );
   }
 
+  // For all other pages, forward to Firebase Functions for data fetching
   try {
     // Determine if we're in development or production
     const isDevelopment = process.env.NODE_ENV === 'development';
