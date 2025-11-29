@@ -27,18 +27,17 @@ export function createIndexPage(showWelcome: boolean = false): TeletextPage {
   });
   
   // Full-screen layout - no character constraints, 30 rows
+  // Use the same layout for both welcome and normal display
   const rows = [
     `{cyan}100 {yellow}🎃 KIROWEEN TELETEXT 🎃 {cyan}${dateStr} ${timeStr} {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
     '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
     showWelcome 
       ? '{green}                                                    👻 SYSTEM READY - WELCOME! 👻'
-      : '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
+      : '',
     showWelcome
       ? '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════'
-      : '{yellow}║  {magenta}MODERN TELETEXT{yellow}  {white}░▒▓█▓▒░  {cyan}Your Gateway to Information  {white}░▒▓█▓▒░  {yellow}Kiroween 2024 Edition{yellow}                                    ║',
-    showWelcome
-      ? ''
-      : '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+      : '',
+    showWelcome ? '' : '',
     '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
     '{cyan}▓▓▓ NEWS & INFORMATION ▓▓▓                    {magenta}▓▓▓ ENTERTAINMENT & GAMES ▓▓▓                    {yellow}▓▓▓ SERVICES & TOOLS ▓▓▓',
     '{green}101{white} System Status & Diagnostics              {red}600{white} Games & Quizzes Hub                         {cyan}700{white} Settings & Preferences',
