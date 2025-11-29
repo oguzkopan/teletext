@@ -125,8 +125,8 @@ export function createGamesIndexPage(): TeletextPage {
       lastUpdated: new Date().toISOString(),
       fullScreenLayout: true,
       useLayoutManager: true,
-      renderedWithLayoutEngine: true,
-      inputMode: 'single' // Accept 1-digit input for numbered options
+      renderedWithLayoutEngine: true
+      // No inputMode specified = defaults to 'triple' for 3-digit navigation
     }
   };
 }
@@ -255,6 +255,190 @@ export function createDevToolsIndexPage(): TeletextPage {
       fullScreenLayout: true,
       useLayoutManager: true,
       renderedWithLayoutEngine: true
+    }
+  };
+}
+
+
+/**
+ * Creates page 501 - AI Chat Interface
+ */
+export function createAIChatPage(): TeletextPage {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-GB', { 
+    hour: '2-digit', 
+    minute: '2-digit'
+  });
+  
+  const rows = [
+    `{cyan}501 {yellow}AI Chat Interface {cyan}${timeStr}                                                                                                                     {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+    '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+    '',
+    '{cyan}▓▓▓ AI ORACLE - CHAT INTERFACE ▓▓▓',
+    '',
+    '{white}Type your question or prompt below:',
+    '',
+    '{yellow}> {white}_',
+    '',
+    '{cyan}▓▓▓ EXAMPLE PROMPTS ▓▓▓',
+    '{green}1.{white} What are the latest technology trends?',
+    '{green}2.{white} Explain quantum computing in simple terms',
+    '{green}3.{white} What\'s happening in the news today?',
+    '{green}4.{white} Tell me about the weather forecast',
+    '{green}5.{white} Recommend a good book to read',
+    '',
+    '{cyan}▓▓▓ TIPS ▓▓▓',
+    '{white}• Be specific with your questions',
+    '{white}• You can ask follow-up questions',
+    '{white}• Responses typically take 2-5 seconds',
+    '{white}• Press {green}ENTER{white} to submit your prompt',
+    '',
+    '',
+    '',
+    '',
+    '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+    '{cyan}NAVIGATION: {red}100{white}=INDEX {green}500{white}=AI INDEX {yellow}999{white}=HELP',
+    ''
+  ];
+  
+  return {
+    id: '501',
+    title: 'AI Chat',
+    rows,
+    links: [
+      { label: 'INDEX', targetPage: '100', color: 'red' },
+      { label: 'AI INDEX', targetPage: '500', color: 'green' },
+      { label: 'HELP', targetPage: '999', color: 'yellow' }
+    ],
+    meta: {
+      source: 'StaticAdapter',
+      lastUpdated: new Date().toISOString(),
+      fullScreenLayout: true,
+      useLayoutManager: true,
+      renderedWithLayoutEngine: true,
+      inputMode: 'single' // Accept 1-digit for example prompts
+    }
+  };
+}
+
+/**
+ * Creates page 601 - Quiz of the Day
+ */
+export function createQuizPage(): TeletextPage {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-GB', { 
+    hour: '2-digit', 
+    minute: '2-digit'
+  });
+  
+  const rows = [
+    `{cyan}601 {yellow}Quiz of the Day {cyan}${timeStr}                                                                                                                        {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+    '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+    '',
+    '{cyan}▓▓▓ TODAY\'S QUIZ: TECHNOLOGY & INNOVATION ▓▓▓',
+    '',
+    '{white}Question 1 of 10:',
+    '',
+    '{yellow}What year was the World Wide Web invented?',
+    '',
+    '{green}1.{white} 1989',
+    '{green}2.{white} 1991',
+    '{green}3.{white} 1995',
+    '{green}4.{white} 1998',
+    '',
+    '{white}Press the number of your answer (1-4)',
+    '',
+    '{cyan}▓▓▓ QUIZ INFO ▓▓▓',
+    '{white}Difficulty:     {green}Medium',
+    '{white}Time Limit:     {green}5 minutes',
+    '{white}Questions:      {green}10',
+    '{white}Your Score:     {yellow}0/0',
+    '',
+    '',
+    '',
+    '',
+    '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+    '{cyan}NAVIGATION: {red}100{white}=INDEX {green}600{white}=GAMES INDEX {yellow}999{white}=HELP',
+    ''
+  ];
+  
+  return {
+    id: '601',
+    title: 'Quiz of the Day',
+    rows,
+    links: [
+      { label: 'INDEX', targetPage: '100', color: 'red' },
+      { label: 'GAMES', targetPage: '600', color: 'green' },
+      { label: 'HELP', targetPage: '999', color: 'yellow' }
+    ],
+    meta: {
+      source: 'StaticAdapter',
+      lastUpdated: new Date().toISOString(),
+      fullScreenLayout: true,
+      useLayoutManager: true,
+      renderedWithLayoutEngine: true,
+      inputMode: 'single' // Accept 1-digit for quiz answers
+    }
+  };
+}
+
+/**
+ * Creates page 610 - Bamboozle Quiz Game
+ */
+export function createBamboozlePage(): TeletextPage {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-GB', { 
+    hour: '2-digit', 
+    minute: '2-digit'
+  });
+  
+  const rows = [
+    `{cyan}610 {yellow}Bamboozle Quiz Game {cyan}${timeStr}                                                                                                                   {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+    '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+    '',
+    '{cyan}▓▓▓ BAMBOOZLE - SPOT THE FAKE! ▓▓▓',
+    '',
+    '{white}One of these facts is FALSE. Can you spot it?',
+    '',
+    '{yellow}Question: Which of these is NOT true about honey?',
+    '',
+    '{green}1.{white} Honey never spoils - archaeologists found 3000-year-old honey that was still edible',
+    '{green}2.{white} Bees must visit 2 million flowers to make one pound of honey',
+    '{green}3.{white} Honey is the only food made by insects that humans eat',
+    '{green}4.{white} Honey bees can recognize human faces',
+    '',
+    '{white}Press the number of your answer (1-4)',
+    '',
+    '{cyan}▓▓▓ GAME INFO ▓▓▓',
+    '{white}Difficulty:     {green}Easy',
+    '{white}Questions:      {green}10',
+    '{white}Your Score:     {yellow}0/0',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+    '{cyan}NAVIGATION: {red}100{white}=INDEX {green}600{white}=GAMES INDEX {yellow}999{white}=HELP',
+    ''
+  ];
+  
+  return {
+    id: '610',
+    title: 'Bamboozle Quiz',
+    rows,
+    links: [
+      { label: 'INDEX', targetPage: '100', color: 'red' },
+      { label: 'GAMES', targetPage: '600', color: 'green' },
+      { label: 'HELP', targetPage: '999', color: 'yellow' }
+    ],
+    meta: {
+      source: 'StaticAdapter',
+      lastUpdated: new Date().toISOString(),
+      fullScreenLayout: true,
+      useLayoutManager: true,
+      renderedWithLayoutEngine: true,
+      inputMode: 'single' // Accept 1-digit for quiz answers
     }
   };
 }

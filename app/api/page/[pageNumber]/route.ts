@@ -1,86 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { TeletextPage } from '@/types/teletext';
-
-/**
- * Helper function to get static index pages for development fallback
- */
-async function getStaticIndexPage(pageNumber: string): Promise<TeletextPage | null> {
-  const pageNum = parseInt(pageNumber, 10);
-  
-  // Main index page (100)
-  if (pageNum === 100) {
-    const { createIndexPage } = await import('@/lib/index-page');
-    return createIndexPage(false); // No welcome message when navigating
-  }
-  
-  // System pages (1xx)
-  if (pageNum === 101) {
-    const { createSystemStatusPage } = await import('@/lib/system-pages');
-    return createSystemStatusPage();
-  }
-  
-  // News pages (2xx)
-  if (pageNum === 200) {
-    const { createNewsIndexPage } = await import('@/lib/news-pages');
-    return createNewsIndexPage();
-  }
-  if (pageNum === 201) {
-    const { createUKNewsPage } = await import('@/lib/news-pages');
-    return createUKNewsPage();
-  }
-  if (pageNum === 202) {
-    const { createWorldNewsPage } = await import('@/lib/news-pages');
-    return createWorldNewsPage();
-  }
-  if (pageNum === 203) {
-    const { createLocalNewsPage } = await import('@/lib/news-pages');
-    return createLocalNewsPage();
-  }
-  
-  // Sports pages (3xx)
-  if (pageNum === 300) {
-    const { createSportsIndexPage } = await import('@/lib/sports-pages');
-    return createSportsIndexPage();
-  }
-  
-  // Markets pages (4xx)
-  if (pageNum === 400) {
-    const { createMarketsIndexPage } = await import('@/lib/markets-pages');
-    return createMarketsIndexPage();
-  }
-  
-  // AI pages (5xx)
-  if (pageNum === 500) {
-    const { createAIOraclePage } = await import('@/lib/services-pages');
-    return createAIOraclePage();
-  }
-  
-  // Games pages (6xx)
-  if (pageNum === 600) {
-    const { createGamesIndexPage } = await import('@/lib/services-pages');
-    return createGamesIndexPage();
-  }
-  
-  // Settings pages (7xx)
-  if (pageNum === 700) {
-    const { createSettingsIndexPage } = await import('@/lib/services-pages');
-    return createSettingsIndexPage();
-  }
-  
-  // Developer tools (8xx)
-  if (pageNum === 800) {
-    const { createDevToolsIndexPage } = await import('@/lib/services-pages');
-    return createDevToolsIndexPage();
-  }
-  
-  // Help page (999)
-  if (pageNum === 999) {
-    const { createHelpPage } = await import('@/lib/system-pages');
-    return createHelpPage();
-  }
-  
-  return null;
-}
+import { getPageByNumber, hasPage } from '@/lib/page-registry';
 
 /**
  * API Route: GET /api/page/[pageNumber]
@@ -93,22 +12,24 @@ export async function GET(
 ) {
   const { pageNumber } = params;
 
-  // Check if this is a static index page that should be served from lib/
-  // These pages have full-width layouts and should NOT go through Firebase Functions
-  const staticIndexPage = await getStaticIndexPage(pageNumber);
-  if (staticIndexPage) {
-    return NextResponse.json(
-      { 
-        success: true, 
-        page: staticIndexPage
-      },
-      { 
-        status: 200,
-        headers: {
-          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
+  // Check if this is a static page that should be served from lib/
+  // These pages are defined in the page registry
+  if (hasPage(pageNumber)) {
+    const staticPage = getPageByNumber(pageNumber);
+    if (staticPage) {
+      return NextResponse.json(
+        { 
+          success: true, 
+          page: staticPage
+        },
+        { 
+          status: 200,
+          headers: {
+            'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
+          }
         }
-      }
-    );
+      );
+    }
   }
 
   // For all other pages, forward to Firebase Functions for data fetching
@@ -158,9 +79,9 @@ export async function GET(
     const isConnectionError = error instanceof Error && 
       (error.message.includes('ECONNREFUSED') || error.message.includes('fetch failed'));
     
-    // In development, if emulator is not running, use static index pages
+    // In development, if emulator is not running, use static pages as fallback
     if (process.env.NODE_ENV === 'development' && isConnectionError) {
-      const fallbackPage = await getStaticIndexPage(pageNumber);
+      const fallbackPage = getPageByNumber(pageNumber);
       
       if (fallbackPage) {
         return NextResponse.json(

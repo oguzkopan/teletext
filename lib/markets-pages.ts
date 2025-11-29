@@ -69,8 +69,8 @@ export function createMarketsIndexPage(): TeletextPage {
       lastUpdated: new Date().toISOString(),
       fullScreenLayout: true,
       useLayoutManager: true,
-      renderedWithLayoutEngine: true,
-      inputMode: 'single' // Accept 1-digit input for numbered options
+      renderedWithLayoutEngine: true
+      // No inputMode specified = defaults to 'triple' for 3-digit navigation
     }
   };
 }
