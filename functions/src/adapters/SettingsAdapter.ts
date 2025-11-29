@@ -101,24 +101,10 @@ export class SettingsAdapter implements ContentAdapter {
   async getPage(pageId: string, params?: Record<string, any>): Promise<TeletextPage> {
     const pageNumber = parseInt(pageId, 10);
 
-    // Route to specific settings pages
-    if (pageNumber === 700) {
-      return this.getThemeSelectionPage(params?.currentTheme);
-    } else if (pageNumber === 701) {
-      // Fetch current settings from Firestore if available
-      const effects = params?.effects || await this.loadEffectsFromFirestore();
-      return this.getCRTEffectsControlPage(effects);
-    } else if (pageNumber >= 702 && pageNumber <= 705) {
-      // Theme preview pages
-      const themeKeys = ['ceefax', 'orf', 'highcontrast', 'haunting'];
-      const themeKey = themeKeys[pageNumber - 702];
-      return this.getThemePreviewPage(themeKey, pageNumber);
-    } else if (pageNumber === 710) {
-      return this.getKeyboardShortcutsConfigPage(params?.favoritePages);
-    } else if (pageNumber === 720) {
-      return this.getKeyboardShortcutsReferencePage();
-    } else if (pageNumber >= 700 && pageNumber < 800) {
-      return this.getPlaceholderPage(pageId);
+    // ALL SETTINGS PAGES (7xx) ARE NOW HANDLED BY lib/
+    // Return error for all 7xx pages to force API route to use page registry
+    if (pageNumber >= 700 && pageNumber < 800) {
+      return this.getErrorPage(pageId);
     }
 
     // For pages outside this range, return error
@@ -131,7 +117,9 @@ export class SettingsAdapter implements ContentAdapter {
    * Creates the theme selection page (700)
    * Requirements: 37.1 - Display numbered theme options (1-4)
    * HALLOWEEN HACKATHON EDITION - Compact layout
+   * @deprecated - Now handled by lib/services-pages.ts
    */
+  // @ts-ignore - Unused but kept for reference
   private getThemeSelectionPage(currentTheme?: string): TeletextPage {
     const rows = [
       '{cyan}THEME SELECTION              {yellow}P700',
@@ -187,7 +175,9 @@ export class SettingsAdapter implements ContentAdapter {
 
   /**
    * Creates a theme preview page
+   * @deprecated - Now handled by lib/additional-pages.ts
    */
+  // @ts-ignore - Unused but kept for reference
   private getThemePreviewPage(themeKey: string, pageNumber: number): TeletextPage {
     const theme = this.themes[themeKey];
     if (!theme) {
@@ -240,7 +230,9 @@ export class SettingsAdapter implements ContentAdapter {
 
   /**
    * Creates the keyboard shortcuts configuration page (710)
+   * @deprecated - Now handled by lib/additional-pages.ts
    */
+  // @ts-ignore - Unused but kept for reference
   private getKeyboardShortcutsConfigPage(favoritePages?: string[]): TeletextPage {
     // Default favorites if none provided
     const defaults = ['100', '200', '300', '400', '500', '', '', '', '', ''];
@@ -296,7 +288,9 @@ export class SettingsAdapter implements ContentAdapter {
 
   /**
    * Creates the keyboard shortcuts reference page (720)
+   * @deprecated - Now handled by lib/additional-pages.ts
    */
+  // @ts-ignore - Unused but kept for reference
   private getKeyboardShortcutsReferencePage(): TeletextPage {
     const rows = [
       'KEYBOARD SHORTCUTS           P720',
@@ -343,7 +337,9 @@ export class SettingsAdapter implements ContentAdapter {
   /**
    * Creates the CRT effects and animation control page (701)
    * Requirements: 10.5, 12.5 - Animation accessibility settings
+   * @deprecated - Now handled by lib/additional-pages.ts
    */
+  // @ts-ignore - Unused but kept for reference
   private getCRTEffectsControlPage(effects?: any): TeletextPage {
     // Default values
     const defaultEffects = {
@@ -431,7 +427,9 @@ export class SettingsAdapter implements ContentAdapter {
 
   /**
    * Creates a placeholder page for pages not yet implemented
+   * @deprecated - Now handled by lib/additional-pages.ts
    */
+  // @ts-ignore - Unused but kept for reference
   private getPlaceholderPage(pageId: string): TeletextPage {
     const rows = [
       `SETTINGS                     P${pageId}`,
@@ -540,7 +538,9 @@ export class SettingsAdapter implements ContentAdapter {
   /**
    * Load effects and animation settings from Firestore
    * Requirement: 12.5 - Load saved animation preferences
+   * @deprecated - No longer used
    */
+  // @ts-ignore - Unused but kept for reference
   private async loadEffectsFromFirestore(): Promise<any> {
     try {
       // In a real implementation, this would use Firebase Admin SDK
