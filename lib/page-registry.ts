@@ -25,14 +25,18 @@ import {
   createGamesIndexPage,
   createQuizPage,
   createBamboozlePage,
+  createQuizAnswerPage,
+  createWordGamesPage,
+  createNumberChallengesPage,
+  createThemeSelectionPage,
   createSettingsIndexPage,
   createDevToolsIndexPage
 } from './services-pages';
 import { 
   createComingSoonPage,
+  createGenericComingSoonPage,
   createTriviaPage,
-  createThemeCustomizationPage,
-  createThemePreviewPage
+  create404ErrorPage
 } from './additional-pages';
 
 /**
@@ -97,15 +101,20 @@ pageRegistry.set('600', createGamesIndexPage);
 pageRegistry.set('601', createQuizPage);
 pageRegistry.set('610', createBamboozlePage);
 pageRegistry.set('620', createTriviaPage);
+pageRegistry.set('630', createWordGamesPage);
+pageRegistry.set('640', createNumberChallengesPage);
+
+// Game answer pages (601-1 through 601-4, 610-1 through 610-4, 630-1 through 630-4, 640-1 through 640-4)
+for (let i = 1; i <= 4; i++) {
+  pageRegistry.set(`601-${i}`, () => createQuizAnswerPage('601', i));
+  pageRegistry.set(`610-${i}`, () => createQuizAnswerPage('610', i));
+  pageRegistry.set(`630-${i}`, () => createQuizAnswerPage('630', i));
+  pageRegistry.set(`640-${i}`, () => createQuizAnswerPage('640', i));
+}
 
 // Settings pages (7xx)
-pageRegistry.set('700', createSettingsIndexPage);
-pageRegistry.set('701', createThemeCustomizationPage);
-
-// Theme preview pages (701-1 through 701-4)
-for (let i = 1; i <= 4; i++) {
-  pageRegistry.set(`701-${i}`, () => createThemePreviewPage(i));
-}
+pageRegistry.set('700', createThemeSelectionPage);
+pageRegistry.set('701', createSettingsIndexPage);
 
 // Developer tools (8xx)
 pageRegistry.set('800', createDevToolsIndexPage);
@@ -197,4 +206,26 @@ export function registerPage(pageNumber: string, factory: PageFactory): void {
  */
 export function unregisterPage(pageNumber: string): void {
   pageRegistry.delete(pageNumber);
+}
+
+/**
+ * Gets a 404 error page for invalid page numbers
+ * Requirements: 5.3 - Beautiful 404 error page
+ * 
+ * @param pageNumber - The invalid page number
+ * @returns A 404 error page
+ */
+export function get404Page(pageNumber: string): TeletextPage {
+  return create404ErrorPage(pageNumber);
+}
+
+/**
+ * Gets a "Coming Soon" page for unimplemented but valid page numbers
+ * Requirements: 6.5 - Handle unimplemented pages gracefully
+ * 
+ * @param pageNumber - The unimplemented page number
+ * @returns A coming soon page with navigation hints
+ */
+export function getComingSoonPage(pageNumber: string): TeletextPage {
+  return createGenericComingSoonPage(pageNumber);
 }

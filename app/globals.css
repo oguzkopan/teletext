@@ -29,10 +29,68 @@ body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
   box-sizing: border-box;
+  /* Requirement 5.1: Consistent teletext character rendering with monospace font */
+  font-family: 'Courier New', Courier, 'Lucida Console', Monaco, monospace;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: 0;
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* ============================================================================
+   Teletext Character Rendering
+   Requirements: 5.1 - Consistent teletext character rendering
+   ============================================================================ */
+
+/* Ensure monospace font rendering for all teletext content */
+.teletext-row,
+.teletext-screen,
+.teletext-content,
+pre,
+code {
+  font-family: 'Courier New', Courier, 'Lucida Console', Monaco, monospace;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: 0;
+  font-variant-ligatures: none;
+  font-feature-settings: normal;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure consistent character width across different screen sizes */
+@media (max-width: 768px) {
+  .teletext-row,
+  .teletext-screen,
+  .teletext-content {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 1920px) {
+  .teletext-row,
+  .teletext-screen,
+  .teletext-content {
+    font-size: 18px;
+  }
+}
+
+/* Prevent text selection from breaking character alignment */
+.teletext-row::selection,
+.teletext-content::selection {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Ensure proper spacing for special characters */
+.teletext-row {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  tab-size: 4;
 }
 
 /* ============================================================================

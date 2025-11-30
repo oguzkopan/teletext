@@ -15,20 +15,24 @@ interface InputBufferDisplayProps {
   theme: ThemeConfig;
   position?: 'header' | 'footer';
   visible?: boolean;
+  inputMode?: 'single' | 'double' | 'triple' | 'text';
 }
 
 /**
  * InputBufferDisplay Component
  * 
  * Displays the input buffer with animations and visual feedback
- * Requirements: 6.5, 8.4, 15.1
+ * Supports all input modes including text entry
+ * 
+ * Requirements: 4.6, 6.5, 8.4, 15.1
  */
 export default function InputBufferDisplay({
   buffer,
   expectedLength,
   theme,
   position = 'footer',
-  visible = true
+  visible = true,
+  inputMode
 }: InputBufferDisplayProps) {
   const [previousBuffer, setPreviousBuffer] = useState('');
   const [animationKey, setAnimationKey] = useState(0);
@@ -88,9 +92,10 @@ export default function InputBufferDisplay({
   const displayText = formatInputBuffer({
     buffer,
     expectedLength,
-    showCursor: buffer.length > 0 && buffer.length < expectedLength,
+    showCursor: inputMode === 'text' ? true : (buffer.length > 0 && buffer.length < expectedLength),
     showHint: buffer.length === 0,
-    theme: themeKey as 'ceefax' | 'haunting' | 'high-contrast' | 'orf'
+    theme: themeKey as 'ceefax' | 'haunting' | 'high-contrast' | 'orf',
+    inputMode
   });
 
   const animationClasses = getInputBufferAnimationClasses(buffer, previousBuffer);
@@ -103,7 +108,7 @@ export default function InputBufferDisplay({
     <>
       <div
         key={animationKey}
-        className={`${animationClasses.join(' ')} input-buffer-${themeKey} ${isHint ? 'input-buffer-hint' : ''}`}
+        className={`${animationClasses.join(' ')} input-buffer-${themeKey} ${isHint ? 'input-buffer-hint' : ''} ${inputMode === 'text' ? 'input-buffer-text-mode' : ''}`}
         style={{
           position: 'absolute',
           ...positionStyles,
@@ -112,7 +117,10 @@ export default function InputBufferDisplay({
           color: theme.colors.yellow,
           backgroundColor: `${theme.colors.yellow}20`,
           border: `1px solid ${theme.colors.yellow}`,
-          pointerEvents: 'none'
+          pointerEvents: 'none',
+          maxWidth: inputMode === 'text' ? '80%' : undefined,
+          whiteSpace: inputMode === 'text' ? 'pre-wrap' : undefined,
+          wordBreak: inputMode === 'text' ? 'break-word' : undefined
         }}
       >
         {displayText}
@@ -235,6 +243,13 @@ export default function InputBufferDisplay({
           font-size: 12px;
           opacity: 0.7;
           font-style: italic;
+        }
+        
+        /* Text mode styling - wider display for text input */
+        .input-buffer-text-mode {
+          min-width: 200px;
+          text-align: left;
+          padding: 8px 12px;
         }
       `}</style>
     </>

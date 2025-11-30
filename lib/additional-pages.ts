@@ -1,12 +1,14 @@
 /**
  * Additional Pages
  * Placeholder pages for features under construction
+ * Includes beautiful 404 error page with ASCII art
  */
 
 import { TeletextPage } from '@/types/teletext';
 
 /**
  * Creates a "Coming Soon" page for features under construction
+ * Requirements: 6.5 - Handle unimplemented pages gracefully with navigation hints
  */
 export function createComingSoonPage(pageNumber: string, title: string, description: string): TeletextPage {
   const now = new Date();
@@ -27,23 +29,23 @@ export function createComingSoonPage(pageNumber: string, title: string, descript
     '',
     `{white}${description}`,
     '',
-    '{white}This page is under construction.',
-    '{white}This page will be available when',
-    '{white}the full features are implemented.',
+    '{white}This page is under construction and will be',
+    '{white}available when the full features are implemented.',
     '',
-    '{white}Press {green}100{white} for main index',
+    '{cyan}▓▓▓ AVAILABLE SECTIONS ▓▓▓',
+    '{white}Try these working pages:',
+    '{yellow}100{white} - Main Index          {yellow}200{white} - News Headlines',
+    '{yellow}300{white} - Sports Results      {yellow}400{white} - Markets & Finance',
+    '{yellow}500{white} - AI Oracle           {yellow}600{white} - Games & Quizzes',
+    '{yellow}700{white} - Settings & Themes   {yellow}999{white} - Help & Information',
     '',
-    '',
-    '',
-    '',
-    '',
-    '',
+    '{white}Press {green}100{white} for main index or enter any page number',
     '',
     '',
     '',
     '',
     '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
-    '{cyan}NAVIGATION: {red}100{white}=MAIN INDEX',
+    '{cyan}NAVIGATION: {red}100{white}=INDEX {green}200{white}=NEWS {yellow}300{white}=SPORTS {blue}600{white}=GAMES',
     ''
   ];
   
@@ -52,14 +54,18 @@ export function createComingSoonPage(pageNumber: string, title: string, descript
     title,
     rows,
     links: [
-      { label: 'INDEX', targetPage: '100', color: 'red' }
+      { label: 'INDEX', targetPage: '100', color: 'red' },
+      { label: 'NEWS', targetPage: '200', color: 'green' },
+      { label: 'SPORTS', targetPage: '300', color: 'yellow' },
+      { label: 'GAMES', targetPage: '600', color: 'blue' }
     ],
     meta: {
       source: 'StaticAdapter',
       lastUpdated: new Date().toISOString(),
       fullScreenLayout: true,
       useLayoutManager: true,
-      renderedWithLayoutEngine: true
+      renderedWithLayoutEngine: true,
+      comingSoon: true
     }
   };
 }
@@ -190,6 +196,115 @@ export function createThemeCustomizationPage(): TeletextPage {
       inputOptions: ['1', '2', '3', '4'] // Accept 1-digit for theme selection
     }
   };
+}
+
+/**
+ * Creates a beautiful 404 error page with ASCII art
+ * Requirements: 5.3 - Beautiful 404 error page with decorative elements
+ */
+export function create404ErrorPage(pageNumber: string): TeletextPage {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-GB', { 
+    hour: '2-digit', 
+    minute: '2-digit'
+  });
+  
+  const rows = [
+    `{cyan}??? {yellow}Page Not Found {cyan}${timeStr}                                                                                                                        {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+    '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+    '',
+    '{red}        ╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
+    '{red}        ║                                                                                                                   ║',
+    '{red}        ║     {yellow}██╗  ██╗ ██████╗ ██╗  ██╗                                                                                  {red}║',
+    '{red}        ║     {yellow}██║  ██║██╔═████╗██║  ██║                                                                                  {red}║',
+    '{red}        ║     {yellow}███████║██║██╔██║███████║                                                                                  {red}║',
+    '{red}        ║     {yellow}╚════██║████╔╝██║╚════██║                                                                                  {red}║',
+    '{red}        ║     {yellow}     ██║╚██████╔╝     ██║                                                                                  {red}║',
+    '{red}        ║     {yellow}     ╚═╝ ╚═════╝      ╚═╝                                                                                  {red}║',
+    '{red}        ║                                                                                                                   ║',
+    '{red}        ╚═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+    '',
+    `{white}Oops! Page {yellow}${pageNumber}{white} doesn't exist in our teletext system.`,
+    '',
+    '{cyan}▓▓▓ WHAT HAPPENED? ▓▓▓',
+    '{white}The page you requested could not be found. This could be because:',
+    '{green}•{white} The page number is invalid (valid range: 100-999)',
+    '{green}•{white} The page hasn\'t been implemented yet',
+    '{green}•{white} You may have mistyped the page number',
+    '',
+    '{cyan}▓▓▓ WHERE TO GO? ▓▓▓',
+    '{white}Try these popular pages:',
+    '{yellow}100{white} - Main Index          {yellow}200{white} - News Headlines',
+    '{yellow}300{white} - Sports Results      {yellow}400{white} - Markets & Finance',
+    '{yellow}500{white} - AI Oracle           {yellow}600{white} - Games & Quizzes',
+    '{yellow}700{white} - Settings & Themes   {yellow}999{white} - Help & Information',
+    '',
+    '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+    '{cyan}NAVIGATION: {red}100{white}=MAIN INDEX {green}200{white}=NEWS {yellow}300{white}=SPORTS {blue}999{white}=HELP',
+    ''
+  ];
+  
+  return {
+    id: pageNumber,
+    title: 'Page Not Found',
+    rows,
+    links: [
+      { label: 'INDEX', targetPage: '100', color: 'red' },
+      { label: 'NEWS', targetPage: '200', color: 'green' },
+      { label: 'SPORTS', targetPage: '300', color: 'yellow' },
+      { label: 'HELP', targetPage: '999', color: 'blue' }
+    ],
+    meta: {
+      source: 'StaticAdapter',
+      lastUpdated: new Date().toISOString(),
+      fullScreenLayout: true,
+      useLayoutManager: true,
+      renderedWithLayoutEngine: true,
+      errorPage: true
+    }
+  };
+}
+
+/**
+ * Creates a generic "Coming Soon" page for any unimplemented page
+ * Requirements: 6.5 - Handle unimplemented pages gracefully
+ */
+export function createGenericComingSoonPage(pageNumber: string): TeletextPage {
+  // Determine the section based on page number
+  const pageNum = parseInt(pageNumber.split('-')[0], 10);
+  let sectionName = 'Page';
+  let sectionDescription = 'This page is not yet implemented.';
+  
+  if (pageNum >= 100 && pageNum < 200) {
+    sectionName = 'System Page';
+    sectionDescription = 'System and index pages';
+  } else if (pageNum >= 200 && pageNum < 300) {
+    sectionName = 'News Page';
+    sectionDescription = 'News articles and headlines';
+  } else if (pageNum >= 300 && pageNum < 400) {
+    sectionName = 'Sports Page';
+    sectionDescription = 'Sports results and fixtures';
+  } else if (pageNum >= 400 && pageNum < 500) {
+    sectionName = 'Markets & Weather Page';
+    sectionDescription = 'Financial markets and weather forecasts';
+  } else if (pageNum >= 500 && pageNum < 600) {
+    sectionName = 'AI Oracle Page';
+    sectionDescription = 'AI-powered questions and answers';
+  } else if (pageNum >= 600 && pageNum < 700) {
+    sectionName = 'Games Page';
+    sectionDescription = 'Interactive games and quizzes';
+  } else if (pageNum >= 700 && pageNum < 800) {
+    sectionName = 'Settings Page';
+    sectionDescription = 'Theme and configuration settings';
+  } else if (pageNum >= 800 && pageNum < 900) {
+    sectionName = 'Developer Tools Page';
+    sectionDescription = 'Development and debugging tools';
+  } else if (pageNum >= 900 && pageNum < 1000) {
+    sectionName = 'Help & Information Page';
+    sectionDescription = 'Help documentation and guides';
+  }
+  
+  return createComingSoonPage(pageNumber, sectionName, sectionDescription);
 }
 
 /**

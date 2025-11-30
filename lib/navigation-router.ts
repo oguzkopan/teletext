@@ -2,23 +2,25 @@
  * Navigation Router for Modern Teletext
  * 
  * Centralized navigation logic for all pages with support for:
- * - Page number validation (100-899)
+ * - Page number validation (100-999)
  * - Navigation history (back/forward)
  * - Input mode detection (single/double/triple digit)
  * - Error handling for invalid pages
+ * - Arrow key navigation
  * 
- * Requirements: 8.1, 8.2, 8.3, 8.4, 14.1, 14.2, 14.3
+ * Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 8.1, 8.2, 8.3, 8.4, 14.1, 14.2, 14.3
  */
 
 import { TeletextPage } from '@/types/teletext';
 
 /**
- * Input mode determines how many digits are expected for navigation
+ * Input mode determines how input is processed
  * - single: 1 digit (e.g., menu options 1-9)
  * - double: 2 digits (e.g., sub-pages 10-99)
  * - triple: 3 digits (standard page navigation 100-899)
+ * - text: full text input (e.g., AI questions, search queries)
  */
-export type InputMode = 'single' | 'double' | 'triple';
+export type InputMode = 'single' | 'double' | 'triple' | 'text';
 
 /**
  * Navigation state managed by the router
@@ -111,11 +113,11 @@ export class NavigationRouter {
   }
 
   /**
-   * Validates page number is in valid range (100-899)
+   * Validates page number is in valid range (100-999)
    * Supports standard pages (e.g., "202"), sub-pages (e.g., "202-1"), 
    * and multi-page articles (e.g., "202-1-2")
    * 
-   * Requirement: 8.2, 8.3
+   * Requirement: 6.1, 6.3, 6.4, 8.2, 8.3
    */
   public isValidPageNumber(pageId: string): boolean {
     // Check for multi-page article format (e.g., "202-1-2" for article 1, page 2)
@@ -127,7 +129,7 @@ export class NavigationRouter {
       
       return !isNaN(basePageNumber) && 
              basePageNumber >= 100 && 
-             basePageNumber <= 899 &&
+             basePageNumber <= 999 &&
              !isNaN(articleIndex) &&
              articleIndex >= 1 &&
              articleIndex <= 99 &&
@@ -144,7 +146,7 @@ export class NavigationRouter {
       
       return !isNaN(basePageNumber) && 
              basePageNumber >= 100 && 
-             basePageNumber <= 899 &&
+             basePageNumber <= 999 &&
              !isNaN(subPageIndex) &&
              subPageIndex >= 1 &&
              subPageIndex <= 99;
@@ -152,16 +154,16 @@ export class NavigationRouter {
     
     // Standard 3-digit page number
     const num = parseInt(pageId, 10);
-    return !isNaN(num) && num >= 100 && num <= 899;
+    return !isNaN(num) && num >= 100 && num <= 999;
   }
 
   /**
    * Determines the input mode for a given page
    * 
-   * Requirement: 6.1, 6.2, 6.3, 6.4
+   * Requirement: 4.3, 4.4, 4.5, 6.1, 6.2, 6.3, 6.4
    */
   public getPageInputMode(page: TeletextPage): InputMode {
-    // Check page metadata first
+    // Check page metadata first - this is the authoritative source
     if (page.meta?.inputMode) {
       return page.meta.inputMode;
     }
@@ -179,7 +181,7 @@ export class NavigationRouter {
       }
     }
     
-    // AI pages (500-599) and Games (600-699) often use single-digit
+    // AI pages (500-599) and Games (600-699) often use single-digit or text
     if ((pageNumber >= 500 && pageNumber < 600) || (pageNumber >= 600 && pageNumber < 700)) {
       // Check if page has single-digit options
       if (page.meta?.inputOptions && page.meta.inputOptions.length <= 9) {
@@ -201,11 +203,11 @@ export class NavigationRouter {
     options?: FetchPageOptions
   ): Promise<void> {
     // Validate page number
-    // Requirement: 8.3 - Display error for invalid page numbers
+    // Requirement: 6.1, 6.3, 6.4, 8.3 - Display error for invalid page numbers
     if (!this.isValidPageNumber(pageId)) {
       const error = new NavigationError(
         NavigationErrorType.INVALID_PAGE_NUMBER,
-        `Invalid page number: ${pageId}. Page numbers must be between 100 and 899.`
+        `Invalid page number: ${pageId}. Page numbers must be between 100 and 999.`
       );
       this.state.error = error.message;
       throw error;
@@ -239,7 +241,8 @@ export class NavigationRouter {
       // Update expected input length based on new page
       const inputMode = this.getPageInputMode(result.page);
       this.state.expectedInputLength = inputMode === 'single' ? 1 : 
-                                       inputMode === 'double' ? 2 : 3;
+                                       inputMode === 'double' ? 2 : 
+                                       inputMode === 'text' ? 0 : 3; // 0 for text means variable length
       
       // Clear input buffer after successful navigation
       this.state.inputBuffer = '';
@@ -291,7 +294,8 @@ export class NavigationRouter {
         // Update expected input length
         const inputMode = this.getPageInputMode(result.page);
         this.state.expectedInputLength = inputMode === 'single' ? 1 : 
-                                         inputMode === 'double' ? 2 : 3;
+                                         inputMode === 'double' ? 2 : 
+                                         inputMode === 'text' ? 0 : 3;
       }
     } catch (error) {
       console.error('Back navigation error:', error);
@@ -327,7 +331,8 @@ export class NavigationRouter {
         // Update expected input length
         const inputMode = this.getPageInputMode(result.page);
         this.state.expectedInputLength = inputMode === 'single' ? 1 : 
-                                         inputMode === 'double' ? 2 : 3;
+                                         inputMode === 'double' ? 2 : 
+                                         inputMode === 'text' ? 0 : 3;
       }
     } catch (error) {
       console.error('Forward navigation error:', error);
@@ -425,5 +430,59 @@ export class NavigationRouter {
    */
   public isLoading(): boolean {
     return this.state.loading;
+  }
+
+  /**
+   * Navigates to the next page (channel up)
+   * 
+   * Requirement: 6.7
+   */
+  public async navigateUp(options?: FetchPageOptions): Promise<void> {
+    if (!this.state.currentPage) {
+      return;
+    }
+
+    const currentPageNum = parseInt(this.state.currentPage.id.split('-')[0], 10);
+    if (isNaN(currentPageNum)) {
+      return;
+    }
+
+    // Navigate to next page (increment by 1)
+    const nextPageNum = currentPageNum + 1;
+    if (nextPageNum <= 999) {
+      try {
+        await this.navigateToPage(nextPageNum.toString(), options);
+      } catch (error) {
+        // If page doesn't exist, try to find the next available page
+        console.log(`Page ${nextPageNum} not found, staying on current page`);
+      }
+    }
+  }
+
+  /**
+   * Navigates to the previous page (channel down)
+   * 
+   * Requirement: 6.7
+   */
+  public async navigateDown(options?: FetchPageOptions): Promise<void> {
+    if (!this.state.currentPage) {
+      return;
+    }
+
+    const currentPageNum = parseInt(this.state.currentPage.id.split('-')[0], 10);
+    if (isNaN(currentPageNum)) {
+      return;
+    }
+
+    // Navigate to previous page (decrement by 1)
+    const prevPageNum = currentPageNum - 1;
+    if (prevPageNum >= 100) {
+      try {
+        await this.navigateToPage(prevPageNum.toString(), options);
+      } catch (error) {
+        // If page doesn't exist, try to find the previous available page
+        console.log(`Page ${prevPageNum} not found, staying on current page`);
+      }
+    }
   }
 }

@@ -47,7 +47,7 @@ const createTestPage = (
 
 describe('NavigationRouter', () => {
   describe('isValidPageNumber', () => {
-    it('should validate standard 3-digit page numbers (100-899)', () => {
+    it('should validate standard 3-digit page numbers (100-999)', () => {
       const pages = {
         '100': createTestPage('100')
       };
@@ -58,10 +58,11 @@ describe('NavigationRouter', () => {
       expect(router.isValidPageNumber('200')).toBe(true);
       expect(router.isValidPageNumber('500')).toBe(true);
       expect(router.isValidPageNumber('899')).toBe(true);
+      expect(router.isValidPageNumber('900')).toBe(true);
+      expect(router.isValidPageNumber('999')).toBe(true);
 
       // Invalid page numbers
       expect(router.isValidPageNumber('99')).toBe(false);
-      expect(router.isValidPageNumber('900')).toBe(false);
       expect(router.isValidPageNumber('1000')).toBe(false);
       expect(router.isValidPageNumber('abc')).toBe(false);
       expect(router.isValidPageNumber('')).toBe(false);
@@ -77,10 +78,11 @@ describe('NavigationRouter', () => {
       expect(router.isValidPageNumber('202-1')).toBe(true);
       expect(router.isValidPageNumber('100-5')).toBe(true);
       expect(router.isValidPageNumber('899-99')).toBe(true);
+      expect(router.isValidPageNumber('999-99')).toBe(true);
 
       // Invalid sub-pages
       expect(router.isValidPageNumber('99-1')).toBe(false);
-      expect(router.isValidPageNumber('900-1')).toBe(false);
+      expect(router.isValidPageNumber('1000-1')).toBe(false);
       expect(router.isValidPageNumber('200-0')).toBe(false);
       expect(router.isValidPageNumber('200-100')).toBe(false);
     });
@@ -95,10 +97,11 @@ describe('NavigationRouter', () => {
       expect(router.isValidPageNumber('202-1-2')).toBe(true);
       expect(router.isValidPageNumber('100-5-10')).toBe(true);
       expect(router.isValidPageNumber('899-99-99')).toBe(true);
+      expect(router.isValidPageNumber('999-99-99')).toBe(true);
 
       // Invalid multi-page articles
       expect(router.isValidPageNumber('99-1-2')).toBe(false);
-      expect(router.isValidPageNumber('900-1-2')).toBe(false);
+      expect(router.isValidPageNumber('1000-1-2')).toBe(false);
       expect(router.isValidPageNumber('200-0-2')).toBe(false);
       expect(router.isValidPageNumber('200-1-1')).toBe(false); // Page 1 is base article
       expect(router.isValidPageNumber('200-1-100')).toBe(false);
@@ -188,7 +191,7 @@ describe('NavigationRouter', () => {
       );
 
       await expect(router.navigateToPage('99')).rejects.toThrow(NavigationError);
-      await expect(router.navigateToPage('900')).rejects.toThrow(NavigationError);
+      await expect(router.navigateToPage('1000')).rejects.toThrow(NavigationError);
       
       // Should remain on current page
       expect(router.getCurrentPage()?.id).toBe('100');
@@ -549,6 +552,127 @@ describe('NavigationRouter', () => {
 
       // Should no longer be loading
       expect(router.isLoading()).toBe(false);
+    });
+  });
+
+  describe('arrow key navigation', () => {
+    it('should navigate up to next page', async () => {
+      const pages = {
+        '100': createTestPage('100'),
+        '101': createTestPage('101'),
+        '102': createTestPage('102')
+      };
+      const router = new NavigationRouter(
+        createMockPageFetcher(pages),
+        pages['100']
+      );
+
+      await router.navigateUp();
+
+      expect(router.getCurrentPage()?.id).toBe('101');
+
+      await router.navigateUp();
+
+      expect(router.getCurrentPage()?.id).toBe('102');
+    });
+
+    it('should navigate down to previous page', async () => {
+      const pages = {
+        '100': createTestPage('100'),
+        '101': createTestPage('101'),
+        '102': createTestPage('102')
+      };
+      const router = new NavigationRouter(
+        createMockPageFetcher(pages),
+        pages['102']
+      );
+
+      await router.navigateDown();
+
+      expect(router.getCurrentPage()?.id).toBe('101');
+
+      await router.navigateDown();
+
+      expect(router.getCurrentPage()?.id).toBe('100');
+    });
+
+    it('should not navigate up beyond page 999', async () => {
+      const pages = {
+        '999': createTestPage('999')
+      };
+      const router = new NavigationRouter(
+        createMockPageFetcher(pages),
+        pages['999']
+      );
+
+      await router.navigateUp();
+
+      // Should remain on page 999
+      expect(router.getCurrentPage()?.id).toBe('999');
+    });
+
+    it('should not navigate down below page 100', async () => {
+      const pages = {
+        '100': createTestPage('100')
+      };
+      const router = new NavigationRouter(
+        createMockPageFetcher(pages),
+        pages['100']
+      );
+
+      await router.navigateDown();
+
+      // Should remain on page 100
+      expect(router.getCurrentPage()?.id).toBe('100');
+    });
+
+    it('should handle missing pages gracefully when navigating up', async () => {
+      const pages = {
+        '100': createTestPage('100'),
+        '102': createTestPage('102')
+      };
+      const router = new NavigationRouter(
+        createMockPageFetcher(pages),
+        pages['100']
+      );
+
+      await router.navigateUp();
+
+      // Should remain on page 100 since 101 doesn't exist
+      expect(router.getCurrentPage()?.id).toBe('100');
+    });
+
+    it('should handle missing pages gracefully when navigating down', async () => {
+      const pages = {
+        '100': createTestPage('100'),
+        '102': createTestPage('102')
+      };
+      const router = new NavigationRouter(
+        createMockPageFetcher(pages),
+        pages['102']
+      );
+
+      await router.navigateDown();
+
+      // Should remain on page 102 since 101 doesn't exist
+      expect(router.getCurrentPage()?.id).toBe('102');
+    });
+
+    it('should add arrow navigation to history', async () => {
+      const pages = {
+        '100': createTestPage('100'),
+        '101': createTestPage('101'),
+        '102': createTestPage('102')
+      };
+      const router = new NavigationRouter(
+        createMockPageFetcher(pages),
+        pages['100']
+      );
+
+      await router.navigateUp();
+      await router.navigateUp();
+
+      expect(router.getNavigationHistory()).toEqual(['100', '101', '102']);
     });
   });
 });

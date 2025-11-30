@@ -73,8 +73,11 @@ export interface PageMeta {
   favoritePages?: string[]; // For keyboard shortcuts config page
   themeSelectionPage?: boolean; // Flag to enable theme selection keyboard handling
   continuation?: PageContinuation; // Multi-page navigation metadata
-  inputMode?: 'single' | 'double' | 'triple'; // Expected input length: 1, 2, or 3 digits
+  inputMode?: 'single' | 'double' | 'triple' | 'text'; // Expected input type: single digit, 2 digits, 3 digits, or full text
   inputOptions?: string[];  // Valid single-digit options (e.g., ['1', '2', '3', '4', '5'])
+  topicId?: string;  // Topic ID for Q&A pages
+  topicName?: string;  // Topic name for Q&A pages
+  loading?: boolean;  // Indicates page is showing loading state
   customHints?: string[];   // Custom navigation hints to display in footer
   animatedLogo?: boolean;   // Enable animated logo on page
   logoAnimation?: string;   // Animation type for logo (e.g., 'logo-reveal', 'logo-pulse')
@@ -87,6 +90,7 @@ export interface PageMeta {
   maxVisualEffects?: boolean; // Apply maximum visual effects regardless of user settings
   useLayoutManager?: boolean; // Indicates page was already processed by adapter layout helper
   renderedWithLayoutEngine?: boolean; // Indicates page was rendered with the new layout engine
+  errorPage?: boolean; // Indicates this is an error page (e.g., 404)
   specialPageAnimation?: {
     type: string;
     name: string;
@@ -105,7 +109,6 @@ export interface PageMeta {
   }>;
   keyboardVisualization?: boolean; // Enable special keyboard visualization
   highlightedKeys?: string[]; // Keys to highlight in keyboard shortcuts page
-  loading?: boolean; // Indicates page is in loading state (e.g., AI generating response)
   storyTheme?: string; // Theme ID for story-based content
   themeName?: string; // Theme name for story-based content
   progress?: {             // Progress indicator metadata for multi-step processes

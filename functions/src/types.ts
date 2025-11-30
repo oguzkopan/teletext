@@ -47,8 +47,11 @@ export interface PageMeta {
     currentIndex: number;
   };
   themeSelectionPage?: boolean; // Flag to enable special keyboard handling for theme selection
-  inputMode?: 'single' | 'double' | 'triple'; // Expected input length: 1, 2, or 3 digits
+  inputMode?: 'single' | 'double' | 'triple' | 'text'; // Expected input type: single digit, 2 digits, 3 digits, or full text
   inputOptions?: string[];  // Valid single-digit options (e.g., ['1', '2', '3', '4', '5'])
+  topicId?: string;  // Topic ID for Q&A pages
+  topicName?: string;  // Topic name for Q&A pages
+  loading?: boolean;  // Indicates page is showing loading state
   customHints?: string[];   // Custom navigation hints to display in footer
   progress?: {             // Progress indicator metadata for multi-step processes
     current: number;
@@ -100,7 +103,6 @@ export interface PageMeta {
   themeName?: string; // Theme name for story-based content
   liveIndicator?: boolean; // Show live indicator for sports/events
   classicTeletextStyle?: boolean; // Use classic teletext styling
-  loading?: boolean; // Indicates page is in loading state (e.g., AI generating response)
   renderedWithLayoutEngine?: boolean; // Indicates page was already rendered with layout engine
   useLayoutManager?: boolean; // Indicates page was processed by adapter layout manager
 }
@@ -112,6 +114,7 @@ export interface ContentAdapter {
 export interface PageResponse {
   success: boolean;
   page?: TeletextPage;
+  additionalPages?: TeletextPage[];
   error?: string;
 }
 

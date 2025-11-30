@@ -105,9 +105,9 @@ export default function PageRouter({
   // }, [currentTime, shouldUpdate, currentPage?.id, breadcrumbs, loading]);
 
   /**
-   * Validates page number is in valid range (100-899)
+   * Validates page number is in valid range (100-999)
    * Supports standard pages (e.g., "202"), sub-pages (e.g., "202-1"), and multi-page articles (e.g., "202-1-2")
-   * Requirement: 1.2, 35.1, 35.2, 35.3
+   * Requirement: 1.2, 6.1, 6.3, 6.4, 35.1, 35.2, 35.3
    */
   const isValidPageNumber = (pageId: string): boolean => {
     // Check for multi-page article format (e.g., "202-1-2" for article 1, page 2)
@@ -120,7 +120,7 @@ export default function PageRouter({
       // Validate base page number, article index, and page index
       return !isNaN(basePageNumber) && 
              basePageNumber >= 100 && 
-             basePageNumber <= 899 &&
+             basePageNumber <= 999 &&
              !isNaN(articleIndex) &&
              articleIndex >= 1 &&
              articleIndex <= 99 &&
@@ -138,14 +138,14 @@ export default function PageRouter({
       // Validate base page number and sub-page index
       return !isNaN(basePageNumber) && 
              basePageNumber >= 100 && 
-             basePageNumber <= 899 &&
+             basePageNumber <= 999 &&
              !isNaN(subPageIndex) &&
              subPageIndex >= 1 &&
              subPageIndex <= 99;
     }
     
     const num = parseInt(pageId, 10);
-    return !isNaN(num) && num >= 100 && num <= 899;
+    return !isNaN(num) && num >= 100 && num <= 999;
   };
 
   /**
@@ -513,21 +513,35 @@ export default function PageRouter({
         break;
         
       case 'up':
-        // Arrow UP: Navigate to previous page in multi-page sequence (BACK indicator)
-        // Requirement 35.3: Navigate to previous page in multi-page sequence
-        if (currentPage?.meta?.continuation?.previousPage) {
-          navigateToPage(currentPage.meta.continuation.previousPage);
+        // Arrow UP: Navigate to next page number (channel up)
+        // Requirement 6.7: Add up/down arrow handlers for channel navigation
+        // First check for multi-page sequence navigation
+        if (currentPage?.meta?.continuation?.nextPage) {
+          navigateToPage(currentPage.meta.continuation.nextPage);
+        } else if (currentPage) {
+          // Channel navigation: increment page number
+          const currentPageNum = parseInt(currentPage.id.split('-')[0], 10);
+          if (!isNaN(currentPageNum) && currentPageNum < 999) {
+            const nextPageNum = currentPageNum + 1;
+            navigateToPage(nextPageNum.toString());
+          }
         }
-        // No fallback - up arrow only works for multi-page navigation
         break;
         
       case 'down':
-        // Arrow DOWN: Navigate to next page in multi-page sequence (MORE indicator)
-        // Requirement 35.2: Navigate to next page in multi-page sequence
-        if (currentPage?.meta?.continuation?.nextPage) {
-          navigateToPage(currentPage.meta.continuation.nextPage);
+        // Arrow DOWN: Navigate to previous page number (channel down)
+        // Requirement 6.7: Add up/down arrow handlers for channel navigation
+        // First check for multi-page sequence navigation
+        if (currentPage?.meta?.continuation?.previousPage) {
+          navigateToPage(currentPage.meta.continuation.previousPage);
+        } else if (currentPage) {
+          // Channel navigation: decrement page number
+          const currentPageNum = parseInt(currentPage.id.split('-')[0], 10);
+          if (!isNaN(currentPageNum) && currentPageNum > 100) {
+            const prevPageNum = currentPageNum - 1;
+            navigateToPage(prevPageNum.toString());
+          }
         }
-        // No fallback - down arrow only works for multi-page navigation
         break;
     }
   }, [currentPage, history, historyIndex, navigateToPage, onPageChange, createCancellableRequest, isRequestActive, fetchPage]);

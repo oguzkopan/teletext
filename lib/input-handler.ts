@@ -4,14 +4,16 @@
  * Processes keyboard input with mode-aware logic:
  * - Single-digit mode: navigate immediately on valid option
  * - Multi-digit mode: add to buffer and auto-navigate when full
+ * - Text mode: accept all alphanumeric and symbols, submit on enter
  * - Display input buffer to user
  * - Clear and manage input buffer
  * 
- * Requirements: 7.1, 7.2, 7.3, 7.4, 7.5
+ * Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 7.1, 7.2, 7.3, 7.4, 7.5, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6
  */
 
 import { TeletextPage } from '@/types/teletext';
 import { NavigationRouter, InputMode } from './navigation-router';
+import { InputContextManager } from './input-context-manager';
 
 /**
  * Input handler options
@@ -20,6 +22,7 @@ export interface InputHandlerOptions {
   onNavigate?: (pageId: string) => void;
   onError?: (error: string) => void;
   onBufferChange?: (buffer: string) => void;
+  onTextSubmit?: (text: string) => void;
 }
 
 /**
@@ -32,6 +35,8 @@ export class InputHandler {
   private navigationRouter: NavigationRouter;
   private inputBuffer: string;
   private options: InputHandlerOptions;
+  private currentInputMode: InputMode | null;
+  private contextManager: InputContextManager;
 
   constructor(
     navigationRouter: NavigationRouter,
@@ -40,6 +45,77 @@ export class InputHandler {
     this.navigationRouter = navigationRouter;
     this.inputBuffer = '';
     this.options = options;
+    this.currentInputMode = null;
+    this.contextManager = new InputContextManager();
+  }
+
+  /**
+   * Detects and updates input mode based on current page
+   * Clears buffer when mode changes
+   * 
+   * Requirement: 4.3, 4.4, 4.5, 9.1
+   */
+  public updateInputMode(): void {
+    const currentPage = this.navigationRouter.getCurrentPage();
+    if (!currentPage) {
+      return;
+    }
+
+    // Use context manager for mode detection
+    const newMode = this.contextManager.detectInputMode(currentPage);
+    
+    // If mode changed, clear the buffer
+    if (this.currentInputMode !== null && this.currentInputMode !== newMode) {
+      this.clearInputBuffer();
+    }
+    
+    this.currentInputMode = newMode;
+  }
+
+  /**
+   * Gets the current input mode
+   */
+  public getCurrentInputMode(): InputMode | null {
+    return this.currentInputMode;
+  }
+
+  /**
+   * Gets the input context manager
+   */
+  public getContextManager(): InputContextManager {
+    return this.contextManager;
+  }
+
+  /**
+   * Handles text input for text mode (alphanumeric + symbols)
+   * 
+   * Requirement: 4.1, 4.2, 4.5, 9.3
+   */
+  public handleTextInput(char: string): void {
+    const currentPage = this.navigationRouter.getCurrentPage();
+    if (!currentPage) {
+      return;
+    }
+
+    // Update input mode if needed
+    this.updateInputMode();
+
+    const inputMode = this.contextManager.detectInputMode(currentPage);
+    
+    // Only accept text input in text mode
+    if (inputMode !== 'text') {
+      return;
+    }
+
+    // Check if character is allowed in current context
+    if (char.length === 1 && this.contextManager.isCharacterAllowed(char, currentPage)) {
+      // Check max length
+      const maxLength = this.contextManager.getMaxLength(currentPage);
+      if (this.inputBuffer.length < maxLength) {
+        this.inputBuffer += char;
+        this.notifyBufferChange(this.inputBuffer);
+      }
+    }
   }
 
   /**
@@ -47,8 +123,9 @@ export class InputHandler {
    * 
    * For single-digit mode: navigate immediately on valid option
    * For multi-digit mode: add to buffer and auto-navigate when full
+   * For text mode: add digit to text buffer
    * 
-   * Requirement: 7.1, 7.2, 7.3
+   * Requirement: 4.1, 4.2, 4.5, 7.1, 7.2, 7.3, 9.2, 9.4, 9.5
    */
   public async handleDigitInput(digit: number): Promise<void> {
     // Validate digit is 0-9
@@ -61,55 +138,79 @@ export class InputHandler {
       return;
     }
 
-    const inputMode = this.navigationRouter.getPageInputMode(currentPage);
+    // Update input mode if needed
+    this.updateInputMode();
+
+    const inputMode = this.contextManager.detectInputMode(currentPage);
     const digitStr = digit.toString();
 
-    // Requirement: 7.1 - Display digit in input buffer
-    // For single-digit mode, navigate immediately
-    if (inputMode === 'single') {
-      // Check if this is a valid option
-      if (currentPage.meta?.inputOptions?.includes(digitStr)) {
-        // Find matching link
-        const link = currentPage.links.find(l => l.label === digitStr);
-        
-        try {
-          if (link && link.targetPage) {
-            // Navigate to linked page
-            await this.navigationRouter.navigateToPage(link.targetPage);
-            this.notifyNavigate(link.targetPage);
-          } else {
-            // No link found - use sub-page navigation
-            const subPageId = `${currentPage.id}-${digitStr}`;
-            await this.navigationRouter.navigateToPage(subPageId);
-            this.notifyNavigate(subPageId);
-          }
-          
-          // Clear buffer after successful navigation
-          this.clearInputBuffer();
-        } catch (error) {
-          // Navigation failed - show error
-          const errorMsg = error instanceof Error ? error.message : `Invalid option: ${digitStr}`;
-          this.notifyError(errorMsg);
-        }
-        
-        return;
+    // For text mode, add digit to buffer
+    if (inputMode === 'text') {
+      const maxLength = this.contextManager.getMaxLength(currentPage);
+      if (this.inputBuffer.length < maxLength) {
+        this.inputBuffer += digitStr;
+        this.notifyBufferChange(this.inputBuffer);
       }
-      
-      // Invalid option - show error
-      this.notifyError(`Invalid option: ${digitStr}`);
       return;
     }
 
-    // For multi-digit mode, add to buffer
-    const maxLength = inputMode === 'double' ? 2 : 3;
+    // Requirement: 7.1 - Display digit in input buffer
+    // Requirement: 9.4 - For single-digit mode, navigate immediately on valid choice
+    if (inputMode === 'single') {
+      // Validate the input first
+      const validation = this.contextManager.validateInput(digitStr, currentPage);
+      
+      if (!validation.valid) {
+        // Show error for invalid choice
+        this.notifyError(validation.error || 'Invalid option');
+        return;
+      }
+
+      // Find matching link
+      const link = currentPage.links.find(l => l.label === digitStr);
+      
+      try {
+        if (link && link.targetPage) {
+          // Navigate to linked page
+          await this.navigationRouter.navigateToPage(link.targetPage);
+          this.notifyNavigate(link.targetPage);
+        } else {
+          // No link found - use sub-page navigation
+          const subPageId = `${currentPage.id}-${digitStr}`;
+          await this.navigationRouter.navigateToPage(subPageId);
+          this.notifyNavigate(subPageId);
+        }
+        
+        // Clear buffer after successful navigation
+        this.clearInputBuffer();
+      } catch (error) {
+        // Navigation failed - show error
+        const errorMsg = error instanceof Error ? error.message : `Invalid option: ${digitStr}`;
+        this.notifyError(errorMsg);
+      }
+      
+      return;
+    }
+
+    // Requirement: 9.2, 9.5 - For multi-digit mode, add to buffer
+    const maxLength = this.contextManager.getMaxLength(currentPage);
     
     // Requirement: 7.2 - Display all digits in sequence
     if (this.inputBuffer.length < maxLength) {
       this.inputBuffer += digitStr;
       this.notifyBufferChange(this.inputBuffer);
       
-      // Requirement: 7.3 - Auto-navigate when buffer is full
+      // Requirement: 7.3, 9.2 - Auto-navigate when buffer is full
       if (this.inputBuffer.length === maxLength) {
+        // Validate before navigation
+        const validation = this.contextManager.validateInput(this.inputBuffer, currentPage);
+        
+        if (!validation.valid) {
+          this.notifyError(validation.error || 'Invalid input');
+          this.clearInputBuffer();
+          return;
+        }
+
         try {
           await this.navigationRouter.navigateToPage(this.inputBuffer);
           this.notifyNavigate(this.inputBuffer);
@@ -129,14 +230,65 @@ export class InputHandler {
   }
 
   /**
-   * Removes the last digit from the buffer
+   * Removes the last character from the buffer (backspace)
    * 
-   * Requirement: 7.4
+   * Requirement: 4.7, 7.4
    */
   public removeLastDigit(): void {
     if (this.inputBuffer.length > 0) {
       this.inputBuffer = this.inputBuffer.slice(0, -1);
       this.notifyBufferChange(this.inputBuffer);
+    }
+  }
+
+  /**
+   * Submits the current input buffer (enter key)
+   * Validates and processes based on current input mode
+   * 
+   * Requirement: 4.8, 9.3, 9.6
+   */
+  public async handleEnterKey(): Promise<void> {
+    const currentPage = this.navigationRouter.getCurrentPage();
+    if (!currentPage) {
+      return;
+    }
+
+    // Update input mode if needed
+    this.updateInputMode();
+
+    const inputMode = this.contextManager.detectInputMode(currentPage);
+    
+    // Validate input
+    const validation = this.contextManager.validateInput(this.inputBuffer, currentPage);
+    
+    if (!validation.valid) {
+      this.notifyError(validation.error || 'Invalid input');
+      if (validation.hint) {
+        // Could show hint in UI
+      }
+      return;
+    }
+
+    // Requirement: 9.3 - For text mode, submit the text
+    if (inputMode === 'text') {
+      if (this.options.onTextSubmit) {
+        this.options.onTextSubmit(this.inputBuffer);
+      }
+      this.clearInputBuffer();
+      return;
+    }
+
+    // For numeric modes, validate and navigate
+    if (inputMode === 'single' || inputMode === 'double' || inputMode === 'triple') {
+      try {
+        await this.navigationRouter.navigateToPage(this.inputBuffer);
+        this.notifyNavigate(this.inputBuffer);
+        this.clearInputBuffer();
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Navigation failed';
+        this.notifyError(errorMsg);
+        this.clearInputBuffer();
+      }
     }
   }
 
@@ -169,14 +321,19 @@ export class InputHandler {
       return '';
     }
 
-    const inputMode = this.navigationRouter.getPageInputMode(currentPage);
+    const inputMode = this.contextManager.detectInputMode(currentPage);
     
     // Don't show buffer for single-digit mode (immediate navigation)
     if (inputMode === 'single') {
       return '';
     }
 
-    const maxLength = inputMode === 'double' ? 2 : 3;
+    // For text mode, show the text as-is
+    if (inputMode === 'text') {
+      return this.inputBuffer;
+    }
+
+    const maxLength = this.contextManager.getMaxLength(currentPage);
     
     // Show input buffer with underscores for remaining digits
     let display = this.inputBuffer;
@@ -189,6 +346,8 @@ export class InputHandler {
 
   /**
    * Shows input hint based on current page mode
+   * 
+   * Requirement: 9.6
    */
   public showInputHint(): string {
     const currentPage = this.navigationRouter.getCurrentPage();
@@ -196,28 +355,42 @@ export class InputHandler {
       return '';
     }
 
-    const inputMode = this.navigationRouter.getPageInputMode(currentPage);
-    
-    if (inputMode === 'single') {
-      return 'Enter 1-digit option';
-    } else if (inputMode === 'double') {
-      return 'Enter 2-digit page';
-    } else {
-      return 'Enter 3-digit page';
-    }
+    return this.contextManager.getHintMessage(currentPage);
   }
 
   /**
-   * Handles keyboard event
+   * Validates input based on current mode
+   * 
+   * Requirement: 4.3, 4.4, 4.5, 9.6
+   */
+  public validateInput(input: string): boolean {
+    const currentPage = this.navigationRouter.getCurrentPage();
+    if (!currentPage) {
+      return false;
+    }
+
+    const validation = this.contextManager.validateInput(input, currentPage);
+    return validation.valid;
+  }
+
+  /**
+   * Handles keyboard event with full character support
+   * 
+   * Requirement: 4.1, 4.2, 4.5, 4.6, 4.7, 4.8, 9.2, 9.3, 9.4, 9.5
    */
   public async handleKeyPress(event: KeyboardEvent): Promise<void> {
     const key = event.key;
+    const currentPage = this.navigationRouter.getCurrentPage();
+    if (!currentPage) {
+      return;
+    }
 
-    // Handle digit keys (0-9)
-    if (/^[0-9]$/.test(key)) {
+    const inputMode = this.contextManager.detectInputMode(currentPage);
+
+    // Handle enter key (submit)
+    if (key === 'Enter') {
       event.preventDefault();
-      const digit = parseInt(key, 10);
-      await this.handleDigitInput(digit);
+      await this.handleEnterKey();
       return;
     }
 
@@ -233,6 +406,24 @@ export class InputHandler {
       event.preventDefault();
       this.clearInputBuffer();
       return;
+    }
+
+    // Handle digit keys (0-9)
+    if (/^[0-9]$/.test(key)) {
+      event.preventDefault();
+      const digit = parseInt(key, 10);
+      await this.handleDigitInput(digit);
+      return;
+    }
+
+    // For text mode, accept all printable characters
+    if (inputMode === 'text') {
+      // Check if character is allowed in current context
+      if (key.length === 1 && this.contextManager.isCharacterAllowed(key, currentPage)) {
+        event.preventDefault();
+        this.handleTextInput(key);
+        return;
+      }
     }
   }
 

@@ -11,32 +11,46 @@ export interface InputBufferDisplayOptions {
   showCursor?: boolean;
   showHint?: boolean;
   theme?: 'ceefax' | 'haunting' | 'high-contrast' | 'orf';
+  inputMode?: 'single' | 'double' | 'triple' | 'text';
 }
 
 /**
  * Formats the input buffer for display with highlighting
+ * Supports all input modes including text
+ * 
+ * Requirement 4.6: Show all entered characters in real-time
  * Requirement 15.1: Display entered digits with highlighting
  */
 export function formatInputBuffer(options: InputBufferDisplayOptions): string {
-  const { buffer, expectedLength, showCursor = true, showHint = true } = options;
+  const { buffer, expectedLength, showCursor = true, showHint = true, inputMode } = options;
   
   if (buffer.length === 0 && showHint) {
     // Show input format hint when buffer is empty
-    // Requirement 8.4: Display input format
-    if (expectedLength === 1) {
+    // Requirement 4.6: Display input hints based on current mode
+    if (inputMode === 'text') {
+      return 'Type your question and press Enter';
+    } else if (expectedLength === 1 || inputMode === 'single') {
       return 'Enter 1 digit';
-    } else if (expectedLength === 2) {
+    } else if (expectedLength === 2 || inputMode === 'double') {
       return 'Enter 2 digits';
     } else {
       return 'Enter 3-digit page number';
     }
   }
   
-  // Display entered digits with cursor
+  // Display entered characters with cursor
   let display = buffer;
   
-  if (showCursor && buffer.length < expectedLength) {
-    display += '_';
+  // For text mode, show cursor at end
+  if (inputMode === 'text') {
+    if (showCursor) {
+      display += '█'; // Block cursor for text mode
+    }
+  } else {
+    // For numeric modes, show underscore placeholders
+    if (showCursor && buffer.length < expectedLength) {
+      display += '_';
+    }
   }
   
   return display;

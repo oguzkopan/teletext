@@ -563,34 +563,132 @@ export class GamesAdapter implements ContentAdapter {
   }
 
   /**
-   * Fetches trivia questions from Open Trivia Database
+   * Fetches trivia questions - now uses AI generation with fallback to API
    */
   private async fetchTriviaQuestions(amount: number = 5): Promise<QuizQuestion[]> {
     try {
-      const response = await axios.get(this.triviaApiUrl, {
-        params: {
-          amount,
-          type: 'multiple'
-        },
-        timeout: 5000
-      });
+      // Try AI generation first for dynamic, unique questions
+      return await this.generateAIQuizQuestions(amount);
+    } catch (aiError) {
+      console.log('AI generation failed, trying external API:', aiError);
+      
+      try {
+        // Fall back to Open Trivia Database
+        const response = await axios.get(this.triviaApiUrl, {
+          params: {
+            amount,
+            type: 'multiple'
+          },
+          timeout: 5000
+        });
 
-      if (response.data.response_code !== 0) {
-        throw new Error('Failed to fetch trivia questions');
+        if (response.data.response_code !== 0) {
+          throw new Error('Failed to fetch trivia questions');
+        }
+
+        return response.data.results.map((q: any) => ({
+          question: q.question,
+          correctAnswer: q.correct_answer,
+          incorrectAnswers: q.incorrect_answers,
+          category: q.category,
+          difficulty: q.difficulty
+        }));
+      } catch (apiError) {
+        console.error('External API also failed, using fallback questions:', apiError);
+        // Return fallback questions as last resort
+        return this.getFallbackQuestions();
       }
-
-      return response.data.results.map((q: any) => ({
-        question: q.question,
-        correctAnswer: q.correct_answer,
-        incorrectAnswers: q.incorrect_answers,
-        category: q.category,
-        difficulty: q.difficulty
-      }));
-    } catch (error) {
-      console.error('Error fetching trivia questions:', error);
-      // Return fallback questions
-      return this.getFallbackQuestions();
     }
+  }
+
+  /**
+   * Generates quiz questions using Vertex AI
+   */
+  private async generateAIQuizQuestions(amount: number = 5): Promise<QuizQuestion[]> {
+    const vertexAI = this.getVertexAI();
+    const model = vertexAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    
+    // Select random categories for variety
+    const categories = [
+      'Science & Technology',
+      'History & Culture',
+      'Geography & Nature',
+      'Arts & Entertainment',
+      'Sports & Games',
+      'General Knowledge'
+    ];
+    
+    const selectedCategories = this.shuffleArray(categories).slice(0, Math.min(amount, categories.length));
+    
+    const prompt = `Generate ${amount} multiple-choice trivia questions for a quiz game. 
+Each question should be interesting, educational, and suitable for a general audience.
+
+Categories to cover: ${selectedCategories.join(', ')}
+
+Requirements:
+- Each question must have exactly 4 answer options (1 correct, 3 incorrect)
+- Questions should be clear and unambiguous
+- Incorrect answers should be plausible but clearly wrong
+- Vary difficulty from easy to medium
+- Keep questions concise (under 100 characters if possible)
+- Answers should be short (under 40 characters)
+- No special formatting or markdown
+
+Return ONLY a valid JSON array with this exact structure:
+[
+  {
+    "question": "Question text here?",
+    "correctAnswer": "Correct answer",
+    "incorrectAnswers": ["Wrong 1", "Wrong 2", "Wrong 3"],
+    "category": "Category name",
+    "difficulty": "easy|medium"
+  }
+]
+
+Generate exactly ${amount} questions. Return ONLY the JSON array, no other text.`;
+
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const candidates = response.candidates;
+    
+    if (!candidates || candidates.length === 0 || !candidates[0].content.parts.length) {
+      throw new Error('No response from AI');
+    }
+    
+    const text = candidates[0].content.parts[0].text || '';
+    
+    // Extract JSON from response (handle markdown code blocks)
+    let jsonText = text.trim();
+    if (jsonText.startsWith('```json')) {
+      jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+    } else if (jsonText.startsWith('```')) {
+      jsonText = jsonText.replace(/```\n?/g, '');
+    }
+    
+    // Parse the JSON
+    const questions = JSON.parse(jsonText);
+    
+    // Validate structure
+    if (!Array.isArray(questions) || questions.length === 0) {
+      throw new Error('Invalid question format from AI');
+    }
+    
+    // Validate each question has required fields
+    const validQuestions = questions.filter(q => 
+      q.question && 
+      q.correctAnswer && 
+      Array.isArray(q.incorrectAnswers) && 
+      q.incorrectAnswers.length === 3 &&
+      q.category &&
+      q.difficulty
+    );
+    
+    if (validQuestions.length === 0) {
+      throw new Error('No valid questions generated');
+    }
+    
+    // Return the requested amount (or all valid questions if less)
+    return validQuestions.slice(0, amount);
   }
 
   /**
@@ -717,7 +815,7 @@ export class GamesAdapter implements ContentAdapter {
       const percentage = (score / total) * 100;
       
       const vertexAI = this.getVertexAI();
-      const model = vertexAI.getGenerativeModel({ model: 'gemini-pro' });
+      const model = vertexAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
       
       const prompt = `Generate a short, witty, and entertaining comment about someone's quiz performance. 
 They scored ${score} out of ${total} questions correct (${percentage}%).
@@ -727,7 +825,8 @@ Requirements:
 - Be playful and humorous
 - Match the tone to their performance (encouraging if low, congratulatory if high, playful if medium)
 - No special formatting or markdown
-- Make it feel like a retro teletext message
+- Make it feel like a retro teletext message from the 1980s
+- Use British English spelling and style
 
 Just provide the commentary text, nothing else.`;
 

@@ -2,93 +2,11 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { ThemeConfig } from '@/types/teletext';
-import { db } from '@/lib/firebase-client';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useThemeTransition } from '@/hooks/useThemeTransition';
+import { ThemeManager, themes, themeRegistry } from '@/lib/theme-manager';
 
-// Theme definitions
-export const themes: Record<string, ThemeConfig> = {
-  ceefax: {
-    name: 'Ceefax',
-    colors: {
-      background: '#0000AA',
-      text: '#FFFF00',
-      red: '#FF0000',
-      green: '#00FF00',
-      yellow: '#FFFF00',
-      blue: '#0000FF',
-      magenta: '#FF00FF',
-      cyan: '#00FFFF',
-      white: '#FFFFFF'
-    },
-    effects: {
-      scanlines: true,
-      curvature: true,
-      noise: false,
-      glitch: false
-    }
-  },
-  orf: {
-    name: 'ORF',
-    colors: {
-      background: '#000000',
-      text: '#00FF00',
-      red: '#FF3333',
-      green: '#33FF33',
-      yellow: '#FFFF33',
-      blue: '#3333FF',
-      magenta: '#FF33FF',
-      cyan: '#33FFFF',
-      white: '#CCCCCC'
-    },
-    effects: {
-      scanlines: true,
-      curvature: false,
-      noise: false,
-      glitch: false
-    }
-  },
-  highcontrast: {
-    name: 'High Contrast',
-    colors: {
-      background: '#000000',
-      text: '#FFFFFF',
-      red: '#FF0000',
-      green: '#00FF00',
-      yellow: '#FFFF00',
-      blue: '#0088FF',
-      magenta: '#FF00FF',
-      cyan: '#00FFFF',
-      white: '#FFFFFF'
-    },
-    effects: {
-      scanlines: false,
-      curvature: false,
-      noise: false,
-      glitch: false
-    }
-  },
-  haunting: {
-    name: 'Haunting Mode',
-    colors: {
-      background: '#000000',
-      text: '#00FF00',
-      red: '#FF0000',
-      green: '#00FF00',
-      yellow: '#FF6600',
-      blue: '#9933FF',
-      magenta: '#FF00FF',
-      cyan: '#00FFFF',
-      white: '#CCCCCC'
-    },
-    effects: {
-      scanlines: true,
-      curvature: true,
-      noise: true,
-      glitch: true
-    }
-  }
-};
+// Re-export themes and registry for backward compatibility
+export { themes, themeRegistry };
 
 interface ThemeContextType {
   currentTheme: ThemeConfig;
@@ -106,6 +24,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [themeManager] = useState(() => new ThemeManager('default_user'));
   const [currentThemeKey, setCurrentThemeKey] = useState<string>('ceefax');
   const [currentTheme, setCurrentTheme] = useState<ThemeConfig>(themes.ceefax);
   const [confirmationMessage, setConfirmationMessage] = useState<string | null>(null);
@@ -113,40 +32,49 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Use theme transition hook for animated transitions
   const { state: transitionState, executeTransition, getTransitionClass } = useThemeTransition();
 
-  // Load saved theme preference on startup
-  // Requirement: 37.5
+  // Initialize theme manager on mount
+  // Requirements: 8.1, 8.2, 8.6
   useEffect(() => {
-    const loadThemePreference = async () => {
+    const initializeTheme = async () => {
       try {
-        // Use a default user ID for now (in production, this would be the authenticated user's ID)
-        const userId = 'default_user';
-        const userPrefsRef = doc(db, 'user_preferences', userId);
-        const userPrefsDoc = await getDoc(userPrefsRef);
-
-        if (userPrefsDoc.exists()) {
-          const data = userPrefsDoc.data();
-          const savedThemeKey = data.theme || 'ceefax';
-          
-          if (themes[savedThemeKey]) {
-            setCurrentThemeKey(savedThemeKey);
-            setCurrentTheme(themes[savedThemeKey]);
-            console.log(`Loaded saved theme: ${savedThemeKey}`);
-          }
-        }
+        await themeManager.initialize();
+        const loadedTheme = themeManager.getCurrentTheme();
+        const loadedThemeKey = themeManager.getCurrentThemeKey();
+        
+        setCurrentThemeKey(loadedThemeKey);
+        setCurrentTheme(loadedTheme);
+        
+        // Apply CSS variables immediately
+        themeManager.applyCSSVariables(loadedTheme);
+        
+        console.log(`[ThemeProvider] Initialized with theme: ${loadedThemeKey}`);
       } catch (error) {
-        console.error('Error loading theme preference:', error);
-        // Continue with default theme
+        console.error('[ThemeProvider] Error initializing theme:', error);
       }
     };
 
-    loadThemePreference();
-  }, []);
+    initializeTheme();
+
+    // Set up listener for cross-tab sync
+    // Requirement: 8.6
+    const handleThemeChange = (newThemeKey: string) => {
+      setCurrentThemeKey(newThemeKey);
+      setCurrentTheme(themes[newThemeKey]);
+      console.log(`[ThemeProvider] Theme synced from another tab: ${newThemeKey}`);
+    };
+
+    themeManager.addStorageListener(handleThemeChange);
+
+    return () => {
+      themeManager.removeStorageListener(handleThemeChange);
+    };
+  }, [themeManager]);
 
   // Set theme and save to Firestore with animated transition
-  // Requirements: 27.1, 27.2, 27.3, 27.4, 27.5, 37.2, 37.3, 37.4
+  // Requirements: 27.1, 27.2, 27.3, 27.4, 27.5, 37.2, 37.3, 37.4, 8.2, 8.4, 8.6
   const setTheme = useCallback(async (themeKey: string) => {
     if (!themes[themeKey]) {
-      console.error(`Invalid theme key: ${themeKey}`);
+      console.error(`[ThemeProvider] Invalid theme key: ${themeKey}`);
       return;
     }
 
@@ -165,33 +93,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         setCurrentThemeKey(themeKey);
         setCurrentTheme(newTheme);
 
-        // Save to Firestore immediately after transition completes
-        // Requirement: 27.5, 37.4
+        // Use ThemeManager to set theme and persist
+        // Requirements: 8.2, 8.4, 8.6
         try {
-          const userId = 'default_user';
-          const userPrefsRef = doc(db, 'user_preferences', userId);
-          
-          await setDoc(userPrefsRef, {
-            userId,
-            theme: themeKey,
-            favoritePages: [],
-            settings: {
-              scanlines: newTheme.effects.scanlines,
-              curvature: newTheme.effects.curvature,
-              noise: newTheme.effects.noise
-            },
-            effects: {
-              scanlinesIntensity: 50,
-              curvature: 5,
-              noiseLevel: 10
-            },
-            updatedAt: new Date()
-          }, { merge: true });
-
-          console.log(`Theme saved to Firestore: ${themeKey}`);
+          await themeManager.setTheme(themeKey);
+          console.log(`[ThemeProvider] Theme set via ThemeManager: ${themeKey}`);
         } catch (error) {
-          console.error('Error saving theme preference:', error);
-          // Theme is still applied locally even if save fails
+          console.error('[ThemeProvider] Error setting theme via ThemeManager:', error);
+          // Fallback: apply CSS variables directly
+          themeManager.applyCSSVariables(newTheme);
         }
       },
       {
@@ -207,7 +117,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         }
       }
     );
-  }, [currentThemeKey, executeTransition]);
+  }, [currentThemeKey, executeTransition, themeManager]);
 
   return (
     <ThemeContext.Provider 

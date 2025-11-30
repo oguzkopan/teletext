@@ -25,11 +25,33 @@ interface ConversationState {
  * AIAdapter serves AI Oracle pages (500-599)
  * Integrates with Google Vertex AI (Gemini) for conversational AI
  */
+interface QueuedRequest {
+  prompt: string;
+  conversationHistory?: Array<{ role: 'user' | 'model'; content: string }>;
+  resolve: (value: string) => void;
+  reject: (error: Error) => void;
+  retryCount: number;
+}
+
+interface CachedResponse {
+  response: string;
+  timestamp: number;
+  prompt: string;
+}
+
 export class AIAdapter implements ContentAdapter {
   private vertexAI: VertexAI | null = null;
   private firestore: FirebaseFirestore.Firestore;
   private projectId: string;
   private location: string;
+  private configValidated: boolean = false;
+  private configError: string | null = null;
+  private requestQueue: QueuedRequest[] = [];
+  private isProcessingQueue: boolean = false;
+  private rateLimitDelay: number = 0; // milliseconds to wait before next request
+  private responseCache: Map<string, CachedResponse> = new Map();
+  private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes in milliseconds
+  private cacheCleanupInterval: NodeJS.Timeout | null = null;
 
   constructor() {
     this.firestore = admin.firestore();
@@ -39,7 +61,54 @@ export class AIAdapter implements ContentAdapter {
     this.projectId = process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || '';
     this.location = process.env.VERTEX_LOCATION || 'us-central1';
 
-    // Don't initialize Vertex AI in constructor - do it lazily when needed
+    // Validate configuration on startup
+    this.validateConfiguration();
+    
+    // Start cache cleanup interval (every minute)
+    // Only start in production, not in tests
+    if (process.env.NODE_ENV !== 'test') {
+      this.startCacheCleanup();
+    }
+  }
+
+  /**
+   * Validates AI service configuration
+   * Requirements: 7.1
+   */
+  private validateConfiguration(): void {
+    const errors: string[] = [];
+
+    // Check for required environment variables
+    if (!this.projectId) {
+      errors.push('GOOGLE_CLOUD_PROJECT or GCLOUD_PROJECT environment variable is required');
+    }
+
+    if (!this.location) {
+      errors.push('VERTEX_LOCATION environment variable is required');
+    }
+
+    // Log configuration status
+    if (errors.length > 0) {
+      this.configError = errors.join('; ');
+      console.error('AI Service Configuration Error:', this.configError);
+      console.error('AI features will be unavailable until configuration is fixed');
+      this.configValidated = false;
+    } else {
+      console.log('AI Service Configuration Valid:', {
+        projectId: this.projectId,
+        location: this.location
+      });
+      this.configValidated = true;
+      this.configError = null;
+    }
+  }
+
+  /**
+   * Checks if AI service is properly configured
+   * Requirements: 7.1
+   */
+  private isConfigured(): boolean {
+    return this.configValidated && this.configError === null;
   }
 
   /**
@@ -412,20 +481,22 @@ export class AIAdapter implements ContentAdapter {
     // Build content (single-column layout)
     const contentRows = [
       this.padText('', 40),
-      this.centerText('⚠ DEMO MODE ⚠', 40),
+      this.padText(`Topic: ${topicName}`, 40),
       this.padText('', 40),
-      this.padText('This Q&A feature is not yet fully', 40),
-      this.padText('implemented. In the complete version,', 40),
-      this.padText('you would:', 40),
+      this.padText('Type your question below and press', 40),
+      this.padText('ENTER to submit.', 40),
       this.padText('', 40),
-      this.padText('1. Type your question about', 40),
-      this.padText(`   ${topicName.toLowerCase()}`, 40),
-      this.padText('2. Press ENTER to submit', 40),
-      this.padText('3. Receive an AI-generated answer', 40),
-      this.padText('   formatted for teletext', 40),
+      this.padText('The AI will provide a detailed', 40),
+      this.padText('answer formatted for teletext', 40),
+      this.padText('display.', 40),
       this.padText('', 40),
-      this.padText('For now, this is a demonstration', 40),
-      this.padText('of the interface design.', 40),
+      this.padText('Examples:', 40),
+      this.padText(`• What are the latest trends in`, 40),
+      this.padText(`  ${topicName.toLowerCase()}?`, 40),
+      this.padText(`• How does [topic] work?`, 40),
+      this.padText(`• What should I know about...?`, 40),
+      this.padText('', 40),
+      this.padText('Your question:', 40),
       this.padText('', 40)
     ];
     
@@ -459,6 +530,9 @@ export class AIAdapter implements ContentAdapter {
       meta: {
         source: 'AIAdapter',
         lastUpdated: new Date().toISOString(),
+        inputMode: 'text',
+        topicId: topicId,
+        topicName: topicName,
         progress: {
           current: 2,
           total: 2,
@@ -686,6 +760,80 @@ Remember: This is for Halloween entertainment, so make it properly scary!`;
     }
     
     return pages;
+  }
+
+  /**
+   * Processes a text question from Q&A pages and generates AI response
+   */
+  async processQATextQuestion(params: Record<string, any>): Promise<TeletextPage[]> {
+    try {
+      const { question, topicId, topicName, contextId } = params;
+
+      // Validate question is not empty
+      if (!question || question.trim().length === 0) {
+        return [this.getErrorPage('516', 'Q&A Response', new Error('Question cannot be empty'))];
+      }
+
+      // Build prompt with topic context
+      const prompt = this.buildQATextPrompt(question, topicId, topicName);
+
+      // Get or create conversation context
+      let conversation: ConversationState | null = null;
+      let newContextId = contextId;
+
+      if (contextId) {
+        conversation = await this.getConversation(contextId);
+      }
+
+      if (!conversation) {
+        newContextId = await this.createConversation('qa', {
+          topicId,
+          topicName
+        });
+        conversation = await this.getConversation(newContextId);
+      }
+
+      // Generate AI response with conversation context
+      const conversationHistory = conversation?.history.map(entry => ({
+        role: entry.role,
+        content: entry.content
+      })) || [];
+
+      const aiResponse = await this.generateAIResponse(prompt, conversationHistory);
+
+      // Update conversation with new interaction
+      if (newContextId) {
+        await this.updateConversation(
+          newContextId,
+          question,
+          aiResponse,
+          '516'
+        );
+      }
+
+      // Format response into teletext pages starting at 516
+      const pages = this.formatAIResponse(aiResponse, '516', newContextId || '');
+
+      return pages;
+    } catch (error) {
+      console.error('Error processing Q&A text question:', error);
+      return [this.getErrorPage('516', 'Q&A Response', error)];
+    }
+  }
+
+  /**
+   * Builds a prompt for text-based Q&A questions
+   */
+  private buildQATextPrompt(question: string, topicId: string, topicName: string): string {
+    const prompt = `You are an AI assistant helping with questions about ${topicName}.
+
+User's question: ${question}
+
+Please provide a clear, informative answer suitable for display on a teletext screen. 
+Keep your response concise (approximately 300-500 words) and format it in clear paragraphs without special formatting or markdown.
+Focus on providing accurate, helpful information that directly addresses the question.`;
+
+    return prompt;
   }
 
   /**
@@ -1185,7 +1333,7 @@ Format your response in clear paragraphs without special formatting or markdown.
   }
 
   /**
-   * Generates AI response using Vertex AI
+   * Generates AI response using Vertex AI with rate limiting and queueing
    * @param prompt - The prompt to send to the AI
    * @param conversationHistory - Optional conversation history for context
    * @returns The AI response text
@@ -1194,17 +1342,137 @@ Format your response in clear paragraphs without special formatting or markdown.
     prompt: string,
     conversationHistory?: Array<{ role: 'user' | 'model'; content: string }>
   ): Promise<string> {
+    // Check configuration before making AI call
+    // Requirements: 7.1
+    if (!this.isConfigured()) {
+      throw new Error(`AI service not configured: ${this.configError}`);
+    }
+
+    // Check cache first
+    // Requirements: 7.6
+    const cacheKey = this.generateCacheKey(prompt, conversationHistory);
+    const cachedResponse = this.getCachedResponse(cacheKey);
+    
+    if (cachedResponse) {
+      console.log('Returning cached AI response');
+      return cachedResponse;
+    }
+
+    // Queue the request if we're rate limited
+    // Requirements: 7.5
+    if (this.rateLimitDelay > 0) {
+      return this.queueRequest(prompt, conversationHistory);
+    }
+
+    const response = await this.executeAIRequest(prompt, conversationHistory, 0);
+    
+    // Cache the response
+    // Requirements: 7.6
+    this.cacheResponse(cacheKey, response, prompt);
+    
+    return response;
+  }
+
+  /**
+   * Queues an AI request when rate limited
+   * Requirements: 7.5
+   */
+  private queueRequest(
+    prompt: string,
+    conversationHistory?: Array<{ role: 'user' | 'model'; content: string }>
+  ): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.requestQueue.push({
+        prompt,
+        conversationHistory,
+        resolve,
+        reject,
+        retryCount: 0
+      });
+
+      console.log(`Request queued. Queue length: ${this.requestQueue.length}`);
+
+      // Start processing queue if not already processing
+      if (!this.isProcessingQueue) {
+        this.processQueue();
+      }
+    });
+  }
+
+  /**
+   * Processes queued requests with rate limiting
+   * Requirements: 7.5
+   */
+  private async processQueue(): Promise<void> {
+    if (this.isProcessingQueue || this.requestQueue.length === 0) {
+      return;
+    }
+
+    this.isProcessingQueue = true;
+
+    while (this.requestQueue.length > 0) {
+      // Wait for rate limit delay if needed
+      if (this.rateLimitDelay > 0) {
+        console.log(`Rate limited. Waiting ${this.rateLimitDelay}ms before next request`);
+        await new Promise(resolve => setTimeout(resolve, this.rateLimitDelay));
+      }
+
+      const request = this.requestQueue.shift();
+      if (!request) continue;
+
+      try {
+        const response = await this.executeAIRequest(
+          request.prompt,
+          request.conversationHistory,
+          request.retryCount
+        );
+        request.resolve(response);
+      } catch (error) {
+        request.reject(error as Error);
+      }
+    }
+
+    this.isProcessingQueue = false;
+  }
+
+  /**
+   * Executes an AI request with retry logic for rate limiting
+   * Requirements: 7.5
+   */
+  private async executeAIRequest(
+    prompt: string,
+    conversationHistory?: Array<{ role: 'user' | 'model'; content: string }>,
+    retryCount: number = 0
+  ): Promise<string> {
     try {
       const vertexAI = this.getVertexAI();
       const model = vertexAI.getGenerativeModel({
         model: 'gemini-1.5-flash'
       });
 
-      // Build conversation context
+      // Build conversation context with teletext formatting instructions
+      // Requirements: 7.2
       const contents = [];
       
+      // Add system-level formatting instructions as first user message
+      const formattingInstructions = this.getTeletextFormattingInstructions();
+      contents.push({
+        role: 'user',
+        parts: [{ text: formattingInstructions }]
+      });
+      
+      // Add a model acknowledgment
+      contents.push({
+        role: 'model',
+        parts: [{ text: 'I understand. I will format all responses for teletext display with 40-character line width, no special formatting, and clear paragraph breaks.' }]
+      });
+      
+      // Include conversation history for context
+      // Requirements: 7.2
       if (conversationHistory && conversationHistory.length > 0) {
-        conversationHistory.forEach(entry => {
+        // Limit to last 10 exchanges to avoid token limits
+        const recentHistory = conversationHistory.slice(-10);
+        recentHistory.forEach(entry => {
           contents.push({
             role: entry.role,
             parts: [{ text: entry.content }]
@@ -1223,11 +1491,225 @@ Format your response in clear paragraphs without special formatting or markdown.
       });
 
       const response = result.response;
-      return response.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated';
-    } catch (error) {
+      const rawText = response.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated';
+      
+      // Parse and format the response for teletext display
+      // Requirements: 7.3
+      const formattedText = this.parseAndFormatAIResponse(rawText);
+      
+      // Reset rate limit delay on success
+      this.rateLimitDelay = 0;
+      
+      return formattedText;
+    } catch (error: any) {
       console.error('Error generating AI response:', error);
+      
+      // Check if this is a rate limit error
+      // Requirements: 7.5
+      if (this.isRateLimitError(error)) {
+        const maxRetries = 3;
+        if (retryCount < maxRetries) {
+          // Exponential backoff: 1s, 2s, 4s
+          this.rateLimitDelay = Math.pow(2, retryCount) * 1000;
+          console.log(`Rate limit detected. Retry ${retryCount + 1}/${maxRetries} after ${this.rateLimitDelay}ms`);
+          
+          await new Promise(resolve => setTimeout(resolve, this.rateLimitDelay));
+          return this.executeAIRequest(prompt, conversationHistory, retryCount + 1);
+        } else {
+          throw new Error('Rate limit exceeded. Please try again later.');
+        }
+      }
+      
       throw new Error('Failed to generate AI response');
     }
+  }
+
+  /**
+   * Checks if an error is a rate limit error
+   * Requirements: 7.5
+   */
+  private isRateLimitError(error: any): boolean {
+    if (!error) return false;
+    
+    const errorMessage = error.message?.toLowerCase() || '';
+    const errorCode = error.code || '';
+    
+    // Check for common rate limit indicators
+    return (
+      errorMessage.includes('rate limit') ||
+      errorMessage.includes('quota exceeded') ||
+      errorMessage.includes('too many requests') ||
+      errorCode === 'RESOURCE_EXHAUSTED' ||
+      errorCode === 429
+    );
+  }
+
+  /**
+   * Parses and formats AI response for teletext display
+   * Requirements: 7.3
+   */
+  private parseAndFormatAIResponse(rawText: string): string {
+    let text = rawText;
+
+    // Remove markdown formatting
+    // Remove bold: **text** or __text__
+    text = text.replace(/\*\*([^*]+)\*\*/g, '$1');
+    text = text.replace(/__([^_]+)__/g, '$1');
+    
+    // Remove italic: *text* or _text_
+    text = text.replace(/\*([^*]+)\*/g, '$1');
+    text = text.replace(/_([^_]+)_/g, '$1');
+    
+    // Remove headers: # Header, ## Header, etc.
+    text = text.replace(/^#{1,6}\s+(.+)$/gm, '$1');
+    
+    // Remove code blocks: ```code```
+    text = text.replace(/```[\s\S]*?```/g, '');
+    text = text.replace(/`([^`]+)`/g, '$1');
+    
+    // Remove HTML tags
+    text = text.replace(/<[^>]+>/g, '');
+    
+    // Remove bullet points and list markers
+    text = text.replace(/^[\s]*[-*+]\s+/gm, '');
+    text = text.replace(/^[\s]*\d+\.\s+/gm, '');
+    
+    // Normalize whitespace
+    text = text.replace(/\r\n/g, '\n'); // Normalize line endings
+    text = text.replace(/\t/g, '  '); // Replace tabs with spaces
+    
+    // Remove excessive blank lines (more than 2 consecutive)
+    text = text.replace(/\n{3,}/g, '\n\n');
+    
+    // Trim leading/trailing whitespace
+    text = text.trim();
+    
+    return text;
+  }
+
+  /**
+   * Returns teletext formatting instructions for AI prompts
+   * Requirements: 7.2
+   */
+  private getTeletextFormattingInstructions(): string {
+    return `You are an AI assistant providing responses for a teletext/Ceefax-style display system.
+
+CRITICAL FORMATTING REQUIREMENTS:
+- Maximum line width: 40 characters
+- Use simple, clear language
+- NO markdown formatting (no **, __, ##, etc.)
+- NO HTML tags
+- NO special characters or emojis (except basic punctuation)
+- Use plain text only
+- Separate paragraphs with blank lines
+- Keep responses concise and readable
+- Avoid long sentences that are hard to wrap
+
+Your responses will be displayed on a retro teletext screen, so clarity and simplicity are essential.`;
+  }
+
+  /**
+   * Generates a cache key for a prompt and conversation history
+   * Requirements: 7.6
+   */
+  private generateCacheKey(
+    prompt: string,
+    conversationHistory?: Array<{ role: 'user' | 'model'; content: string }>
+  ): string {
+    // Create a simple hash of the prompt and history
+    const historyStr = conversationHistory
+      ? JSON.stringify(conversationHistory.slice(-5)) // Only last 5 for cache key
+      : '';
+    return `${prompt}:${historyStr}`;
+  }
+
+  /**
+   * Gets a cached response if available and not expired
+   * Requirements: 7.6
+   */
+  private getCachedResponse(cacheKey: string): string | null {
+    const cached = this.responseCache.get(cacheKey);
+    
+    if (!cached) {
+      return null;
+    }
+
+    const now = Date.now();
+    const age = now - cached.timestamp;
+
+    // Check if cache is expired
+    if (age > this.CACHE_TTL) {
+      this.responseCache.delete(cacheKey);
+      return null;
+    }
+
+    return cached.response;
+  }
+
+  /**
+   * Caches an AI response
+   * Requirements: 7.6
+   */
+  private cacheResponse(cacheKey: string, response: string, prompt: string): void {
+    this.responseCache.set(cacheKey, {
+      response,
+      timestamp: Date.now(),
+      prompt
+    });
+
+    console.log(`Cached AI response. Cache size: ${this.responseCache.size}`);
+  }
+
+  /**
+   * Clears expired cache entries
+   * Requirements: 7.6
+   */
+  private cleanupCache(): void {
+    const now = Date.now();
+    let removedCount = 0;
+
+    for (const [key, cached] of this.responseCache.entries()) {
+      const age = now - cached.timestamp;
+      if (age > this.CACHE_TTL) {
+        this.responseCache.delete(key);
+        removedCount++;
+      }
+    }
+
+    if (removedCount > 0) {
+      console.log(`Cleaned up ${removedCount} expired cache entries. Cache size: ${this.responseCache.size}`);
+    }
+  }
+
+  /**
+   * Starts periodic cache cleanup
+   * Requirements: 7.6
+   */
+  private startCacheCleanup(): void {
+    // Clean up cache every minute
+    this.cacheCleanupInterval = setInterval(() => {
+      this.cleanupCache();
+    }, 60 * 1000);
+  }
+
+  /**
+   * Stops cache cleanup interval (useful for testing)
+   * Requirements: 7.6
+   */
+  stopCacheCleanup(): void {
+    if (this.cacheCleanupInterval) {
+      clearInterval(this.cacheCleanupInterval);
+      this.cacheCleanupInterval = null;
+    }
+  }
+
+  /**
+   * Clears all cached responses (useful for new requests)
+   * Requirements: 7.6
+   */
+  clearCache(): void {
+    this.responseCache.clear();
+    console.log('AI response cache cleared');
   }
 
   /**
@@ -1343,12 +1825,9 @@ Format your response in clear paragraphs without special formatting or markdown.
 
   /**
    * Creates a loading page to display while AI is generating a response
-   * Requirements: 10.2
-   * Note: This method is available for future use when implementing real-time loading indicators
-   * Currently commented out as it's not yet integrated into the page flow
+   * Requirements: 1.3
    */
-  /*
-  private getLoadingPage(pageId: string, title: string, prompt: string): TeletextPage {
+  getLoadingPage(pageId: string, title: string, prompt: string): TeletextPage {
     // Build header (2 rows)
     const headerRows = [
       this.padText(`AI GENERATING...             P${pageId}`, 40),
@@ -1407,7 +1886,6 @@ Format your response in clear paragraphs without special formatting or markdown.
       }
     };
   }
-  */
 
   /**
    * Creates an error page when operations fail using layout engine

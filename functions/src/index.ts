@@ -29,15 +29,15 @@ const pageLogger = createLogger('getPage');
 const aiLogger = createLogger('processAI');
 
 /**
- * GET /api/page/:id
- * Retrieves a teletext page by ID with Firestore caching
+ * GET/POST /api/page/:id
+ * Retrieves a teletext page by ID or processes text input submissions
  */
 export const getPage = onRequest(async (req, res) => {
   const startTime = Date.now();
   
   // Enable CORS
   res.set('Access-Control-Allow-Origin', '*');
-  res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.set('Access-Control-Allow-Headers', 'Content-Type');
   
   // Disable caching
@@ -57,13 +57,54 @@ export const getPage = onRequest(async (req, res) => {
       throw new InvalidPageError('No page ID provided');
     }
 
-    pageLogger.logRequest('GET', `/api/page/${pageId}`);
+    pageLogger.logRequest(req.method, `/api/page/${pageId}`);
 
     // Validate page ID
     if (!isValidPageId(pageId)) {
       throw new InvalidPageError(pageId);
     }
 
+    // Handle POST requests for text input submissions
+    if (req.method === 'POST') {
+      const { textInput, topicId, topicName, contextId } = req.body;
+
+      // Route to AI adapter for Q&A pages (511-515)
+      const pageNum = parseInt(pageId, 10);
+      if (pageNum >= 511 && pageNum <= 515) {
+        const adapter = routeToAdapter('500'); // AI adapter
+        
+        // Type guard to check if adapter has processQATextQuestion method
+        if (!('processQATextQuestion' in adapter)) {
+          throw new Error('AI adapter not properly configured');
+        }
+
+        // Process the text question
+        const pages = await (adapter as any).processQATextQuestion({
+          question: textInput,
+          topicId: topicId || (pageNum - 510).toString(),
+          topicName: topicName || 'General',
+          contextId
+        });
+
+        const duration = Date.now() - startTime;
+        pageLogger.logResponse(200, duration, { pageId, pageCount: pages.length });
+
+        // Return the first page (or all pages if needed)
+        const response: PageResponse = {
+          success: true,
+          page: pages[0],
+          additionalPages: pages.slice(1)
+        };
+
+        res.status(200).json(response);
+        return;
+      }
+
+      // For other pages, just return an error
+      throw new Error('POST not supported for this page');
+    }
+
+    // Handle GET requests
     // Route to appropriate adapter
     const adapter = routeToAdapter(pageId);
     const page = await adapter.getPage(pageId);

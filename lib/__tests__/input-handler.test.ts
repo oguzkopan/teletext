@@ -85,7 +85,7 @@ describe('InputHandler', () => {
 
       // Should not navigate
       expect(mockFetcher).not.toHaveBeenCalled();
-      expect(onError).toHaveBeenCalledWith('Invalid option: 9');
+      expect(onError).toHaveBeenCalledWith('Invalid option. Valid options: 1, 2, 3');
     });
 
     it('should use sub-page navigation when no link exists', async () => {
@@ -361,7 +361,7 @@ describe('InputHandler', () => {
       mockFetcher.mockResolvedValue({ page, fromCache: false });
       await router.navigateToPage('500');
 
-      expect(handler.showInputHint()).toBe('Enter 1-digit option');
+      expect(handler.showInputHint()).toBe('Enter option number');
     });
 
     it('should show correct hint for double-digit mode', async () => {
