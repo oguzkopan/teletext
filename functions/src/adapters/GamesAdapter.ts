@@ -103,6 +103,14 @@ export class GamesAdapter implements ContentAdapter {
       return this.getBamboozlePage(pageId, params);
     } else if (pageNumber === 620) {
       return await this.getRandomFactPage();
+    } else if (pageNumber === 630) {
+      return await this.getWordGamePage(params);
+    } else if (pageNumber >= 631 && pageNumber <= 634) {
+      return await this.getWordGameAnswerPage(pageId, params);
+    } else if (pageNumber === 640) {
+      return await this.getMathChallengePage(params);
+    } else if (pageNumber >= 641 && pageNumber <= 644) {
+      return await this.getMathChallengeAnswerPage(pageId, params);
     } else if (pageNumber >= 600 && pageNumber < 700) {
       return this.getPlaceholderPage(pageId);
     }
@@ -1411,6 +1419,397 @@ Just provide the commentary text, nothing else.`;
         score: session.score,
         choices: session.choices
       });
+  }
+
+  /**
+   * Creates the word game page (630) with AI-generated anagram
+   */
+  private async getWordGamePage(params?: Record<string, any>): Promise<TeletextPage> {
+    try {
+      // Check if there's an existing game in params
+      const existingGame = params?.wordGame;
+      
+      let wordGame;
+      if (existingGame) {
+        wordGame = existingGame;
+      } else {
+        // Generate new word game using AI
+        wordGame = await this.generateWordGame();
+      }
+
+      const rows = [
+        'ANAGRAM CHALLENGE            P630',
+        '════════════════════════════════════',
+        '',
+        'UNSCRAMBLE THE WORD:',
+        '',
+        this.centerText(wordGame.scrambled),
+        '',
+        `Hint: ${wordGame.hint}`,
+        '',
+        'SELECT YOUR ANSWER:',
+        '',
+        `1. ${wordGame.options[0]}`,
+        '',
+        `2. ${wordGame.options[1]}`,
+        '',
+        `3. ${wordGame.options[2]}`,
+        '',
+        `4. ${wordGame.options[3]}`,
+        '',
+        '',
+        '',
+        'GAMES   INDEX   QUIZ',
+        ''
+      ];
+
+      return {
+        id: '630',
+        title: 'Anagram Challenge',
+        rows: this.padRows(rows),
+        links: [
+          { label: 'GAMES', targetPage: '600', color: 'red' },
+          { label: 'INDEX', targetPage: '100', color: 'green' },
+          { label: 'QUIZ', targetPage: '601', color: 'yellow' },
+          { label: '1', targetPage: '631', color: undefined },
+          { label: '2', targetPage: '632', color: undefined },
+          { label: '3', targetPage: '633', color: undefined },
+          { label: '4', targetPage: '634', color: undefined }
+        ],
+        meta: {
+          source: 'GamesAdapter',
+          lastUpdated: new Date().toISOString(),
+          inputMode: 'single',
+          inputOptions: ['1', '2', '3', '4'],
+          aiGenerated: true,
+          wordGame: wordGame // Store for answer pages
+        }
+      };
+    } catch (error) {
+      console.error('Error generating word game:', error);
+      return this.getErrorPage('630', 'Anagram Challenge', error);
+    }
+  }
+
+  /**
+   * Generates a word game using AI
+   */
+  private async generateWordGame(): Promise<{
+    word: string;
+    scrambled: string;
+    hint: string;
+    options: string[];
+    correctIndex: number;
+  }> {
+    const vertexAI = this.getVertexAI();
+    const model = vertexAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+    const prompt = `Generate an anagram word puzzle for a quiz game.
+
+Requirements:
+- Choose an interesting word (6-10 letters)
+- Scramble the letters
+- Provide a helpful hint
+- Create 4 answer options (1 correct, 3 plausible but wrong)
+- Wrong answers should be similar length and use similar letters
+
+Return ONLY a valid JSON object with this exact structure:
+{
+  "word": "TELETEXT",
+  "scrambled": "TLEEXTET",
+  "hint": "A system for displaying text on TV",
+  "options": ["TELETEXT", "TEXTLEET", "LEETTEXT", "TEXTTELE"]
+}
+
+The correct answer must be the first option. Generate a new puzzle now.`;
+
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const candidates = response.candidates;
+
+    if (!candidates || candidates.length === 0 || !candidates[0].content.parts.length) {
+      throw new Error('No response from AI');
+    }
+
+    const text = candidates[0].content.parts[0].text || '';
+
+    // Extract JSON from response
+    let jsonText = text.trim();
+    if (jsonText.startsWith('```json')) {
+      jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+    } else if (jsonText.startsWith('```')) {
+      jsonText = jsonText.replace(/```\n?/g, '');
+    }
+
+    const gameData = JSON.parse(jsonText);
+
+    // Validate structure
+    if (!gameData.word || !gameData.scrambled || !gameData.hint || !Array.isArray(gameData.options) || gameData.options.length !== 4) {
+      throw new Error('Invalid word game format from AI');
+    }
+
+    return {
+      word: gameData.word,
+      scrambled: gameData.scrambled,
+      hint: gameData.hint,
+      options: gameData.options,
+      correctIndex: 0 // AI puts correct answer first
+    };
+  }
+
+  /**
+   * Gets word game answer page (631-634)
+   */
+  private async getWordGameAnswerPage(pageId: string, params?: Record<string, any>): Promise<TeletextPage> {
+    try {
+      const wordGame = params?.wordGame;
+      if (!wordGame) {
+        return this.getErrorPage(pageId, 'Answer Result', new Error('Game data not found'));
+      }
+
+      const answerIndex = parseInt(pageId.slice(-1), 10) - 1; // 631->0, 632->1, etc.
+      const selectedAnswer = wordGame.options[answerIndex];
+      const isCorrect = answerIndex === wordGame.correctIndex;
+
+      const rows = [
+        `ANSWER RESULT                P${pageId}`,
+        '════════════════════════════════════',
+        '',
+        '',
+        isCorrect ? '✓ CORRECT!' : '✗ INCORRECT',
+        '',
+        '',
+        `You selected: ${selectedAnswer}`,
+        '',
+        isCorrect
+          ? `${wordGame.scrambled} unscrambles to`
+          : `The correct answer is:`,
+        this.centerText(wordGame.word),
+        '',
+        wordGame.hint,
+        '',
+        '',
+        isCorrect ? 'Well done!' : 'Better luck next time!',
+        '',
+        'Reload page 630 for a new puzzle',
+        '',
+        '',
+        'GAMES   RETRY   INDEX',
+        ''
+      ];
+
+      return {
+        id: pageId,
+        title: 'Answer Result',
+        rows: this.padRows(rows),
+        links: [
+          { label: 'GAMES', targetPage: '600', color: 'red' },
+          { label: 'RETRY', targetPage: '630', color: 'green' },
+          { label: 'INDEX', targetPage: '100', color: 'yellow' }
+        ],
+        meta: {
+          source: 'GamesAdapter',
+          lastUpdated: new Date().toISOString()
+        }
+      };
+    } catch (error) {
+      console.error('Error showing word game answer:', error);
+      return this.getErrorPage(pageId, 'Answer Result', error);
+    }
+  }
+
+  /**
+   * Creates the math challenge page (640) with AI-generated problem
+   */
+  private async getMathChallengePage(params?: Record<string, any>): Promise<TeletextPage> {
+    try {
+      // Check if there's an existing challenge in params
+      const existingChallenge = params?.mathChallenge;
+
+      let mathChallenge;
+      if (existingChallenge) {
+        mathChallenge = existingChallenge;
+      } else {
+        // Generate new math challenge using AI
+        mathChallenge = await this.generateMathChallenge();
+      }
+
+      const rows = [
+        'MATH CHALLENGE               P640',
+        '════════════════════════════════════',
+        '',
+        'SOLVE THE PROBLEM:',
+        '',
+        '',
+        this.centerText(mathChallenge.problem),
+        '',
+        '',
+        'SELECT YOUR ANSWER:',
+        '',
+        `1. ${mathChallenge.options[0]}`,
+        '',
+        `2. ${mathChallenge.options[1]}`,
+        '',
+        `3. ${mathChallenge.options[2]}`,
+        '',
+        `4. ${mathChallenge.options[3]}`,
+        '',
+        '',
+        'GAMES   INDEX   WORD',
+        ''
+      ];
+
+      return {
+        id: '640',
+        title: 'Math Challenge',
+        rows: this.padRows(rows),
+        links: [
+          { label: 'GAMES', targetPage: '600', color: 'red' },
+          { label: 'INDEX', targetPage: '100', color: 'green' },
+          { label: 'WORD', targetPage: '630', color: 'yellow' },
+          { label: '1', targetPage: '641', color: undefined },
+          { label: '2', targetPage: '642', color: undefined },
+          { label: '3', targetPage: '643', color: undefined },
+          { label: '4', targetPage: '644', color: undefined }
+        ],
+        meta: {
+          source: 'GamesAdapter',
+          lastUpdated: new Date().toISOString(),
+          inputMode: 'single',
+          inputOptions: ['1', '2', '3', '4'],
+          aiGenerated: true,
+          mathChallenge: mathChallenge // Store for answer pages
+        }
+      };
+    } catch (error) {
+      console.error('Error generating math challenge:', error);
+      return this.getErrorPage('640', 'Math Challenge', error);
+    }
+  }
+
+  /**
+   * Generates a math challenge using AI
+   */
+  private async generateMathChallenge(): Promise<{
+    problem: string;
+    answer: number;
+    solution: string;
+    options: string[];
+    correctIndex: number;
+  }> {
+    const vertexAI = this.getVertexAI();
+    const model = vertexAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+    const prompt = `Generate a mental math challenge for a quiz game.
+
+Requirements:
+- Create a medium difficulty arithmetic problem
+- Use operations: addition, subtraction, multiplication (no division)
+- Result should be a whole number between 10 and 1000
+- Provide step-by-step solution
+- Create 4 answer options (1 correct, 3 plausible but wrong)
+- Wrong answers should be close to the correct answer
+
+Return ONLY a valid JSON object with this exact structure:
+{
+  "problem": "47 × 8 + 15 = ?",
+  "answer": 391,
+  "solution": "47 × 8 = 376, then 376 + 15 = 391",
+  "options": ["391", "376", "406", "401"]
+}
+
+The correct answer must be the first option. Generate a new problem now.`;
+
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const candidates = response.candidates;
+
+    if (!candidates || candidates.length === 0 || !candidates[0].content.parts.length) {
+      throw new Error('No response from AI');
+    }
+
+    const text = candidates[0].content.parts[0].text || '';
+
+    // Extract JSON from response
+    let jsonText = text.trim();
+    if (jsonText.startsWith('```json')) {
+      jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+    } else if (jsonText.startsWith('```')) {
+      jsonText = jsonText.replace(/```\n?/g, '');
+    }
+
+    const challengeData = JSON.parse(jsonText);
+
+    // Validate structure
+    if (!challengeData.problem || !challengeData.answer || !challengeData.solution || !Array.isArray(challengeData.options) || challengeData.options.length !== 4) {
+      throw new Error('Invalid math challenge format from AI');
+    }
+
+    return {
+      problem: challengeData.problem,
+      answer: challengeData.answer,
+      solution: challengeData.solution,
+      options: challengeData.options,
+      correctIndex: 0 // AI puts correct answer first
+    };
+  }
+
+  /**
+   * Gets math challenge answer page (641-644)
+   */
+  private async getMathChallengeAnswerPage(pageId: string, params?: Record<string, any>): Promise<TeletextPage> {
+    try {
+      const mathChallenge = params?.mathChallenge;
+      if (!mathChallenge) {
+        return this.getErrorPage(pageId, 'Answer Result', new Error('Challenge data not found'));
+      }
+
+      const answerIndex = parseInt(pageId.slice(-1), 10) - 1; // 641->0, 642->1, etc.
+      const selectedAnswer = mathChallenge.options[answerIndex];
+      const isCorrect = answerIndex === mathChallenge.correctIndex;
+
+      const rows = [
+        `ANSWER RESULT                P${pageId}`,
+        '════════════════════════════════════',
+        '',
+        '',
+        isCorrect ? '✓ CORRECT!' : '✗ INCORRECT',
+        '',
+        '',
+        `You selected: ${selectedAnswer}`,
+        '',
+        isCorrect ? 'Solution:' : 'The correct answer is:',
+        this.centerText(mathChallenge.answer.toString()),
+        '',
+        ...this.wrapText(mathChallenge.solution, 40),
+        '',
+        '',
+        isCorrect ? 'Excellent work!' : 'Keep practicing!',
+        '',
+        'Reload page 640 for a new challenge',
+        '',
+        'GAMES   RETRY   INDEX',
+        ''
+      ];
+
+      return {
+        id: pageId,
+        title: 'Answer Result',
+        rows: this.padRows(rows),
+        links: [
+          { label: 'GAMES', targetPage: '600', color: 'red' },
+          { label: 'RETRY', targetPage: '640', color: 'green' },
+          { label: 'INDEX', targetPage: '100', color: 'yellow' }
+        ],
+        meta: {
+          source: 'GamesAdapter',
+          lastUpdated: new Date().toISOString()
+        }
+      };
+    } catch (error) {
+      console.error('Error showing math challenge answer:', error);
+      return this.getErrorPage(pageId, 'Answer Result', error);
+    }
   }
 
   /**

@@ -80,6 +80,8 @@ export interface PageMeta {
   keyboardVisualization?: boolean; // Enable keyboard shortcut visualization
   highlightedKeys?: string[];  // Keys to highlight on keyboard visualization page
   maxVisualEffects?: boolean;  // Apply maximum visual effects regardless of user settings
+  wordGame?: any;              // Word game data for anagram challenges
+  mathChallenge?: any;         // Math challenge data for number games
   specialPageAnimation?: {     // Special page animation configuration
     type: 'ascii-frames' | 'css' | 'javascript';
     name: string;

@@ -161,11 +161,11 @@ export const themes: Record<string, ThemeConfig> = {
     name: 'Haunting Mode',
     colors: {
       background: '#000000',
-      text: '#00FF00',
+      text: '#FF00FF',      // Magenta/purple for spooky effect
       red: '#FF0000',
       green: '#00FF00',
-      yellow: '#FF6600',
-      blue: '#9933FF',
+      yellow: '#FF6600',    // Orange for Halloween
+      blue: '#9933FF',      // Purple
       magenta: '#FF00FF',
       cyan: '#00FFFF',
       white: '#CCCCCC'

@@ -20,11 +20,12 @@ export interface PageRouterState {
   inputBuffer: string;
   navigateToPage: (pageId: string) => Promise<void>;
   handleDigitPress: (digit: number) => void;
+  handleTextInput?: (char: string) => void; // Handle text input for Q&A pages
   handleEnter: () => void;
   handleNavigate: (direction: 'back' | 'forward' | 'up' | 'down') => void;
   handleColorButton: (color: 'red' | 'green' | 'yellow' | 'blue') => void;
   handleFavoriteKey: (index: number) => void;
-  handleBackspace?: () => void; // Remove last digit from input buffer
+  handleBackspace?: () => void; // Remove last character from input buffer
   favoritePages: string[];
   canGoBack: boolean;
   canGoForward: boolean;
@@ -365,9 +366,86 @@ export default function PageRouter({
 
   /**
    * Handles Enter key press
-   * Requirement: 12.3
+   * Requirements: 1.1, 1.2, 1.6, 12.3
    */
-  const handleEnter = useCallback(() => {
+  const handleEnter = useCallback(async () => {
+    const inputMode = currentPage?.meta?.inputMode;
+    
+    // Text input mode - submit question to AI
+    if (inputMode === 'text' && inputBuffer.trim().length > 0) {
+      const topicId = currentPage?.meta?.topicId;
+      const topicName = currentPage?.meta?.topicName;
+      const pageId = currentPage?.id;
+      
+      console.log(`[PageRouter] Submitting text input: "${inputBuffer}"`);
+      console.log(`[PageRouter] Topic: ${topicName} (${topicId}), Page: ${pageId}`);
+      
+      // Show loading state
+      setLoading(true);
+      
+      try {
+        // Submit text input to backend
+        const response = await fetch(`/api/page/${pageId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            textInput: inputBuffer,
+            topicId,
+            topicName
+          }),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to submit question');
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.page) {
+          // Process and display the AI response page
+          let processedPage: TeletextPage;
+          
+          if (!data.page.meta?.useLayoutManager && !data.page.meta?.renderedWithLayoutEngine) {
+            try {
+              processedPage = pageRenderer.render(data.page, { useLayoutEngine: true });
+            } catch (error) {
+              console.error('Layout engine error, falling back to layout processor:', error);
+              processedPage = pageLayoutProcessor.processPage(data.page, {
+                breadcrumbs,
+                enableFullScreen: true,
+                contentAlignment: 'left'
+              });
+            }
+          } else {
+            processedPage = data.page;
+          }
+          
+          setCurrentPage(processedPage);
+          setInputBuffer('');
+          
+          // Update history
+          const newHistory = history.slice(0, historyIndex + 1);
+          newHistory.push(processedPage.id);
+          setHistory(newHistory);
+          setHistoryIndex(newHistory.length - 1);
+          
+          if (onPageChange) {
+            onPageChange(processedPage);
+          }
+        }
+      } catch (error) {
+        console.error('Error submitting question:', error);
+        // TODO: Show error page
+      } finally {
+        setLoading(false);
+      }
+      
+      return;
+    }
+    
+    // Standard page navigation (3-digit input)
     if (inputBuffer.length === 3) {
       navigateToPage(inputBuffer);
       setInputBuffer('');
@@ -375,10 +453,10 @@ export default function PageRouter({
       // Clear incomplete input
       setInputBuffer('');
     }
-  }, [inputBuffer, navigateToPage]);
+  }, [inputBuffer, currentPage, navigateToPage, breadcrumbs, history, historyIndex, onPageChange]);
 
   /**
-   * Handles backspace to remove last digit from input buffer
+   * Handles backspace to remove last character from input buffer
    * Requirement: 16.2 - Connect to input handler
    */
   const handleBackspace = useCallback(() => {
@@ -386,6 +464,17 @@ export default function PageRouter({
       setInputBuffer(inputBuffer.slice(0, -1));
     }
   }, [inputBuffer]);
+
+  /**
+   * Handles text input for Q&A pages
+   * Requirements: 1.1, 1.2, 4.1, 4.2, 4.5
+   */
+  const handleTextInput = useCallback((char: string) => {
+    // Only accept printable characters
+    if (char.length === 1) {
+      setInputBuffer(prev => prev + char);
+    }
+  }, []);
 
   /**
    * Handles navigation controls with request cancellation
@@ -594,6 +683,7 @@ export default function PageRouter({
         inputBuffer,
         navigateToPage,
         handleDigitPress,
+        handleTextInput,
         handleEnter,
         handleNavigate,
         handleColorButton,

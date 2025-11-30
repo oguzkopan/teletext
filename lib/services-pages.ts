@@ -173,7 +173,7 @@ export function createThemeSelectionPage(): TeletextPage {
     '{white}Your selection will be saved automatically',
     '',
     '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
-    '{cyan}NAVIGATION: Press {yellow}1-4{white} to select theme • {red}RED{white}=INDEX {green}GREEN{white}=SETTINGS {yellow}YELLOW{white}=EFFECTS',
+    '{cyan}NAVIGATION: Press {yellow}1-4{white} to select theme • {red}RED{white}=INDEX {green}GREEN{white}=SETTINGS {yellow}YELLOW{white}=BACK',
     ''
   ];
   
@@ -184,7 +184,7 @@ export function createThemeSelectionPage(): TeletextPage {
     links: [
       { label: 'INDEX', targetPage: '100', color: 'red' },
       { label: 'SETTINGS', targetPage: '701', color: 'green' },
-      { label: 'EFFECTS', targetPage: '702', color: 'yellow' },
+      { label: 'BACK', targetPage: '100', color: 'yellow' },
       { label: '1', targetPage: '700' }, // Ceefax - handled by KeyboardHandler
       { label: '2', targetPage: '700' }, // ORF - handled by KeyboardHandler
       { label: '3', targetPage: '700' }, // High Contrast - handled by KeyboardHandler

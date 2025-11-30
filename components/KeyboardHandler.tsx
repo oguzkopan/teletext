@@ -33,6 +33,9 @@ export default function KeyboardHandler({ routerState }: KeyboardHandlerProps) {
       const isSettingsPage = routerState.currentPage?.id === '701' && 
                              routerState.currentPage?.meta?.settingsPage;
 
+      // Check if we're in text input mode (for AI Q&A pages)
+      const isTextInputMode = routerState.currentPage?.meta?.inputMode === 'text';
+
       // On page 700, handle theme selection with number keys 1-4
       // Requirement: 37.1, 37.2
       if (isThemeSelectionPage && e.key >= '1' && e.key <= '4') {
@@ -105,6 +108,31 @@ export default function KeyboardHandler({ routerState }: KeyboardHandlerProps) {
           routerState.navigateToPage('701');
           return;
         }
+      }
+
+      // Text input mode - accept all printable characters
+      // Requirements: 1.1, 1.2, 4.1, 4.2, 4.5
+      if (isTextInputMode) {
+        // Enter key - submit text input
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          routerState.handleEnter();
+          return;
+        }
+        // Backspace - remove last character
+        else if (e.key === 'Backspace') {
+          e.preventDefault();
+          routerState.handleBackspace?.();
+          return;
+        }
+        // Accept all printable characters (letters, numbers, symbols, spaces)
+        else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+          e.preventDefault();
+          routerState.handleTextInput?.(e.key);
+          return;
+        }
+        // Ignore other keys in text input mode
+        return;
       }
 
       // Requirement 16.2: Connect digit input to input handler
