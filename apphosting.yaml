@@ -73,3 +73,47 @@ env:
     availability:
       - BUILD
       - RUNTIME
+  
+  # External API Keys for Live Data Features
+  # These keys enable live data from external APIs
+  
+  # News API - For news headlines (pages 200-299)
+  - variable: NEWS_API_KEY
+    value: 44c30f5450634eaeaa9eea6e0cbde0d0
+    availability:
+      - RUNTIME
+  
+  # Sports API (API-Football) - For sports scores (pages 300-399)
+  - variable: SPORTS_API_KEY
+    value: 603eb2b3d41f4993fac3dc7713474cf0
+    availability:
+      - RUNTIME
+  
+  # Alpha Vantage API - For stock market data (pages 400-419)
+  - variable: ALPHA_VANTAGE_API_KEY
+    value: AYRJJ62J7Y352BVY
+    availability:
+      - RUNTIME
+  
+  # CoinGecko API - For cryptocurrency data (pages 400-419)
+  - variable: COINGECKO_API_KEY
+    value: CG-N9UYbRozChXq8Kjo1EJM3NMY
+    availability:
+      - RUNTIME
+  
+  # OpenWeatherMap API - For weather forecasts (pages 420-449)
+  - variable: OPENWEATHER_API_KEY
+    value: cd269e8361d204e1419a10c3fcc4df90
+    availability:
+      - RUNTIME
+  
+  # Google Cloud Configuration (for Vertex AI - pages 500-599)
+  - variable: GOOGLE_CLOUD_PROJECT
+    value: teletext-eacd0
+    availability:
+      - RUNTIME
+  
+  - variable: GOOGLE_CLOUD_LOCATION
+    value: us-central1
+    availability:
+      - RUNTIME

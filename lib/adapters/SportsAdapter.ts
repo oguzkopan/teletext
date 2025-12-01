@@ -54,6 +54,13 @@ export class SportsAdapter {
 
   constructor() {
     this.apiKey = process.env.SPORTS_API_KEY || '';
+    
+    // Log API key status (not the actual key for security)
+    if (!this.apiKey) {
+      console.error('SportsAdapter: SPORTS_API_KEY is not set');
+    } else {
+      console.log('SportsAdapter: API key is configured');
+    }
   }
 
   async getPage(pageId: string): Promise<TeletextPage> {
@@ -85,6 +92,12 @@ export class SportsAdapter {
 
   private async getSportsIndexPage(): Promise<TeletextPage> {
     try {
+      // Check if API key is available
+      if (!this.apiKey) {
+        console.error('SportsAdapter: Cannot fetch sports - API key is missing');
+        throw new Error('SPORTS_API_KEY is not configured');
+      }
+
       // Fetch live matches to show on index
       const response = await fetch(
         `${this.apiUrl}/fixtures?live=all`,
@@ -98,7 +111,9 @@ export class SportsAdapter {
       );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch live scores');
+        const errorText = await response.text();
+        console.error('API-Football error:', response.status, errorText);
+        throw new Error(`Failed to fetch live scores: ${response.status}`);
       }
 
       const data: FootballAPIResponse = await response.json();

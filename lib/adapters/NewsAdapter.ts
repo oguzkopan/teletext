@@ -25,6 +25,13 @@ export class NewsAdapter {
 
   constructor() {
     this.apiKey = process.env.NEWS_API_KEY || '';
+    
+    // Log API key status (not the actual key for security)
+    if (!this.apiKey) {
+      console.error('NewsAdapter: NEWS_API_KEY is not set');
+    } else {
+      console.log('NewsAdapter: API key is configured');
+    }
   }
 
   async getPage(pageId: string): Promise<TeletextPage> {
@@ -54,6 +61,12 @@ export class NewsAdapter {
 
   private async getNewsIndexPage(): Promise<TeletextPage> {
     try {
+      // Check if API key is available
+      if (!this.apiKey) {
+        console.error('NewsAdapter: Cannot fetch news - API key is missing');
+        throw new Error('NEWS_API_KEY is not configured');
+      }
+
       // Try UK first, fallback to general if no results
       let response = await fetch(
         `${this.apiUrl}/top-headlines?country=gb&pageSize=5&apiKey=${this.apiKey}`,
@@ -61,7 +74,9 @@ export class NewsAdapter {
       );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch news');
+        const errorText = await response.text();
+        console.error('NewsAPI error:', response.status, errorText);
+        throw new Error(`Failed to fetch news: ${response.status}`);
       }
 
       let data: NewsAPIResponse = await response.json();

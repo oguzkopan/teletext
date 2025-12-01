@@ -50,6 +50,13 @@ export class WeatherAdapter {
 
   constructor() {
     this.apiKey = process.env.OPENWEATHER_API_KEY || '';
+    
+    // Log API key status (not the actual key for security)
+    if (!this.apiKey) {
+      console.error('WeatherAdapter: OPENWEATHER_API_KEY is not set');
+    } else {
+      console.log('WeatherAdapter: API key is configured');
+    }
   }
 
   async getPage(pageId: string): Promise<TeletextPage> {
@@ -86,13 +93,25 @@ export class WeatherAdapter {
 
   private async getWeatherIndexPage(): Promise<TeletextPage> {
     try {
+      // Check if API key is available
+      if (!this.apiKey) {
+        console.error('WeatherAdapter: Cannot fetch weather - API key is missing');
+        throw new Error('OPENWEATHER_API_KEY is not configured');
+      }
+
       // Fetch weather for London as preview
       const response = await fetch(
         `${this.apiUrl}/weather?q=London,GB&units=metric&appid=${this.apiKey}`,
         { next: { revalidate: 600 } }
       );
 
-      const weatherData: WeatherData = response.ok ? await response.json() : null;
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('OpenWeatherMap error:', response.status, errorText);
+        throw new Error(`Failed to fetch weather: ${response.status}`);
+      }
+
+      const weatherData: WeatherData = await response.json();
 
       const now = new Date();
       const dateStr = now.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short' });
