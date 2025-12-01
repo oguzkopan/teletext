@@ -59,17 +59,16 @@ export class GamesAdapter {
       '{yellow}║                                          {cyan}🎯 FUN & GAMES 🎯{yellow}                                                           ║',
       '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
       '',
-      '{cyan}▓▓▓ PREVIEW GAMES ▓▓▓',
-      '{green}601{white} Quiz Preview             {yellow}⭐{white} Sample quiz questions',
-      '{green}610{white} Bamboozle Preview        {yellow}🎲{white} Story game concept',
-      '',
-      '{cyan}▓▓▓ PLAYABLE GAMES ▓▓▓',
+      '{cyan}▓▓▓ AI-POWERED GAMES ▓▓▓',
+      '{green}601{white} Trivia Quiz              {yellow}⭐{white} AI-generated questions',
+      '{green}610{white} Bamboozle Story Game     {yellow}🎲{white} Interactive adventures',
       '{green}620{white} Random Facts & Trivia    {yellow}📚{white} Learn something new',
       '{green}630{white} Anagram Challenge        {yellow}🔤{white} Unscramble the word',
       '{green}640{white} Math Challenge           {yellow}🔢{white} Solve arithmetic problems',
       '',
       '{magenta}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-      '{magenta}║ {yellow}💡 TIP:{white} All games use AI to generate unique questions every time you play!                                        {magenta}║',
+      '{magenta}║ {yellow}🤖 AI-POWERED:{white} All games use Vertex AI to generate unique content every time!                                      {magenta}║',
+      '{magenta}║ {yellow}💡 TIP:{white} Press 1-digit numbers to select options. Reload pages for new challenges!                                {magenta}║',
       '{magenta}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
       '',
       '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
@@ -98,29 +97,32 @@ export class GamesAdapter {
     const now = new Date();
     const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
     
-    // Generate quiz questions using AI
-    const questions = await this.generateQuizQuestions(5);
+    // ALWAYS generate new quiz question with AI
+    console.log('[GamesAdapter] Generating quiz question with Vertex AI...');
+    const questions = await this.generateQuizQuestions(1);
+    const question = questions[0];
+    console.log('[GamesAdapter] Quiz question generated:', question);
     
     const rows = [
-      `{cyan}601 {yellow}📝 QUIZ PREVIEW 📝 {cyan}${timeStr}                                                                                                                  {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+      `{cyan}601 {yellow}📝 TRIVIA QUIZ 📝 {cyan}${timeStr}                                                                                                                    {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
       '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
       '',
       '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-      '{yellow}║                                    {cyan}🎯 SAMPLE QUESTION 🎯{yellow}                                                             ║',
+      `{yellow}║                                    {cyan}🎯 ${question.category.toUpperCase()} 🎯{yellow}                                                                  ║`,
       '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
       '',
-      `{white}Sample Question:`,
+      `{white}${question.question}`,
       '',
-      `{cyan}${questions[0].question}`,
       '',
-      `{green}1.{white} ${questions[0].options[0]}`,
-      `{green}2.{white} ${questions[0].options[1]}`,
-      `{green}3.{white} ${questions[0].options[2]}`,
-      `{green}4.{white} ${questions[0].options[3]}`,
+      '{white}SELECT YOUR ANSWER:',
+      '',
+      `{green}1.{white} ${question.options[0]}`,
+      `{green}2.{white} ${question.options[1]}`,
+      `{green}3.{white} ${question.options[2]}`,
+      `{green}4.{white} ${question.options[3]}`,
       '',
       '{magenta}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-      '{magenta}║ {yellow}ℹ️  NOTE:{white} This is a preview. Full quiz functionality coming soon!                                                   {magenta}║',
-      '{magenta}║ {yellow}💡 TIP:{white} Reload this page to see different questions.                                                                {magenta}║',
+      '{magenta}║ {yellow}💡 TIP:{white} Reload for a new question! Each one is AI-generated and unique.                                            {magenta}║',
       '{magenta}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
       '',
       '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
@@ -130,16 +132,24 @@ export class GamesAdapter {
 
     return {
       id: '601',
-      title: 'Quiz Preview',
+      title: 'Trivia Quiz',
       rows,
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'GAMES', targetPage: '600', color: 'green' },
-        { label: 'FACTS', targetPage: '620', color: 'yellow' }
+        { label: 'FACTS', targetPage: '620', color: 'yellow' },
+        { label: '1', targetPage: '602', color: undefined },
+        { label: '2', targetPage: '603', color: undefined },
+        { label: '3', targetPage: '604', color: undefined },
+        { label: '4', targetPage: '605', color: undefined }
       ],
       meta: {
         source: 'GamesAdapter',
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
+        inputMode: 'single',
+        inputOptions: ['1', '2', '3', '4'],
+        quizQuestion: question,
+        aiGenerated: true
       }
     };
   }
@@ -178,16 +188,21 @@ export class GamesAdapter {
 
     return {
       id: '610',
-      title: 'Bamboozle Preview',
+      title: 'Bamboozle Story Game',
       rows,
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'GAMES', targetPage: '600', color: 'green' },
-        { label: 'FACTS', targetPage: '620', color: 'yellow' }
+        { label: 'FACTS', targetPage: '620', color: 'yellow' },
+        { label: '1', targetPage: '611', color: undefined },
+        { label: '2', targetPage: '612', color: undefined },
+        { label: '3', targetPage: '613', color: undefined }
       ],
       meta: {
         source: 'GamesAdapter',
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
+        inputMode: 'single',
+        inputOptions: ['1', '2', '3']
       }
     };
   }
@@ -306,7 +321,7 @@ export class GamesAdapter {
   }>> {
     try {
       const vertexAI = this.getVertexAI();
-      const model = vertexAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const model = vertexAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
       const prompt = `Generate ${count} multiple-choice quiz questions for a trivia game.
 
@@ -431,7 +446,7 @@ Generate exactly ${count} questions. The correct answer must always be at index 
       console.log('[GamesAdapter] Location:', this.location);
       
       const vertexAI = this.getVertexAI();
-      const model = vertexAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const model = vertexAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
       const prompt = `Generate an anagram word puzzle for a quiz game.
 
@@ -652,7 +667,7 @@ The correct answer must be the first option. Generate a NEW unique puzzle now.`;
     try {
       console.log('[GamesAdapter] Initializing Vertex AI for math...');
       const vertexAI = this.getVertexAI();
-      const model = vertexAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const model = vertexAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
       const prompt = `Generate a mental math challenge for a quiz game.
 

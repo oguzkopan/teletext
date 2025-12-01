@@ -113,6 +113,17 @@ export default function KeyboardHandler({ routerState }: KeyboardHandlerProps) {
       // Text input mode - accept all printable characters
       // Requirements: 1.1, 1.2, 4.1, 4.2, 4.5
       if (isTextInputMode) {
+        // Check if this digit is a single-digit shortcut (e.g., 1-6 on page 501)
+        const singleDigitShortcuts = routerState.currentPage?.meta?.singleDigitShortcuts || [];
+        const isShortcut = e.key >= '0' && e.key <= '9' && singleDigitShortcuts.includes(e.key);
+        
+        // If it's a shortcut digit, handle it as navigation
+        if (isShortcut) {
+          e.preventDefault();
+          routerState.handleDigitPress(parseInt(e.key));
+          return;
+        }
+        
         // Enter key - submit text input
         if (e.key === 'Enter') {
           e.preventDefault();

@@ -219,7 +219,7 @@ export class AIAdapter {
     try {
       console.log('[AIAdapter] Initializing Vertex AI...');
       const vertexAI = this.getVertexAI();
-      const model = vertexAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const model = vertexAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
       const prompt = `Answer this question in a concise, informative way suitable for a teletext display (max 500 characters):
 

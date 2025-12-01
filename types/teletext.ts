@@ -98,6 +98,8 @@ export interface PageMeta {
   errorPage?: boolean; // Indicates this is an error page (e.g., 404)
   wordGame?: any;              // Word game data for anagram challenges
   mathChallenge?: any;         // Math challenge data for number games
+  quizQuestion?: any;          // Quiz question data for trivia games
+  bamboozleStory?: any;        // Story data for Bamboozle game
   specialPageAnimation?: {
     type: string;
     name: string;
