@@ -75,8 +75,13 @@ export interface PageMeta {
   continuation?: PageContinuation; // Multi-page navigation metadata
   inputMode?: 'single' | 'double' | 'triple' | 'text'; // Expected input type: single digit, 2 digits, 3 digits, or full text
   inputOptions?: string[];  // Valid single-digit options (e.g., ['1', '2', '3', '4', '5'])
+  singleDigitShortcuts?: string[]; // Single digit shortcuts that work alongside text input
+  textInputEnabled?: boolean; // Enable text input mode for Q&A pages
+  textInputPrompt?: string; // Prompt text for text input
+  textInputPlaceholder?: string; // Placeholder text for text input
   topicId?: string;  // Topic ID for Q&A pages
   topicName?: string;  // Topic name for Q&A pages
+  customQuestion?: string; // Custom question submitted by user
   loading?: boolean;  // Indicates page is showing loading state
   customHints?: string[];   // Custom navigation hints to display in footer
   animatedLogo?: boolean;   // Enable animated logo on page

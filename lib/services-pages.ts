@@ -334,7 +334,8 @@ export function createDevToolsIndexPage(): TeletextPage {
 
 
 /**
- * Creates page 501 - AI Chat Interface
+ * Creates page 501 - AI Chat Interface (Interactive)
+ * Now with proper text input support
  */
 export function createAIChatPage(): TeletextPage {
   const now = new Date();
@@ -344,53 +345,64 @@ export function createAIChatPage(): TeletextPage {
   });
   
   const rows = [
-    `{cyan}501 {yellow}🤖 AI CHAT - COMING SOON 🤖 {cyan}${timeStr}                                                                                                            {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+    `{cyan}501 {yellow}🤖 AI ORACLE CHAT 🤖 {cyan}${timeStr}                                                                                                                  {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
     '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
     '',
     '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-    '{yellow}║                                    {cyan}🚧 UNDER CONSTRUCTION 🚧{yellow}                                                          ║',
+    '{yellow}║                                    {cyan}🎯 ASK ME ANYTHING 🎯{yellow}                                                             ║',
     '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
     '',
-    '{white}The AI Chat feature is currently under development.',
+    '{white}QUICK TOPICS - Press a number for instant answers:',
     '',
-    '{cyan}▓▓▓ PLANNED FEATURES ▓▓▓',
-    '{green}✓{white} Text input for questions',
-    '{green}✓{white} AI-powered responses using Vertex AI',
-    '{green}✓{white} Conversation history',
-    '{green}✓{white} Follow-up questions',
-    '{green}✓{white} Multiple topics (news, weather, general knowledge)',
+    '{green}1.{white} Explain AI in simple terms        {green}4.{white} How does the internet work?',
+    '{green}2.{white} Latest technology trends           {green}5.{white} Tell me a joke',
+    '{green}3.{white} Interesting historical fact        {green}6.{white} Write a poem about teletext',
     '',
-    '{cyan}▓▓▓ WHAT YOU CAN DO NOW ▓▓▓',
-    '{white}While AI Chat is being developed, try these working features:',
+    '{cyan}▓▓▓ OR ASK YOUR OWN QUESTION ▓▓▓',
     '',
-    '{green}620{white} - Random Facts & Trivia',
-    '{green}630{white} - Anagram Challenge',
-    '{green}640{white} - Math Challenge',
+    '{white}Type your question below and press {green}ENTER{white}:',
+    '',
+    '{yellow}▶{white} _',
+    '',
     '',
     '{magenta}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-    '{magenta}║ {yellow}ℹ️  NOTE:{white} Text input functionality requires additional implementation work.                                        {magenta}║',
+    '{magenta}║ {yellow}💡 TIPS:{white}                                                                                                            {magenta}║',
+    '{magenta}║ {white}• Press 1-6 for quick pre-set questions                                                                                {magenta}║',
+    '{magenta}║ {white}• Or type your own question and press ENTER                                                                            {magenta}║',
+    '{magenta}║ {white}• AI responses typically take 3-5 seconds                                                                              {magenta}║',
     '{magenta}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
     '',
     '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
-    '{cyan}NAVIGATION: {red}100{white}=INDEX {green}500{white}=AI INDEX {yellow}620{white}=FACTS',
+    '{cyan}NAVIGATION: {red}100{white}=INDEX {green}500{white}=AI INDEX {yellow}600{white}=GAMES',
     ''
   ];
   
   return {
     id: '501',
-    title: 'AI Chat - Coming Soon',
+    title: 'AI Oracle Chat',
     rows,
     links: [
       { label: 'INDEX', targetPage: '100', color: 'red' },
       { label: 'AI INDEX', targetPage: '500', color: 'green' },
-      { label: 'FACTS', targetPage: '620', color: 'yellow' }
+      { label: 'GAMES', targetPage: '600', color: 'yellow' },
+      { label: '1', targetPage: '511', color: undefined },
+      { label: '2', targetPage: '512', color: undefined },
+      { label: '3', targetPage: '513', color: undefined },
+      { label: '4', targetPage: '514', color: undefined },
+      { label: '5', targetPage: '515', color: undefined },
+      { label: '6', targetPage: '516', color: undefined }
     ],
     meta: {
       source: 'StaticAdapter',
       lastUpdated: new Date().toISOString(),
       fullScreenLayout: true,
       useLayoutManager: true,
-      renderedWithLayoutEngine: true
+      renderedWithLayoutEngine: true,
+      inputMode: 'text',
+      textInputEnabled: true,
+      textInputPrompt: 'Type your question and press ENTER:',
+      textInputPlaceholder: 'Ask me anything...',
+      singleDigitShortcuts: ['1', '2', '3', '4', '5', '6']
     }
   };
 }

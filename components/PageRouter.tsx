@@ -161,10 +161,22 @@ export default function PageRouter({
     sessionId?: string
   ): Promise<{ page: TeletextPage | null; fromCache: boolean }> => {
     try {
+      // pageId may already contain query parameters (e.g., "502?question=...")
+      const hasQueryParams = pageId.includes('?');
+      
       // Build URL with session ID if provided
-      const url = sessionId 
-        ? `/api/page/${pageId}?sessionId=${encodeURIComponent(sessionId)}`
-        : `/api/page/${pageId}`;
+      let url: string;
+      if (hasQueryParams) {
+        // pageId already has query params, append sessionId if needed
+        url = sessionId 
+          ? `/api/page/${pageId}&sessionId=${encodeURIComponent(sessionId)}`
+          : `/api/page/${pageId}`;
+      } else {
+        // No query params in pageId, add sessionId if needed
+        url = sessionId 
+          ? `/api/page/${pageId}?sessionId=${encodeURIComponent(sessionId)}`
+          : `/api/page/${pageId}`;
+      }
       
       // Network request with abort signal for cancellation
       const response = await fetch(url, {
@@ -196,15 +208,18 @@ export default function PageRouter({
    * Requirements: 1.1, 1.2, 15.3, 15.5, 33.2
    */
   const navigateToPage = useCallback(async (pageId: string) => {
+    // Extract page number and query parameters
+    const [basePageId, queryString] = pageId.split('?');
+    
     // Validate page number
-    if (!isValidPageNumber(pageId)) {
-      console.error(`Invalid page number: ${pageId}`);
+    if (!isValidPageNumber(basePageId)) {
+      console.error(`Invalid page number: ${basePageId}`);
       // Requirement 1.2: Display error and remain on current page
       return;
     }
 
     // Create cancellable request
-    const abortController = createCancellableRequest(pageId);
+    const abortController = createCancellableRequest(basePageId);
     
     // Start performance measurement
     const startTime = performance.now();
@@ -217,20 +232,22 @@ export default function PageRouter({
     setIsCached(false);
     
     try {
-      const { page, fromCache } = await fetchPage(pageId, abortController.signal, sessionId);
+      // Build fetch URL with query parameters
+      const fetchUrl = queryString ? `${basePageId}?${queryString}` : basePageId;
+      const { page, fromCache } = await fetchPage(fetchUrl, abortController.signal, sessionId);
       
-      console.log(`[PageRouter] Received page: ${page?.id}, requested: ${pageId}`);
+      console.log(`[PageRouter] Received page: ${page?.id}, requested: ${basePageId}`);
       console.log(`[PageRouter] Page metadata:`, page?.meta);
       
       // Check if this request is still active (not cancelled by a newer request)
-      if (!isRequestActive(pageId)) {
-        console.log(`Ignoring response for cancelled request: ${pageId}`);
+      if (!isRequestActive(basePageId)) {
+        console.log(`Ignoring response for cancelled request: ${basePageId}`);
         return;
       }
       
       // Record performance metrics
       const loadTime = performance.now() - startTime;
-      performanceMonitor.recordPageLoad(pageId, loadTime, fromCache);
+      performanceMonitor.recordPageLoad(basePageId, loadTime, fromCache);
       
       if (page) {
         // Update history and breadcrumbs
@@ -239,12 +256,12 @@ export default function PageRouter({
         const newHistory = history.slice(0, historyIndex + 1);
         
         // If navigating to page 100, clear history and start fresh
-        if (pageId === '100') {
+        if (basePageId === '100') {
           setHistory(['100']);
           setHistoryIndex(0);
           setBreadcrumbs([]);
         } else {
-          newHistory.push(pageId);
+          newHistory.push(basePageId);
           setHistory(newHistory);
           setHistoryIndex(newHistory.length - 1);
           
@@ -270,7 +287,7 @@ export default function PageRouter({
             console.error('Layout engine error, falling back to layout processor:', error);
             // Fall back to existing layout processor
             processedPage = pageLayoutProcessor.processPage(page, {
-              breadcrumbs: pageId === '100' ? [] : breadcrumbs,
+              breadcrumbs: basePageId === '100' ? [] : breadcrumbs,
               enableFullScreen: true,
               contentAlignment: 'left'
             });
@@ -288,8 +305,8 @@ export default function PageRouter({
         }
       } else {
         // No page available
-        console.error(`Page ${pageId} not available`);
-        const offlinePage = createOfflinePage(pageId);
+        console.error(`Page ${basePageId} not available`);
+        const offlinePage = createOfflinePage(basePageId);
         setCurrentPage(offlinePage);
         setIsCached(false);
       }
@@ -373,74 +390,19 @@ export default function PageRouter({
     
     // Text input mode - submit question to AI
     if (inputMode === 'text' && inputBuffer.trim().length > 0) {
-      const topicId = currentPage?.meta?.topicId;
-      const topicName = currentPage?.meta?.topicName;
-      const pageId = currentPage?.id;
+      const question = inputBuffer.trim();
+      console.log(`[PageRouter] Submitting AI question: "${question}"`);
       
-      console.log(`[PageRouter] Submitting text input: "${inputBuffer}"`);
-      console.log(`[PageRouter] Topic: ${topicName} (${topicId}), Page: ${pageId}`);
+      // Navigate to page 502 with the question as a query parameter
+      // The AIAdapter will handle generating the response
+      const encodedQuestion = encodeURIComponent(question);
+      const pageIdWithQuery = `502?question=${encodedQuestion}`;
       
-      // Show loading state
-      setLoading(true);
+      // Clear input buffer
+      setInputBuffer('');
       
-      try {
-        // Submit text input to backend
-        const response = await fetch(`/api/page/${pageId}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            textInput: inputBuffer,
-            topicId,
-            topicName
-          }),
-        });
-        
-        if (!response.ok) {
-          throw new Error('Failed to submit question');
-        }
-        
-        const data = await response.json();
-        
-        if (data.success && data.page) {
-          // Process and display the AI response page
-          let processedPage: TeletextPage;
-          
-          if (!data.page.meta?.useLayoutManager && !data.page.meta?.renderedWithLayoutEngine) {
-            try {
-              processedPage = pageRenderer.render(data.page, { useLayoutEngine: true });
-            } catch (error) {
-              console.error('Layout engine error, falling back to layout processor:', error);
-              processedPage = pageLayoutProcessor.processPage(data.page, {
-                breadcrumbs,
-                enableFullScreen: true,
-                contentAlignment: 'left'
-              });
-            }
-          } else {
-            processedPage = data.page;
-          }
-          
-          setCurrentPage(processedPage);
-          setInputBuffer('');
-          
-          // Update history
-          const newHistory = history.slice(0, historyIndex + 1);
-          newHistory.push(processedPage.id);
-          setHistory(newHistory);
-          setHistoryIndex(newHistory.length - 1);
-          
-          if (onPageChange) {
-            onPageChange(processedPage);
-          }
-        }
-      } catch (error) {
-        console.error('Error submitting question:', error);
-        // TODO: Show error page
-      } finally {
-        setLoading(false);
-      }
+      // Navigate to the AI answer page
+      await navigateToPage(pageIdWithQuery);
       
       return;
     }

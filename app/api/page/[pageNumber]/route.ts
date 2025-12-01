@@ -5,6 +5,7 @@ import { SportsAdapter } from '@/lib/adapters/SportsAdapter';
 import { MarketsAdapter } from '@/lib/adapters/MarketsAdapter';
 import { WeatherAdapter } from '@/lib/adapters/WeatherAdapter';
 import { GamesAdapter } from '@/lib/adapters/GamesAdapter';
+import { AIAdapter } from '@/lib/adapters/AIAdapter';
 
 /**
  * API Route: GET /api/page/[pageNumber]
@@ -87,9 +88,26 @@ export async function GET(
         }
         break;
       
+      case 5: // AI (500-599)
+        // Handle AI pages with dynamic content
+        if (pageNum === 502 || (pageNum >= 511 && pageNum <= 516)) {
+          const aiAdapter = new AIAdapter();
+          page = await aiAdapter.getPage(pageNumber, queryParams);
+        } else {
+          // Static pages like 500, 501 are handled by page registry
+          page = getComingSoonPage(pageNumber);
+        }
+        break;
+      
       case 6: // Games (600-699)
-        const gamesAdapter = new GamesAdapter();
-        page = await gamesAdapter.getPage(pageNumber, queryParams);
+        // Handle dynamic game pages with AI
+        if (pageNum >= 601 && pageNum <= 650) {
+          const gamesAdapter = new GamesAdapter();
+          page = await gamesAdapter.getPage(pageNumber, queryParams);
+        } else {
+          // Static pages like 600 are handled by page registry
+          page = getComingSoonPage(pageNumber);
+        }
         break;
       
       default:
