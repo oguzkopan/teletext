@@ -75,35 +75,36 @@ env:
       - RUNTIME
   
   # External API Keys for Live Data Features
-  # These keys enable live data from external APIs
+  # These keys are stored as Firebase secrets for security
+  # To set them up, use: firebase apphosting:secrets:set SECRET_NAME
   
   # News API - For news headlines (pages 200-299)
   - variable: NEWS_API_KEY
-    value: 44c30f5450634eaeaa9eea6e0cbde0d0
+    secret: NEWS_API_KEY
     availability:
       - RUNTIME
   
   # Sports API (API-Football) - For sports scores (pages 300-399)
   - variable: SPORTS_API_KEY
-    value: 603eb2b3d41f4993fac3dc7713474cf0
+    secret: SPORTS_API_KEY
     availability:
       - RUNTIME
   
   # Alpha Vantage API - For stock market data (pages 400-419)
   - variable: ALPHA_VANTAGE_API_KEY
-    value: AYRJJ62J7Y352BVY
+    secret: ALPHA_VANTAGE_API_KEY
     availability:
       - RUNTIME
   
   # CoinGecko API - For cryptocurrency data (pages 400-419)
   - variable: COINGECKO_API_KEY
-    value: CG-N9UYbRozChXq8Kjo1EJM3NMY
+    secret: COINGECKO_API_KEY
     availability:
       - RUNTIME
   
   # OpenWeatherMap API - For weather forecasts (pages 420-449)
   - variable: OPENWEATHER_API_KEY
-    value: cd269e8361d204e1419a10c3fcc4df90
+    secret: OPENWEATHER_API_KEY
     availability:
       - RUNTIME
   
