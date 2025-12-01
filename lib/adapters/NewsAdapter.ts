@@ -67,9 +67,9 @@ export class NewsAdapter {
         throw new Error('NEWS_API_KEY is not configured');
       }
 
-      // Try UK first, fallback to general if no results
-      let response = await fetch(
-        `${this.apiUrl}/top-headlines?country=gb&pageSize=10&apiKey=${this.apiKey}`,
+      // Use general category (country parameter requires paid plan)
+      const response = await fetch(
+        `${this.apiUrl}/top-headlines?category=general&pageSize=10&apiKey=${this.apiKey}`,
         { 
           next: { revalidate: 300 }, // Cache for 5 minutes
           cache: 'force-cache'
@@ -82,21 +82,10 @@ export class NewsAdapter {
         throw new Error(`Failed to fetch news: ${response.status}`);
       }
 
-      let data: NewsAPIResponse = await response.json();
-      let articles = data.articles || [];
+      const data: NewsAPIResponse = await response.json();
+      const articles = data.articles || [];
       
-      // If no UK articles, fallback to general news
-      if (articles.length === 0) {
-        response = await fetch(
-          `${this.apiUrl}/top-headlines?category=general&pageSize=10&apiKey=${this.apiKey}`,
-          { 
-            next: { revalidate: 300 },
-            cache: 'force-cache'
-          }
-        );
-        data = await response.json();
-        articles = data.articles || [];
-      }
+      console.log(`NewsAdapter: Fetched ${articles.length} articles for page 200`);
 
       const now = new Date();
       const dateStr = now.toLocaleDateString('en-GB', { 
@@ -163,9 +152,9 @@ export class NewsAdapter {
 
   private async getUKNewsPage(): Promise<TeletextPage> {
     try {
-      // Try UK first, fallback to general if no results
-      let response = await fetch(
-        `${this.apiUrl}/top-headlines?country=gb&pageSize=10&apiKey=${this.apiKey}`,
+      // Use business category (country parameter requires paid plan)
+      const response = await fetch(
+        `${this.apiUrl}/top-headlines?category=business&pageSize=10&apiKey=${this.apiKey}`,
         { 
           next: { revalidate: 300 },
           cache: 'force-cache'
@@ -173,24 +162,15 @@ export class NewsAdapter {
       );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch UK news');
+        const errorText = await response.text();
+        console.error('NewsAPI error:', response.status, errorText);
+        throw new Error(`Failed to fetch UK news: ${response.status}`);
       }
 
-      let data: NewsAPIResponse = await response.json();
-      let articles = data.articles || [];
+      const data: NewsAPIResponse = await response.json();
+      const articles = data.articles || [];
       
-      // If no UK articles, fallback to general news
-      if (articles.length === 0) {
-        response = await fetch(
-          `${this.apiUrl}/top-headlines?category=general&pageSize=10&apiKey=${this.apiKey}`,
-          { 
-            next: { revalidate: 300 },
-            cache: 'force-cache'
-          }
-        );
-        data = await response.json();
-        articles = data.articles || [];
-      }
+      console.log(`NewsAdapter: Fetched ${articles.length} articles for page 201`);
 
       const now = new Date();
       const timeStr = now.toLocaleTimeString('en-GB', { 
@@ -311,9 +291,9 @@ export class NewsAdapter {
 
   private async getLocalNewsPage(): Promise<TeletextPage> {
     try {
-      // Use US news as "local" news for demonstration
+      // Use health category (country parameter requires paid plan)
       const response = await fetch(
-        `${this.apiUrl}/top-headlines?country=us&pageSize=10&apiKey=${this.apiKey}`,
+        `${this.apiUrl}/top-headlines?category=health&pageSize=10&apiKey=${this.apiKey}`,
         { 
           next: { revalidate: 300 },
           cache: 'force-cache'
@@ -321,11 +301,15 @@ export class NewsAdapter {
       );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch local news');
+        const errorText = await response.text();
+        console.error('NewsAPI error:', response.status, errorText);
+        throw new Error(`Failed to fetch local news: ${response.status}`);
       }
 
       const data: NewsAPIResponse = await response.json();
       const articles = data.articles || [];
+      
+      console.log(`NewsAdapter: Fetched ${articles.length} articles for page 203`);
 
       const now = new Date();
       const timeStr = now.toLocaleTimeString('en-GB', { 
@@ -477,20 +461,21 @@ export class NewsAdapter {
       }
 
       // Fetch articles based on parent page
+      // Note: country parameter requires paid NewsAPI plan, using categories instead
       let endpoint = '';
       let pageTitle = '';
       
       if (parentPage === '200') {
-        endpoint = `${this.apiUrl}/top-headlines?country=gb&pageSize=10&apiKey=${this.apiKey}`;
+        endpoint = `${this.apiUrl}/top-headlines?category=general&pageSize=10&apiKey=${this.apiKey}`;
         pageTitle = 'News Headlines';
       } else if (parentPage === '201') {
-        endpoint = `${this.apiUrl}/top-headlines?country=gb&pageSize=10&apiKey=${this.apiKey}`;
+        endpoint = `${this.apiUrl}/top-headlines?category=business&pageSize=10&apiKey=${this.apiKey}`;
         pageTitle = 'UK News';
       } else if (parentPage === '202') {
         endpoint = `${this.apiUrl}/top-headlines?category=general&pageSize=10&apiKey=${this.apiKey}`;
         pageTitle = 'World News';
       } else if (parentPage === '203') {
-        endpoint = `${this.apiUrl}/top-headlines?country=us&pageSize=10&apiKey=${this.apiKey}`;
+        endpoint = `${this.apiUrl}/top-headlines?category=health&pageSize=10&apiKey=${this.apiKey}`;
         pageTitle = 'Local News';
       } else if (parseInt(parentPage, 10) >= 204 && parseInt(parentPage, 10) <= 209) {
         const categories: Record<string, string> = {
