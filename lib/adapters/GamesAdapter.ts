@@ -59,15 +59,13 @@ export class GamesAdapter {
       '{yellow}║                                          {cyan}🎯 FUN & GAMES 🎯{yellow}                                                           ║',
       '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
       '',
-      '{cyan}▓▓▓ QUIZ GAMES ▓▓▓',
-      '{green}601{white} Quiz of the Day          {yellow}⭐{white} Test your general knowledge',
-      '{green}610{white} Bamboozle Quiz Game      {yellow}🎲{white} Branching story adventure',
+      '{cyan}▓▓▓ PREVIEW GAMES ▓▓▓',
+      '{green}601{white} Quiz Preview             {yellow}⭐{white} Sample quiz questions',
+      '{green}610{white} Bamboozle Preview        {yellow}🎲{white} Story game concept',
       '',
-      '{cyan}▓▓▓ WORD GAMES ▓▓▓',
+      '{cyan}▓▓▓ PLAYABLE GAMES ▓▓▓',
       '{green}620{white} Random Facts & Trivia    {yellow}📚{white} Learn something new',
       '{green}630{white} Anagram Challenge        {yellow}🔤{white} Unscramble the word',
-      '',
-      '{cyan}▓▓▓ NUMBER GAMES ▓▓▓',
       '{green}640{white} Math Challenge           {yellow}🔢{white} Solve arithmetic problems',
       '',
       '{magenta}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
@@ -104,14 +102,14 @@ export class GamesAdapter {
     const questions = await this.generateQuizQuestions(5);
     
     const rows = [
-      `{cyan}601 {yellow}📝 QUIZ OF THE DAY 📝 {cyan}${timeStr}                                                                                                               {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+      `{cyan}601 {yellow}📝 QUIZ PREVIEW 📝 {cyan}${timeStr}                                                                                                                  {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
       '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
       '',
       '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-      '{yellow}║                                    {cyan}🎯 TEST YOUR KNOWLEDGE 🎯{yellow}                                                         ║',
+      '{yellow}║                                    {cyan}🎯 SAMPLE QUESTION 🎯{yellow}                                                             ║',
       '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
       '',
-      `{white}Question 1 of ${questions.length}:`,
+      `{white}Sample Question:`,
       '',
       `{cyan}${questions[0].question}`,
       '',
@@ -120,29 +118,28 @@ export class GamesAdapter {
       `{green}3.{white} ${questions[0].options[2]}`,
       `{green}4.{white} ${questions[0].options[3]}`,
       '',
-      '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-      '{yellow}║ {cyan}💡 HOW TO PLAY:{white} Press 1-4 to select your answer                                                                      {yellow}║',
-      '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+      '{magenta}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
+      '{magenta}║ {yellow}ℹ️  NOTE:{white} This is a preview. Full quiz functionality coming soon!                                                   {magenta}║',
+      '{magenta}║ {yellow}💡 TIP:{white} Reload this page to see different questions.                                                                {magenta}║',
+      '{magenta}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
       '',
       '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
-      '{cyan}NAVIGATION: {red}100{white}=INDEX {green}600{white}=GAMES {yellow}999{white}=HELP',
+      '{cyan}NAVIGATION: {red}100{white}=INDEX {green}600{white}=GAMES {yellow}620{white}=FACTS',
       ''
     ];
 
     return {
       id: '601',
-      title: 'Quiz of the Day',
+      title: 'Quiz Preview',
       rows,
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'GAMES', targetPage: '600', color: 'green' },
-        { label: 'HELP', targetPage: '999', color: 'yellow' }
+        { label: 'FACTS', targetPage: '620', color: 'yellow' }
       ],
       meta: {
         source: 'GamesAdapter',
-        lastUpdated: new Date().toISOString(),
-        inputMode: 'single',
-        inputOptions: ['1', '2', '3', '4']
+        lastUpdated: new Date().toISOString()
       }
     };
   }
@@ -152,7 +149,7 @@ export class GamesAdapter {
     const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
     
     const rows = [
-      `{cyan}610 {yellow}🎲 BAMBOOZLE QUIZ GAME 🎲 {cyan}${timeStr}                                                                                                         {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+      `{cyan}610 {yellow}🎲 BAMBOOZLE PREVIEW � {cyan}n${timeStr}                                                                                                            {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
       '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
       '',
       '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
@@ -162,31 +159,31 @@ export class GamesAdapter {
       '{white}You are an archaeologist who has discovered a mysterious ancient temple.',
       '{white}Your choices will determine your fate!',
       '',
-      '{cyan}This is a branching story quiz where different answers lead to',
+      '{cyan}This would be a branching story quiz where different answers lead to',
       '{cyan}different paths and endings.',
       '',
-      '{yellow}There are 3 possible endings:',
+      '{yellow}Planned endings:',
       '{green}• The Scholar Path',
       '{green}• The Adventurer Path',
       '{green}• The Cursed Path',
       '',
       '{magenta}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-      '{magenta}║ {yellow}💡 TIP:{white} Your choices matter! Choose wisely to unlock the best ending.                                             {magenta}║',
+      '{magenta}║ {yellow}ℹ️  NOTE:{white} This is a preview. Full game functionality coming soon!                                                   {magenta}║',
       '{magenta}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
       '',
       '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
-      '{cyan}NAVIGATION: {red}100{white}=INDEX {green}600{white}=GAMES {yellow}999{white}=HELP',
+      '{cyan}NAVIGATION: {red}100{white}=INDEX {green}600{white}=GAMES {yellow}620{white}=FACTS',
       ''
     ];
 
     return {
       id: '610',
-      title: 'Bamboozle Quiz Game',
+      title: 'Bamboozle Preview',
       rows,
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'GAMES', targetPage: '600', color: 'green' },
-        { label: 'HELP', targetPage: '999', color: 'yellow' }
+        { label: 'FACTS', targetPage: '620', color: 'yellow' }
       ],
       meta: {
         source: 'GamesAdapter',

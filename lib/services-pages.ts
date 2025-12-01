@@ -344,52 +344,53 @@ export function createAIChatPage(): TeletextPage {
   });
   
   const rows = [
-    `{cyan}501 {yellow}AI Chat Interface {cyan}${timeStr}                                                                                                                     {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+    `{cyan}501 {yellow}🤖 AI CHAT - COMING SOON 🤖 {cyan}${timeStr}                                                                                                            {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
     '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
     '',
-    '{cyan}▓▓▓ AI ORACLE - CHAT INTERFACE ▓▓▓',
+    '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
+    '{yellow}║                                    {cyan}🚧 UNDER CONSTRUCTION 🚧{yellow}                                                          ║',
+    '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
     '',
-    '{white}Type your question or prompt below:',
+    '{white}The AI Chat feature is currently under development.',
     '',
-    '{yellow}> {white}_',
+    '{cyan}▓▓▓ PLANNED FEATURES ▓▓▓',
+    '{green}✓{white} Text input for questions',
+    '{green}✓{white} AI-powered responses using Vertex AI',
+    '{green}✓{white} Conversation history',
+    '{green}✓{white} Follow-up questions',
+    '{green}✓{white} Multiple topics (news, weather, general knowledge)',
     '',
-    '{cyan}▓▓▓ EXAMPLE PROMPTS ▓▓▓',
-    '{green}1.{white} What are the latest technology trends?',
-    '{green}2.{white} Explain quantum computing in simple terms',
-    '{green}3.{white} What\'s happening in the news today?',
-    '{green}4.{white} Tell me about the weather forecast',
-    '{green}5.{white} Recommend a good book to read',
+    '{cyan}▓▓▓ WHAT YOU CAN DO NOW ▓▓▓',
+    '{white}While AI Chat is being developed, try these working features:',
     '',
-    '{cyan}▓▓▓ TIPS ▓▓▓',
-    '{white}• Be specific with your questions',
-    '{white}• You can ask follow-up questions',
-    '{white}• Responses typically take 2-5 seconds',
-    '{white}• Press {green}ENTER{white} to submit your prompt',
+    '{green}620{white} - Random Facts & Trivia',
+    '{green}630{white} - Anagram Challenge',
+    '{green}640{white} - Math Challenge',
     '',
-    '',
-    '',
+    '{magenta}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
+    '{magenta}║ {yellow}ℹ️  NOTE:{white} Text input functionality requires additional implementation work.                                        {magenta}║',
+    '{magenta}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
     '',
     '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
-    '{cyan}NAVIGATION: {red}100{white}=INDEX {green}500{white}=AI INDEX {yellow}999{white}=HELP',
+    '{cyan}NAVIGATION: {red}100{white}=INDEX {green}500{white}=AI INDEX {yellow}620{white}=FACTS',
     ''
   ];
   
   return {
     id: '501',
-    title: 'AI Chat',
+    title: 'AI Chat - Coming Soon',
     rows,
     links: [
       { label: 'INDEX', targetPage: '100', color: 'red' },
       { label: 'AI INDEX', targetPage: '500', color: 'green' },
-      { label: 'HELP', targetPage: '999', color: 'yellow' }
+      { label: 'FACTS', targetPage: '620', color: 'yellow' }
     ],
     meta: {
       source: 'StaticAdapter',
       lastUpdated: new Date().toISOString(),
       fullScreenLayout: true,
       useLayoutManager: true,
-      renderedWithLayoutEngine: true,
-      inputMode: 'single' // Accept 1-digit for example prompts
+      renderedWithLayoutEngine: true
     }
   };
 }
