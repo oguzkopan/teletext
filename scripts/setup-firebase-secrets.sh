@@ -70,6 +70,32 @@ set_secret "OPENWEATHER_API_KEY" "$OPENWEATHER_API_KEY"
 echo ""
 echo "✅ Secret setup complete!"
 echo ""
+
+# Grant access to the backend
+echo "🔐 Granting backend access to secrets..."
+echo ""
+
+# Get the backend name
+BACKEND_NAME=$(firebase apphosting:backends:list --json 2>/dev/null | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
+
+if [ -z "$BACKEND_NAME" ]; then
+    echo "⚠️  Could not detect backend name automatically."
+    echo "   Please grant access manually:"
+    echo "   firebase apphosting:secrets:grantaccess NEWS_API_KEY,SPORTS_API_KEY,ALPHA_VANTAGE_API_KEY,COINGECKO_API_KEY,OPENWEATHER_API_KEY --backend=YOUR_BACKEND_NAME"
+else
+    echo "Detected backend: $BACKEND_NAME"
+    firebase apphosting:secrets:grantaccess NEWS_API_KEY,SPORTS_API_KEY,ALPHA_VANTAGE_API_KEY,COINGECKO_API_KEY,OPENWEATHER_API_KEY --backend="$BACKEND_NAME"
+    
+    if [ $? -eq 0 ]; then
+        echo "✅ Backend access granted successfully"
+    else
+        echo "❌ Failed to grant backend access"
+        echo "   Please grant access manually with:"
+        echo "   firebase apphosting:secrets:grantaccess NEWS_API_KEY,SPORTS_API_KEY,ALPHA_VANTAGE_API_KEY,COINGECKO_API_KEY,OPENWEATHER_API_KEY --backend=$BACKEND_NAME"
+    fi
+fi
+
+echo ""
 echo "📋 Next steps:"
 echo "1. Commit and push the updated apphosting.yaml"
 echo "2. Firebase will automatically use the secrets in your next deployment"
