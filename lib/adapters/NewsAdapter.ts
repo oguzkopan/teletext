@@ -69,8 +69,11 @@ export class NewsAdapter {
 
       // Try UK first, fallback to general if no results
       let response = await fetch(
-        `${this.apiUrl}/top-headlines?country=gb&pageSize=5&apiKey=${this.apiKey}`,
-        { next: { revalidate: 300 } } // Cache for 5 minutes
+        `${this.apiUrl}/top-headlines?country=gb&pageSize=10&apiKey=${this.apiKey}`,
+        { 
+          next: { revalidate: 300 }, // Cache for 5 minutes
+          cache: 'force-cache'
+        }
       );
 
       if (!response.ok) {
@@ -85,8 +88,11 @@ export class NewsAdapter {
       // If no UK articles, fallback to general news
       if (articles.length === 0) {
         response = await fetch(
-          `${this.apiUrl}/top-headlines?category=general&pageSize=5&apiKey=${this.apiKey}`,
-          { next: { revalidate: 300 } }
+          `${this.apiUrl}/top-headlines?category=general&pageSize=10&apiKey=${this.apiKey}`,
+          { 
+            next: { revalidate: 300 },
+            cache: 'force-cache'
+          }
         );
         data = await response.json();
         articles = data.articles || [];
@@ -159,8 +165,11 @@ export class NewsAdapter {
     try {
       // Try UK first, fallback to general if no results
       let response = await fetch(
-        `${this.apiUrl}/top-headlines?country=gb&pageSize=5&apiKey=${this.apiKey}`,
-        { next: { revalidate: 300 } }
+        `${this.apiUrl}/top-headlines?country=gb&pageSize=10&apiKey=${this.apiKey}`,
+        { 
+          next: { revalidate: 300 },
+          cache: 'force-cache'
+        }
       );
 
       if (!response.ok) {
@@ -173,8 +182,11 @@ export class NewsAdapter {
       // If no UK articles, fallback to general news
       if (articles.length === 0) {
         response = await fetch(
-          `${this.apiUrl}/top-headlines?category=general&pageSize=5&apiKey=${this.apiKey}`,
-          { next: { revalidate: 300 } }
+          `${this.apiUrl}/top-headlines?category=general&pageSize=10&apiKey=${this.apiKey}`,
+          { 
+            next: { revalidate: 300 },
+            cache: 'force-cache'
+          }
         );
         data = await response.json();
         articles = data.articles || [];
@@ -233,8 +245,11 @@ export class NewsAdapter {
   private async getWorldNewsPage(): Promise<TeletextPage> {
     try {
       const response = await fetch(
-        `${this.apiUrl}/top-headlines?category=general&pageSize=5&apiKey=${this.apiKey}`,
-        { next: { revalidate: 300 } }
+        `${this.apiUrl}/top-headlines?category=general&pageSize=10&apiKey=${this.apiKey}`,
+        { 
+          next: { revalidate: 300 },
+          cache: 'force-cache'
+        }
       );
 
       if (!response.ok) {
@@ -298,8 +313,11 @@ export class NewsAdapter {
     try {
       // Use US news as "local" news for demonstration
       const response = await fetch(
-        `${this.apiUrl}/top-headlines?country=us&pageSize=5&apiKey=${this.apiKey}`,
-        { next: { revalidate: 300 } }
+        `${this.apiUrl}/top-headlines?country=us&pageSize=10&apiKey=${this.apiKey}`,
+        { 
+          next: { revalidate: 300 },
+          cache: 'force-cache'
+        }
       );
 
       if (!response.ok) {
@@ -377,8 +395,11 @@ export class NewsAdapter {
 
     try {
       const response = await fetch(
-        `${this.apiUrl}/top-headlines?category=${categoryInfo.category}&pageSize=5&apiKey=${this.apiKey}`,
-        { next: { revalidate: 300 } }
+        `${this.apiUrl}/top-headlines?category=${categoryInfo.category}&pageSize=10&apiKey=${this.apiKey}`,
+        { 
+          next: { revalidate: 300 },
+          cache: 'force-cache'
+        }
       );
 
       if (!response.ok) {
@@ -443,21 +464,33 @@ export class NewsAdapter {
     const articleNum = parseInt(articleNumStr, 10) - 1;
 
     try {
+      // Check if API key is available
+      if (!this.apiKey) {
+        console.error('NewsAdapter: Cannot fetch article - API key is missing');
+        throw new Error('NEWS_API_KEY is not configured');
+      }
+
+      // Validate article number
+      if (isNaN(articleNum) || articleNum < 0 || articleNum >= 5) {
+        console.error(`Invalid article number: ${articleNumStr}`);
+        return this.getErrorPage(pageId, 'Invalid Article');
+      }
+
       // Fetch articles based on parent page
       let endpoint = '';
       let pageTitle = '';
       
       if (parentPage === '200') {
-        endpoint = `${this.apiUrl}/top-headlines?country=gb&pageSize=5&apiKey=${this.apiKey}`;
+        endpoint = `${this.apiUrl}/top-headlines?country=gb&pageSize=10&apiKey=${this.apiKey}`;
         pageTitle = 'News Headlines';
       } else if (parentPage === '201') {
-        endpoint = `${this.apiUrl}/top-headlines?country=gb&pageSize=5&apiKey=${this.apiKey}`;
+        endpoint = `${this.apiUrl}/top-headlines?country=gb&pageSize=10&apiKey=${this.apiKey}`;
         pageTitle = 'UK News';
       } else if (parentPage === '202') {
-        endpoint = `${this.apiUrl}/top-headlines?category=general&pageSize=5&apiKey=${this.apiKey}`;
+        endpoint = `${this.apiUrl}/top-headlines?category=general&pageSize=10&apiKey=${this.apiKey}`;
         pageTitle = 'World News';
       } else if (parentPage === '203') {
-        endpoint = `${this.apiUrl}/top-headlines?country=us&pageSize=5&apiKey=${this.apiKey}`;
+        endpoint = `${this.apiUrl}/top-headlines?country=us&pageSize=10&apiKey=${this.apiKey}`;
         pageTitle = 'Local News';
       } else if (parseInt(parentPage, 10) >= 204 && parseInt(parentPage, 10) <= 209) {
         const categories: Record<string, string> = {
@@ -469,21 +502,40 @@ export class NewsAdapter {
           '209': 'science'
         };
         const category = categories[parentPage];
-        endpoint = `${this.apiUrl}/top-headlines?category=${category}&pageSize=5&apiKey=${this.apiKey}`;
+        endpoint = `${this.apiUrl}/top-headlines?category=${category}&pageSize=10&apiKey=${this.apiKey}`;
         pageTitle = 'Category News';
+      } else {
+        console.error(`Unknown parent page: ${parentPage}`);
+        return this.getErrorPage(pageId, 'Invalid Page');
       }
 
-      const response = await fetch(endpoint, { next: { revalidate: 300 } });
+      console.log(`Fetching article ${articleNum + 1} from ${parentPage}`);
+      const response = await fetch(endpoint, { 
+        next: { revalidate: 300 },
+        cache: 'force-cache' // Use cache to ensure consistency
+      });
       
       if (!response.ok) {
-        throw new Error('Failed to fetch article');
+        const errorText = await response.text();
+        console.error(`NewsAPI error for article detail: ${response.status}`, errorText);
+        throw new Error(`Failed to fetch article: ${response.status}`);
       }
 
       const data: NewsAPIResponse = await response.json();
+      
+      // Check for API errors
+      if (data.status === 'error') {
+        console.error('NewsAPI returned error:', data);
+        throw new Error('NewsAPI error');
+      }
+
       const articles = data.articles || [];
+      console.log(`Received ${articles.length} articles, requesting index ${articleNum}`);
+      
       const article = articles[articleNum];
 
       if (!article) {
+        console.error(`Article not found at index ${articleNum}, total articles: ${articles.length}`);
         return this.getErrorPage(pageId, 'Article Not Found');
       }
 
