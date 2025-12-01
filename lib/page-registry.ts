@@ -23,11 +23,6 @@ import {
   createAIOraclePage,
   createAIChatPage,
   createGamesIndexPage,
-  createQuizPage,
-  createBamboozlePage,
-  createQuizAnswerPage,
-  createWordGamesPage,
-  createNumberChallengesPage,
   createThemeSelectionPage,
   createSettingsIndexPage,
   createDevToolsIndexPage
@@ -35,7 +30,6 @@ import {
 import { 
   createComingSoonPage,
   createGenericComingSoonPage,
-  createTriviaPage,
   create404ErrorPage
 } from './additional-pages';
 
@@ -98,19 +92,14 @@ pageRegistry.set('501', createAIChatPage);
 
 // Games pages (6xx)
 pageRegistry.set('600', createGamesIndexPage);
-pageRegistry.set('601', createQuizPage);
-pageRegistry.set('610', createBamboozlePage);
-pageRegistry.set('620', createTriviaPage);
-pageRegistry.set('630', createWordGamesPage);
-pageRegistry.set('640', createNumberChallengesPage);
-
-// Game answer pages (601-1 through 601-4, 610-1 through 610-4, 630-1 through 630-4, 640-1 through 640-4)
-for (let i = 1; i <= 4; i++) {
-  pageRegistry.set(`601-${i}`, () => createQuizAnswerPage('601', i));
-  pageRegistry.set(`610-${i}`, () => createQuizAnswerPage('610', i));
-  pageRegistry.set(`630-${i}`, () => createQuizAnswerPage('630', i));
-  pageRegistry.set(`640-${i}`, () => createQuizAnswerPage('640', i));
-}
+// Pages 601, 610, 620, 630, 640 are now handled by Firebase Functions GamesAdapter
+// This allows them to use real-time AI generation instead of static mock data
+// The GamesAdapter provides:
+// - 601: Quiz with AI-generated questions
+// - 610: Bamboozle branching story game
+// - 620: Random facts (AI-generated or from API)
+// - 630: Word games with AI-generated anagrams
+// - 640: Math challenges with AI-generated problems
 
 // Settings pages (7xx)
 pageRegistry.set('700', createThemeSelectionPage);

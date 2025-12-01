@@ -105,9 +105,15 @@ export const getPage = onRequest(async (req, res) => {
     }
 
     // Handle GET requests
+    // Extract query parameters to pass to adapter
+    const queryParams: Record<string, any> = {};
+    for (const [key, value] of Object.entries(req.query)) {
+      queryParams[key] = value;
+    }
+    
     // Route to appropriate adapter
     const adapter = routeToAdapter(pageId);
-    const page = await adapter.getPage(pageId);
+    const page = await adapter.getPage(pageId, queryParams);
 
     if (!page) {
       throw new PageNotFoundError(pageId);
