@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPageByNumber, hasPage, get404Page, getComingSoonPage } from '@/lib/page-registry';
+import { NewsAdapter } from '@/lib/adapters/NewsAdapter';
+import { SportsAdapter } from '@/lib/adapters/SportsAdapter';
+import { MarketsAdapter } from '@/lib/adapters/MarketsAdapter';
+import { WeatherAdapter } from '@/lib/adapters/WeatherAdapter';
+import { GamesAdapter } from '@/lib/adapters/GamesAdapter';
 
 /**
  * API Route: GET /api/page/[pageNumber]
  * 
- * This route proxies requests to Firebase Functions
+ * This route serves teletext pages using adapters
  */
 export async function GET(
   request: NextRequest,
@@ -13,7 +18,6 @@ export async function GET(
   const { pageNumber } = params;
 
   // Validate page number range (100-999)
-  // Requirements: 6.1, 6.3, 6.4 - Page number validation
   const pageNum = parseInt(pageNumber, 10);
   if (isNaN(pageNum) || pageNum < 100 || pageNum > 999) {
     const error404Page = get404Page(pageNumber);
@@ -32,7 +36,6 @@ export async function GET(
   }
 
   // Check if this is a static page that should be served from lib/
-  // These pages are defined in the page registry
   if (hasPage(pageNumber)) {
     const staticPage = getPageByNumber(pageNumber);
     if (staticPage) {
@@ -51,86 +54,67 @@ export async function GET(
     }
   }
 
-  // For all other pages, forward to Firebase Functions for data fetching
+  // For dynamic pages, use adapters
   try {
-    // Determine if we're in development or production
-    const isDevelopment = process.env.NODE_ENV === 'development';
-    
-    // Get query parameters from the request (e.g., sessionId, aiContextId)
+    // Extract query parameters
     const searchParams = request.nextUrl.searchParams;
-    const queryString = searchParams.toString();
-    
-    // Use local emulator in development, production functions in production
-    const baseUrl = isDevelopment
-      ? `http://127.0.0.1:5001/teletext-eacd0/us-central1/getPage/${pageNumber}`
-      : `https://getpage-q6w32usldq-uc.a.run.app/${pageNumber}`;
-    
-    // Append query parameters if they exist
-    const functionUrl = queryString ? `${baseUrl}?${queryString}` : baseUrl;
-    
-    const response = await fetch(functionUrl, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      signal: AbortSignal.timeout(10000),
+    const queryParams: Record<string, any> = {};
+    searchParams.forEach((value, key) => {
+      queryParams[key] = value;
     });
 
-    if (!response.ok) {
-      // If it's a 404, return a "coming soon" page for valid page numbers
-      // Requirements: 6.5 - Handle unimplemented pages gracefully
-      if (response.status === 404) {
-        const comingSoonPage = getComingSoonPage(pageNumber);
-        return NextResponse.json(
-          { 
-            success: true, 
-            page: comingSoonPage
-          },
-          { 
-            status: 200,
-            headers: {
-              'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
-            }
-          }
-        );
-      }
+    let page;
+    const magazine = Math.floor(pageNum / 100);
+
+    switch (magazine) {
+      case 2: // News (200-299)
+        const newsAdapter = new NewsAdapter();
+        page = await newsAdapter.getPage(pageNumber);
+        break;
       
-      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-      return NextResponse.json(errorData, { status: response.status });
+      case 3: // Sports (300-399)
+        const sportsAdapter = new SportsAdapter();
+        page = await sportsAdapter.getPage(pageNumber);
+        break;
+      
+      case 4: // Markets & Weather (400-499)
+        if (pageNum >= 420 && pageNum <= 449) {
+          const weatherAdapter = new WeatherAdapter();
+          page = await weatherAdapter.getPage(pageNumber);
+        } else {
+          const marketsAdapter = new MarketsAdapter();
+          page = await marketsAdapter.getPage(pageNumber);
+        }
+        break;
+      
+      case 6: // Games (600-699)
+        const gamesAdapter = new GamesAdapter();
+        page = await gamesAdapter.getPage(pageNumber, queryParams);
+        break;
+      
+      default:
+        // Return coming soon page for unimplemented sections
+        page = getComingSoonPage(pageNumber);
     }
 
-    const data = await response.json();
-    
-    // Disable caching
-    const headers = new Headers();
-    headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
-    
-    return NextResponse.json(data, { 
-      status: 200,
-      headers 
-    });
+    if (!page) {
+      page = getComingSoonPage(pageNumber);
+    }
+
+    return NextResponse.json(
+      { 
+        success: true, 
+        page
+      },
+      { 
+        status: 200,
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
+        }
+      }
+    );
   } catch (error) {
     console.error('Error fetching page:', error);
-    
-    // Check if this is a connection error (emulator not running)
-    const isConnectionError = error instanceof Error && 
-      (error.message.includes('ECONNREFUSED') || error.message.includes('fetch failed'));
-    
-    // In development, if emulator is not running, use static pages as fallback
-    if (process.env.NODE_ENV === 'development' && isConnectionError) {
-      const fallbackPage = getPageByNumber(pageNumber);
-      
-      if (fallbackPage) {
-        return NextResponse.json(
-          { 
-            success: true, 
-            page: fallbackPage,
-            fallback: true
-          },
-          { status: 200 }
-        );
-      }
-    }
     
     return NextResponse.json(
       { 
@@ -159,38 +143,17 @@ export async function POST(
     // Parse the request body
     const body = await request.json();
     
-    // Determine if we're in development or production
-    const isDevelopment = process.env.NODE_ENV === 'development';
+    // For now, POST is not implemented
+    // Future: Handle quiz answers, form submissions, etc.
     
-    // Use local emulator in development, production functions in production
-    const baseUrl = isDevelopment
-      ? `http://127.0.0.1:5001/teletext-eacd0/us-central1/getPage/${pageNumber}`
-      : `https://getpage-q6w32usldq-uc.a.run.app/${pageNumber}`;
-    
-    const response = await fetch(baseUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'POST not yet implemented for this page',
+        pageNumber
       },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(30000), // Longer timeout for AI generation
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-      return NextResponse.json(errorData, { status: response.status });
-    }
-
-    const data = await response.json();
-    
-    // Disable caching
-    const headers = new Headers();
-    headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
-    
-    return NextResponse.json(data, { 
-      status: 200,
-      headers 
-    });
+      { status: 501 }
+    );
   } catch (error) {
     console.error('Error processing POST request:', error);
     
