@@ -28,6 +28,11 @@ This script will:
 2. Upload them as encrypted secrets to Firebase
 3. Keep them secure and out of Git
 
+**Important:** After setting secrets, grant access to your backend:
+```bash
+firebase apphosting:secrets:grantaccess SECRET_NAME --backend=teletextwebapp
+```
+
 ### Option 2: Manual Setup
 
 Set each secret individually:
