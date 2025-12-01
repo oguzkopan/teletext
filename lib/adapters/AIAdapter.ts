@@ -64,37 +64,29 @@ export class AIAdapter {
     const answer = await this.generateAIAnswer(question);
     console.log(`[AIAdapter] AI response generated, length: ${answer.length} chars`);
 
+    // Wrap answer to fit 40-character width
+    const wrappedAnswer = this.wrapText(answer, 40);
+
     const rows = [
-      `{cyan}${pageNumber} {yellow}🤖 AI ANSWER 🤖 {cyan}${timeStr}                                                                                                                    {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
-      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      `${pageNumber} AI Answer ${timeStr}            P${pageNumber}`,
+      '════════════════════════════════════════',
       '',
-      '{yellow}QUESTION:',
-      `{cyan}${question}`,
+      'QUESTION:',
+      ...this.wrapText(question, 40),
       '',
-      '{yellow}AI RESPONSE:',
-      `{white}${answer}`,
-      '',
-      '',
+      'AI RESPONSE:',
+      ...wrappedAnswer.slice(0, 10), // Limit to 10 lines
       '',
       '',
       '',
-      '',
-      '',
-      '',
-      '',
-      '{magenta}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-      '{magenta}║ {yellow}💡 TIP:{white} Go back to page 501 to ask another question!                                                                {magenta}║',
-      '{magenta}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
-      '',
-      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
-      '{cyan}NAVIGATION: {red}100{white}=INDEX {green}501{white}=ASK AGAIN {yellow}600{white}=GAMES',
+      'INDEX   ASK AGAIN   GAMES',
       ''
     ];
 
     return {
       id: pageNumber.toString(),
       title: 'AI Answer',
-      rows,
+      rows: this.padRows(rows),
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'ASK AGAIN', targetPage: '501', color: 'green' },
@@ -116,37 +108,29 @@ export class AIAdapter {
     const answer = await this.generateAIAnswer(question);
     console.log(`[AIAdapter] AI response generated, length: ${answer.length} chars`);
 
+    // Wrap answer to fit 40-character width
+    const wrappedAnswer = this.wrapText(answer, 40);
+
     const rows = [
-      `{cyan}502 {yellow}🤖 AI ANSWER 🤖 {cyan}${timeStr}                                                                                                                    {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
-      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      `502 AI Answer ${timeStr}               P502`,
+      '════════════════════════════════════════',
       '',
-      '{yellow}YOUR QUESTION:',
-      `{cyan}${this.truncateText(question, 120)}`,
+      'YOUR QUESTION:',
+      ...this.wrapText(question, 40).slice(0, 2),
       '',
-      '{yellow}AI RESPONSE:',
-      `{white}${answer}`,
-      '',
-      '',
+      'AI RESPONSE:',
+      ...wrappedAnswer.slice(0, 10), // Limit to 10 lines
       '',
       '',
       '',
-      '',
-      '',
-      '',
-      '',
-      '{magenta}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-      '{magenta}║ {yellow}💡 TIP:{white} Go back to page 501 to ask another question!                                                                {magenta}║',
-      '{magenta}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
-      '',
-      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
-      '{cyan}NAVIGATION: {red}100{white}=INDEX {green}501{white}=ASK AGAIN {yellow}600{white}=GAMES',
+      'INDEX   ASK AGAIN   GAMES',
       ''
     ];
 
     return {
       id: '502',
       title: 'AI Answer',
-      rows,
+      rows: this.padRows(rows),
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'ASK AGAIN', targetPage: '501', color: 'green' },
@@ -166,17 +150,15 @@ export class AIAdapter {
     const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 
     const rows = [
-      `{cyan}${pageId} {yellow}🤖 AI ERROR 🤖 {cyan}${timeStr}                                                                                                                     {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
-      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      `${pageId} AI Error ${timeStr}             P${pageId}`,
+      '════════════════════════════════════════',
       '',
-      '{red}ERROR',
+      'ERROR',
       '',
-      `{white}${message}`,
+      ...this.wrapText(message, 40),
       '',
-      '{white}Please try again or select a pre-set question.',
-      '',
-      '',
-      '',
+      'Please try again or select a',
+      'pre-set question.',
       '',
       '',
       '',
@@ -186,15 +168,15 @@ export class AIAdapter {
       '',
       '',
       '',
-      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
-      '{cyan}NAVIGATION: {red}100{white}=INDEX {green}501{white}=TRY AGAIN {yellow}600{white}=GAMES',
+      '',
+      'INDEX   TRY AGAIN   GAMES',
       ''
     ];
 
     return {
       id: pageId,
       title: 'AI Error',
-      rows,
+      rows: this.padRows(rows),
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'TRY AGAIN', targetPage: '501', color: 'green' },
@@ -215,18 +197,58 @@ export class AIAdapter {
     return text.slice(0, maxLength - 3) + '...';
   }
 
+  private wrapText(text: string, width: number): string[] {
+    if (!text) return [''];
+    
+    const words = text.split(' ');
+    const lines: string[] = [];
+    let currentLine = '';
+
+    for (const word of words) {
+      if (currentLine.length + word.length + 1 <= width) {
+        currentLine += (currentLine ? ' ' : '') + word;
+      } else {
+        if (currentLine) {
+          lines.push(currentLine);
+        }
+        currentLine = word;
+      }
+    }
+
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+
+    return lines.length > 0 ? lines : [''];
+  }
+
+  private padRows(rows: string[]): string[] {
+    const paddedRows = rows.map(row => {
+      if (row.length > 40) {
+        return row.substring(0, 40);
+      }
+      return row.padEnd(40, ' ');
+    });
+
+    while (paddedRows.length < 24) {
+      paddedRows.push(''.padEnd(40, ' '));
+    }
+
+    return paddedRows.slice(0, 24);
+  }
+
   private async generateAIAnswer(question: string): Promise<string> {
     try {
       console.log('[AIAdapter] Initializing Vertex AI...');
       const vertexAI = this.getVertexAI();
       const model = vertexAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-      const prompt = `Answer this question in a concise, informative way suitable for a teletext display (max 500 characters):
+      const prompt = `Answer this question in a concise, informative way suitable for a teletext display (max 400 characters):
 
 Question: ${question}
 
 Requirements:
-- Keep answer under 500 characters
+- Keep answer under 400 characters
 - Be clear and concise
 - Use simple language
 - No special formatting or markdown
@@ -247,22 +269,11 @@ Provide only the answer, no preamble.`;
       console.log('[AIAdapter] AI response received');
       
       // Truncate if too long
-      return text.length > 500 ? text.substring(0, 497) + '...' : text;
+      return text.length > 400 ? text.substring(0, 397) + '...' : text;
     } catch (error) {
-      console.error('[AIAdapter] ERROR generating AI answer:', error);
-      console.error('[AIAdapter] Using fallback answer');
-      
-      // Fallback answers
-      const fallbackAnswers: Record<string, string> = {
-        'Explain artificial intelligence in simple terms': 'Artificial Intelligence (AI) is when computers are programmed to think and learn like humans. They can recognize patterns, make decisions, and improve over time. Examples include voice assistants, recommendation systems, and self-driving cars. AI uses algorithms and data to solve problems that normally require human intelligence.',
-        'What are the latest technology trends?': 'Current tech trends include: AI and machine learning becoming mainstream, cloud computing growth, 5G networks expanding, electric vehicles adoption, renewable energy advances, quantum computing research, blockchain applications, and augmented reality experiences. Remote work technology continues to evolve rapidly.',
-        'Tell me an interesting historical fact': 'The first computer programmer was Ada Lovelace in 1843. She wrote the first algorithm intended for a machine - Charles Babbage\'s Analytical Engine. Her notes included what is now considered the first computer program, making her a pioneer in computing over 100 years before modern computers existed.',
-        'Explain how the internet works': 'The internet is a global network of connected computers. When you visit a website, your computer sends a request through your internet provider to a server hosting that site. The server sends back the data, which your browser displays. This happens through cables, routers, and wireless signals, all using standardized protocols like TCP/IP.',
-        'Tell me a joke': 'Why do programmers prefer dark mode? Because light attracts bugs! 🐛',
-        'Write a short poem about teletext': 'Pixels dance in rows of forty,\nTwenty-four lines, crisp and sporty.\nColors bright on CRT screens,\nTeletext shows what information means.\nPress a number, watch it flow,\nRetro tech from long ago! 📺'
-      };
-
-      return fallbackAnswers[question] || 'I apologize, but I am unable to generate a response at this time. Please try again later or try one of the other games!';
+      console.error('[AIAdapter] AI generation failed:', error);
+      // Fallback answer
+      return 'AI service temporarily unavailable. Please try again later.';
     }
   }
 }

@@ -18,8 +18,11 @@ export async function GET(
 ) {
   const { pageNumber } = params;
 
+  // Extract base page number (handle hyphenated IDs like "203-3")
+  const basePageNumber = pageNumber.split('-')[0];
+  const pageNum = parseInt(basePageNumber, 10);
+  
   // Validate page number range (100-999)
-  const pageNum = parseInt(pageNumber, 10);
   if (isNaN(pageNum) || pageNum < 100 || pageNum > 999) {
     const error404Page = get404Page(pageNumber);
     return NextResponse.json(
@@ -89,25 +92,24 @@ export async function GET(
         break;
       
       case 5: // AI (500-599)
-        // Handle AI pages with dynamic content
+        // All AI pages are handled by AIAdapter or page registry
+        // Pages 500, 501 are static (from registry)
+        // Pages 502, 511-516 are dynamic (from AIAdapter)
         if (pageNum === 502 || (pageNum >= 511 && pageNum <= 516)) {
           const aiAdapter = new AIAdapter();
           page = await aiAdapter.getPage(pageNumber, queryParams);
+        } else if (hasPage(pageNumber)) {
+          // Static pages like 500, 501 from page registry
+          page = getPageByNumber(pageNumber);
         } else {
-          // Static pages like 500, 501 are handled by page registry
           page = getComingSoonPage(pageNumber);
         }
         break;
       
       case 6: // Games (600-699)
-        // Handle dynamic game pages with AI
-        if (pageNum >= 601 && pageNum <= 650) {
-          const gamesAdapter = new GamesAdapter();
-          page = await gamesAdapter.getPage(pageNumber, queryParams);
-        } else {
-          // Static pages like 600 are handled by page registry
-          page = getComingSoonPage(pageNumber);
-        }
+        // All game pages are handled by GamesAdapter
+        const gamesAdapter = new GamesAdapter();
+        page = await gamesAdapter.getPage(pageNumber, queryParams);
         break;
       
       default:

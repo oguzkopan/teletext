@@ -11,15 +11,6 @@ import { TeletextPage } from '@/types/teletext';
 import { createIndexPage } from './index-page';
 import { createSystemStatusPage, createHelpPage } from './system-pages';
 import { 
-  createNewsIndexPage, 
-  createUKNewsPage, 
-  createWorldNewsPage, 
-  createLocalNewsPage,
-  createNewsArticlePage
-} from './news-pages';
-import { createSportsIndexPage, createSportsArticlePage } from './sports-pages';
-import { createMarketsIndexPage } from './markets-pages';
-import { 
   createAIOraclePage,
   createAIChatPage,
   createGamesIndexPage,
@@ -49,42 +40,16 @@ pageRegistry.set('100', () => createIndexPage(false));
 pageRegistry.set('101', createSystemStatusPage);
 
 // News pages (2xx)
-pageRegistry.set('200', createNewsIndexPage);
-pageRegistry.set('201', createUKNewsPage);
-pageRegistry.set('202', createWorldNewsPage);
-pageRegistry.set('203', createLocalNewsPage);
-
-// News article detail pages (200-x, 201-x, 202-x, 203-x)
-// Register articles for page 200
-for (let i = 1; i <= 3; i++) {
-  pageRegistry.set(`200-${i}`, () => createNewsArticlePage('200', i));
-}
-
-// Register articles for page 201 (UK News)
-for (let i = 1; i <= 5; i++) {
-  pageRegistry.set(`201-${i}`, () => createNewsArticlePage('201', i));
-}
-
-// Register articles for page 202 (World News)
-for (let i = 1; i <= 5; i++) {
-  pageRegistry.set(`202-${i}`, () => createNewsArticlePage('202', i));
-}
-
-// Register articles for page 203 (Local News)
-for (let i = 1; i <= 5; i++) {
-  pageRegistry.set(`203-${i}`, () => createNewsArticlePage('203', i));
-}
+// All news pages are now handled by NewsAdapter for live data from News API
+// Pages 200-209 and their sub-pages (200-1, 201-2, etc.) are dynamically generated
 
 // Sports pages (3xx)
-pageRegistry.set('300', createSportsIndexPage);
-
-// Sports article detail pages (300-x)
-for (let i = 1; i <= 3; i++) {
-  pageRegistry.set(`300-${i}`, () => createSportsArticlePage('300', i));
-}
+// All sports pages are now handled by SportsAdapter for live data from API-Football
+// Pages 300-309 and their sub-pages (300-1, 301-2, etc.) are dynamically generated
 
 // Markets pages (4xx)
-pageRegistry.set('400', createMarketsIndexPage);
+// All markets pages are now handled by MarketsAdapter for live data from Alpha Vantage and CoinGecko
+// Pages 400-419 and their sub-pages (401-1, 402-2, etc.) are dynamically generated
 
 // AI pages (5xx)
 pageRegistry.set('500', createAIOraclePage);
@@ -112,17 +77,8 @@ pageRegistry.set('800', createDevToolsIndexPage);
 pageRegistry.set('999', createHelpPage);
 
 // Additional placeholder pages for features under construction
-// Sports sub-pages (3xx)
-pageRegistry.set('301', () => createComingSoonPage('301', 'Football Results & Fixtures', 'Football scores, fixtures, and league tables'));
-pageRegistry.set('302', () => createComingSoonPage('302', 'Cricket Scores & Commentary', 'Live cricket scores and match commentary'));
-pageRegistry.set('303', () => createComingSoonPage('303', 'Tennis Tournaments & Rankings', 'Tennis tournament results and player rankings'));
-pageRegistry.set('304', () => createComingSoonPage('304', 'Live Scores Across All Sports', 'Real-time scores from multiple sports'));
-
-// Markets sub-pages (4xx)
-pageRegistry.set('401', () => createComingSoonPage('401', 'Stock Prices & Trading', 'Real-time stock market data and trading information'));
-pageRegistry.set('402', () => createComingSoonPage('402', 'Crypto Markets & Digital Assets', 'Cryptocurrency prices and market analysis'));
-pageRegistry.set('403', () => createComingSoonPage('403', 'Commodities & Precious Metals', 'Commodity prices including gold, silver, and oil'));
-pageRegistry.set('404', () => createComingSoonPage('404', 'Void Page', 'This page is intentionally left blank'));
+// Sports pages (3xx) - Now handled by SportsAdapter, no static pages needed
+// Markets pages (4xx) - Now handled by MarketsAdapter, no static pages needed
 
 // Weather pages (4xx)
 pageRegistry.set('420', () => createComingSoonPage('420', 'Weather Forecast & Conditions', 'Current weather and 5-day forecast'));

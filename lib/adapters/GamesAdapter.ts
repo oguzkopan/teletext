@@ -53,33 +53,34 @@ export class GamesAdapter {
     const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
     
     const rows = [
-      `{cyan}600 {yellow}🎮 GAMES & QUIZZES HUB 🎮 {cyan}${timeStr}                                                                                                            {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
-      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
-      '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-      '{yellow}║                                          {cyan}🎯 FUN & GAMES 🎯{yellow}                                                           ║',
-      '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+      `600 Games & Quizzes ${timeStr}         P600`,
+      '════════════════════════════════════════',
       '',
-      '{cyan}▓▓▓ AI-POWERED GAMES ▓▓▓',
-      '{green}601{white} Trivia Quiz              {yellow}⭐{white} AI-generated questions',
-      '{green}610{white} Bamboozle Story Game     {yellow}🎲{white} Interactive adventures',
-      '{green}620{white} Random Facts & Trivia    {yellow}📚{white} Learn something new',
-      '{green}630{white} Anagram Challenge        {yellow}🔤{white} Unscramble the word',
-      '{green}640{white} Math Challenge           {yellow}🔢{white} Solve arithmetic problems',
+      '*** AI-POWERED GAMES ***',
       '',
-      '{magenta}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-      '{magenta}║ {yellow}🤖 AI-POWERED:{white} All games use Vertex AI to generate unique content every time!                                      {magenta}║',
-      '{magenta}║ {yellow}💡 TIP:{white} Press 1-digit numbers to select options. Reload pages for new challenges!                                {magenta}║',
-      '{magenta}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+      '601 Trivia Quiz',
+      '    AI-generated questions',
+      '610 Bamboozle Story Game',
+      '    Interactive adventures',
+      '620 Random Facts & Trivia',
+      '    Learn something new',
+      '630 Anagram Challenge',
+      '    Unscramble the word',
+      '640 Math Challenge',
+      '    Solve arithmetic problems',
       '',
-      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
-      '{cyan}NAVIGATION: {red}100{white}=MAIN INDEX {green}601{white}=QUIZ {yellow}620{white}=FACTS {blue}630{white}=WORD',
+      'All games use Vertex AI to',
+      'generate unique content!',
+      '',
+      '',
+      'INDEX   QUIZ   FACTS   WORD',
       ''
     ];
 
     return {
       id: '600',
       title: 'Games & Quizzes Hub',
-      rows,
+      rows: this.padRows(rows),
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'QUIZ', targetPage: '601', color: 'green' },
@@ -103,37 +104,37 @@ export class GamesAdapter {
     const question = questions[0];
     console.log('[GamesAdapter] Quiz question generated:', question);
     
+    // Limit question to 3 lines max
+    const questionLines = this.wrapText(question.question, 40).slice(0, 3);
+    
     const rows = [
-      `{cyan}601 {yellow}📝 TRIVIA QUIZ 📝 {cyan}${timeStr}                                                                                                                    {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
-      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      `601 Trivia Quiz ${timeStr}             P601`,
+      '════════════════════════════════════════',
       '',
-      '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-      `{yellow}║                                    {cyan}🎯 ${question.category.toUpperCase()} 🎯{yellow}                                                                  ║`,
-      '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+      this.centerText(`${question.category.toUpperCase()}`),
       '',
-      `{white}${question.question}`,
+      ...questionLines,
+      '',
+      'SELECT YOUR ANSWER:',
+      '',
+      `1. ${this.truncateText(question.options[0], 36)}`,
+      `2. ${this.truncateText(question.options[1], 36)}`,
+      `3. ${this.truncateText(question.options[2], 36)}`,
+      `4. ${this.truncateText(question.options[3], 36)}`,
+      '',
+      'Press 1-4 to answer',
+      'Reload for new question',
       '',
       '',
-      '{white}SELECT YOUR ANSWER:',
       '',
-      `{green}1.{white} ${question.options[0]}`,
-      `{green}2.{white} ${question.options[1]}`,
-      `{green}3.{white} ${question.options[2]}`,
-      `{green}4.{white} ${question.options[3]}`,
-      '',
-      '{magenta}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-      '{magenta}║ {yellow}💡 TIP:{white} Reload for a new question! Each one is AI-generated and unique.                                            {magenta}║',
-      '{magenta}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
-      '',
-      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
-      '{cyan}NAVIGATION: {red}100{white}=INDEX {green}600{white}=GAMES {yellow}620{white}=FACTS',
+      'INDEX   GAMES   FACTS',
       ''
     ];
 
     return {
       id: '601',
       title: 'Trivia Quiz',
-      rows,
+      rows: this.padRows(rows),
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'GAMES', targetPage: '600', color: 'green' },
@@ -158,53 +159,137 @@ export class GamesAdapter {
     const now = new Date();
     const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
     
+    // Generate AI story
+    console.log('[GamesAdapter] Generating Bamboozle story...');
+    const story = await this.generateBamboozleStory();
+    console.log('[GamesAdapter] Story generated:', story.title);
+    
+    // Limit scenario to 2 lines max
+    const scenarioLines = this.wrapText(story.scenario, 40).slice(0, 2);
+    
     const rows = [
-      `{cyan}610 {yellow}🎲 BAMBOOZLE PREVIEW � {cyan}n${timeStr}                                                                                                            {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
-      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      `610 Bamboozle Story ${timeStr}         P610`,
+      '════════════════════════════════════════',
       '',
-      '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-      '{yellow}║                              {cyan}🏛️ THE MYSTERY OF THE LOST ARTIFACT 🏛️{yellow}                                                  ║',
-      '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+      this.centerText(story.title.toUpperCase()),
       '',
-      '{white}You are an archaeologist who has discovered a mysterious ancient temple.',
-      '{white}Your choices will determine your fate!',
+      ...scenarioLines,
       '',
-      '{cyan}This would be a branching story quiz where different answers lead to',
-      '{cyan}different paths and endings.',
+      'WHAT DO YOU DO?',
       '',
-      '{yellow}Planned endings:',
-      '{green}• The Scholar Path',
-      '{green}• The Adventurer Path',
-      '{green}• The Cursed Path',
+      `1. ${this.truncateText(story.choices[0], 36)}`,
+      `2. ${this.truncateText(story.choices[1], 36)}`,
+      `3. ${this.truncateText(story.choices[2], 36)}`,
+      `4. ${this.truncateText(story.choices[3], 36)}`,
       '',
-      '{magenta}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-      '{magenta}║ {yellow}ℹ️  NOTE:{white} This is a preview. Full game functionality coming soon!                                                   {magenta}║',
-      '{magenta}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+      'Press 1-4 to choose',
+      'Reload for new story',
       '',
-      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
-      '{cyan}NAVIGATION: {red}100{white}=INDEX {green}600{white}=GAMES {yellow}620{white}=FACTS',
+      '',
+      '',
+      '',
+      'INDEX   GAMES   FACTS',
       ''
     ];
 
     return {
       id: '610',
       title: 'Bamboozle Story Game',
-      rows,
+      rows: this.padRows(rows),
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'GAMES', targetPage: '600', color: 'green' },
         { label: 'FACTS', targetPage: '620', color: 'yellow' },
         { label: '1', targetPage: '611', color: undefined },
         { label: '2', targetPage: '612', color: undefined },
-        { label: '3', targetPage: '613', color: undefined }
+        { label: '3', targetPage: '613', color: undefined },
+        { label: '4', targetPage: '614', color: undefined }
       ],
       meta: {
         source: 'GamesAdapter',
         lastUpdated: new Date().toISOString(),
         inputMode: 'single',
-        inputOptions: ['1', '2', '3']
+        inputOptions: ['1', '2', '3', '4'],
+        bamboozleStory: story,
+        aiGenerated: true
       }
     };
+  }
+
+  private async generateBamboozleStory(): Promise<{
+    title: string;
+    scenario: string;
+    choices: string[];
+    outcomes: string[];
+  }> {
+    try {
+      const vertexAI = this.getVertexAI();
+      const model = vertexAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+      const prompt = `Generate an interactive story scenario for a choice-based game.
+
+Requirements:
+- Create an engaging scenario (1-2 sentences, max 80 characters total)
+- Provide 4 different choices (each max 30 characters)
+- Each choice should lead to a different outcome
+- Keep it family-friendly and fun
+- Make it mysterious or adventurous
+
+Return ONLY a valid JSON object:
+{
+  "title": "The Mysterious Cave",
+  "scenario": "You discover a hidden cave. Strange symbols cover the walls.",
+  "choices": [
+    "Enter carefully",
+    "Study symbols",
+    "Call for backup",
+    "Mark and leave"
+  ],
+  "outcomes": [
+    "You find treasure!",
+    "You decipher secrets!",
+    "Team discovers city!",
+    "You return safely!"
+  ]
+}`;
+
+      const result = await model.generateContent(prompt);
+      const response = result.response;
+      const candidates = response.candidates;
+
+      if (!candidates || candidates.length === 0 || !candidates[0].content.parts.length) {
+        throw new Error('No response from AI');
+      }
+
+      const text = candidates[0].content.parts[0].text || '';
+      let jsonText = text.trim();
+      if (jsonText.startsWith('```json')) {
+        jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+      } else if (jsonText.startsWith('```')) {
+        jsonText = jsonText.replace(/```\n?/g, '');
+      }
+
+      return JSON.parse(jsonText);
+    } catch (error) {
+      console.error('[GamesAdapter] Bamboozle generation failed:', error);
+      // Fallback story
+      return {
+        title: 'The Mysterious Cave',
+        scenario: 'You discover a hidden cave behind a waterfall. Strange glowing symbols cover the walls.',
+        choices: [
+          'Enter the cave carefully',
+          'Study the symbols first',
+          'Call for backup',
+          'Mark location and leave'
+        ],
+        outcomes: [
+          'You find ancient treasure!',
+          'You decipher a secret message!',
+          'Your team discovers a lost city!',
+          'You return safely with data!'
+        ]
+      };
+    }
   }
 
   private async getRandomFactPage(): Promise<TeletextPage> {
@@ -212,33 +297,33 @@ export class GamesAdapter {
     const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
     const fact = this.getCuratedRandomFact();
     
+    // Limit fact to 10 lines max
+    const factLines = this.wrapText(fact.text, 40).slice(0, 10);
+    
     const rows = [
-      `{cyan}620 {yellow}📚 RANDOM FACT 📚 {cyan}${timeStr}                                                                                                                  {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
-      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      `620 Random Fact ${timeStr}             P620`,
+      '════════════════════════════════════════',
       '',
-      `{yellow}Category: {cyan}${fact.category}`,
+      `Category: ${fact.category}`,
       '',
-      `{white}${fact.text}`,
-      '',
-      '',
+      ...factLines,
       '',
       '',
       '',
+      'Reload for different fact',
       '',
       '',
-      '{magenta}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-      '{magenta}║ {yellow}💡 TIP:{white} Reload this page to see a different fact!                                                                    {magenta}║',
-      '{magenta}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
       '',
-      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
-      '{cyan}NAVIGATION: {red}100{white}=INDEX {green}600{white}=GAMES {yellow}630{white}=WORD {blue}640{white}=MATH',
+      '',
+      '',
+      'INDEX   GAMES   WORD   MATH',
       ''
     ];
 
     return {
       id: '620',
       title: 'Random Fact',
-      rows,
+      rows: this.padRows(rows),
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'GAMES', targetPage: '600', color: 'green' },
@@ -262,37 +347,35 @@ export class GamesAdapter {
     console.log('[GamesAdapter] Word game generated:', wordGame);
 
     const rows = [
-      `{cyan}630 {yellow}🔤 ANAGRAM CHALLENGE 🔤 {cyan}${timeStr}                                                                                                          {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
-      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      `630 Anagram Challenge ${timeStr}       P630`,
+      '════════════════════════════════════════',
       '',
-      '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-      '{yellow}║                                    {cyan}🎯 UNSCRAMBLE THE WORD 🎯{yellow}                                                          ║',
-      '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+      'SCRAMBLED WORD:',
+      this.centerText(wordGame.scrambled),
       '',
-      '{white}SCRAMBLED WORD:',
-      `{cyan}${wordGame.scrambled}`,
+      `Hint: ${this.truncateText(wordGame.hint, 34)}`,
       '',
-      `{yellow}Hint: {white}${wordGame.hint}`,
+      'SELECT YOUR ANSWER:',
       '',
-      '{white}SELECT YOUR ANSWER:',
+      `1. ${this.truncateText(wordGame.options[0], 36)}`,
+      `2. ${this.truncateText(wordGame.options[1], 36)}`,
+      `3. ${this.truncateText(wordGame.options[2], 36)}`,
+      `4. ${this.truncateText(wordGame.options[3], 36)}`,
       '',
-      `{green}1.{white} ${wordGame.options[0]}`,
-      `{green}2.{white} ${wordGame.options[1]}`,
-      `{green}3.{white} ${wordGame.options[2]}`,
-      `{green}4.{white} ${wordGame.options[3]}`,
+      'Press 1-4 to answer',
+      'Reload for new puzzle',
+      'AI-generated content',
       '',
-      '{magenta}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-      '{magenta}║ {yellow}💡 TIP:{white} Reload for a new puzzle! Each one is AI-generated and unique.                                              {magenta}║',
-      '{magenta}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
-      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
-      '{cyan}NAVIGATION: {red}100{white}=INDEX {green}600{white}=GAMES {yellow}640{white}=MATH',
+      '',
+      '',
+      'INDEX   GAMES   MATH',
       ''
     ];
 
     return {
       id: '630',
       title: 'Anagram Challenge',
-      rows,
+      rows: this.padRows(rows),
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'GAMES', targetPage: '600', color: 'green' },
@@ -606,37 +689,35 @@ The correct answer must be the first option. Generate a NEW unique puzzle now.`;
     console.log('[GamesAdapter] Math challenge generated:', mathChallenge);
 
     const rows = [
-      `{cyan}640 {yellow}🔢 MATH CHALLENGE 🔢 {cyan}${timeStr}                                                                                                             {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
-      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      `640 Math Challenge ${timeStr}          P640`,
+      '════════════════════════════════════════',
       '',
-      '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-      '{yellow}║                                    {cyan}🎯 SOLVE THE PROBLEM 🎯{yellow}                                                            ║',
-      '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+      'PROBLEM:',
       '',
-      '{white}PROBLEM:',
-      '',
-      `{cyan}${mathChallenge.problem}`,
+      this.centerText(mathChallenge.problem),
       '',
       '',
-      '{white}SELECT YOUR ANSWER:',
+      'SELECT YOUR ANSWER:',
       '',
-      `{green}1.{white} ${mathChallenge.options[0]}`,
-      `{green}2.{white} ${mathChallenge.options[1]}`,
-      `{green}3.{white} ${mathChallenge.options[2]}`,
-      `{green}4.{white} ${mathChallenge.options[3]}`,
+      `1. ${this.truncateText(mathChallenge.options[0], 36)}`,
+      `2. ${this.truncateText(mathChallenge.options[1], 36)}`,
+      `3. ${this.truncateText(mathChallenge.options[2], 36)}`,
+      `4. ${this.truncateText(mathChallenge.options[3], 36)}`,
       '',
-      '{magenta}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-      '{magenta}║ {yellow}💡 TIP:{white} Reload for a new problem! Each one is AI-generated and unique.                                             {magenta}║',
-      '{magenta}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
-      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
-      '{cyan}NAVIGATION: {red}100{white}=INDEX {green}600{white}=GAMES {yellow}630{white}=WORD',
+      'Press 1-4 to answer',
+      'Reload for new problem',
+      'AI-generated content',
+      '',
+      '',
+      '',
+      'INDEX   GAMES   WORD',
       ''
     ];
 
     return {
       id: '640',
       title: 'Math Challenge',
-      rows,
+      rows: this.padRows(rows),
       links: [
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'GAMES', targetPage: '600', color: 'green' },
