@@ -39,8 +39,19 @@ export async function GET(
     );
   }
 
+  // Extract query parameters early (needed for dynamic page detection)
+  const searchParams = request.nextUrl.searchParams;
+  const queryParams: Record<string, any> = {};
+  searchParams.forEach((value, key) => {
+    queryParams[key] = value;
+  });
+
+  // Check if this is a dynamic page request (has query params)
+  const hasQueryParams = Object.keys(queryParams).length > 0;
+
   // Check if this is a static page that should be served from lib/
-  if (hasPage(pageNumber)) {
+  // Skip static page if there are query parameters (dynamic content)
+  if (hasPage(pageNumber) && !hasQueryParams) {
     const staticPage = getPageByNumber(pageNumber);
     if (staticPage) {
       return NextResponse.json(
@@ -60,12 +71,6 @@ export async function GET(
 
   // For dynamic pages, use adapters
   try {
-    // Extract query parameters
-    const searchParams = request.nextUrl.searchParams;
-    const queryParams: Record<string, any> = {};
-    searchParams.forEach((value, key) => {
-      queryParams[key] = value;
-    });
 
     let page;
     const magazine = Math.floor(pageNum / 100);
@@ -93,9 +98,15 @@ export async function GET(
       
       case 5: // AI (500-599)
         // All AI pages are handled by AIAdapter or page registry
-        // Pages 500, 501 are static (from registry)
-        // Pages 502, 511-516 are dynamic (from AIAdapter)
-        if (pageNum === 502 || (pageNum >= 511 && pageNum <= 516)) {
+        // Page 500 with question parameter - dynamic AI response
+        // Page 500 without question - static from registry
+        // Page 501 - static from registry
+        // Pages 502, 511-516 - dynamic from AIAdapter
+        if (pageNum === 500 && (queryParams.question || queryParams.q)) {
+          // Page 500 with question - generate AI response
+          const aiAdapter = new AIAdapter();
+          page = await aiAdapter.getPage(pageNumber, queryParams);
+        } else if (pageNum === 502 || (pageNum >= 511 && pageNum <= 516)) {
           const aiAdapter = new AIAdapter();
           page = await aiAdapter.getPage(pageNumber, queryParams);
         } else if (hasPage(pageNumber)) {

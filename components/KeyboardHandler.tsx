@@ -113,6 +113,29 @@ export default function KeyboardHandler({ routerState }: KeyboardHandlerProps) {
       // Text input mode - accept all printable characters
       // Requirements: 1.1, 1.2, 4.1, 4.2, 4.5
       if (isTextInputMode) {
+        // IMPORTANT: Handle colored buttons FIRST (for navigation)
+        // Color buttons (R, G, Y, B) should work even in text input mode
+        if (e.key.toLowerCase() === 'r') {
+          e.preventDefault();
+          routerState.handleColorButton('red');
+          return;
+        }
+        else if (e.key.toLowerCase() === 'g') {
+          e.preventDefault();
+          routerState.handleColorButton('green');
+          return;
+        }
+        else if (e.key.toLowerCase() === 'y') {
+          e.preventDefault();
+          routerState.handleColorButton('yellow');
+          return;
+        }
+        else if (e.key.toLowerCase() === 'b') {
+          e.preventDefault();
+          routerState.handleColorButton('blue');
+          return;
+        }
+        
         // Check if this digit is a single-digit shortcut (e.g., 1-6 on page 501)
         const singleDigitShortcuts = routerState.currentPage?.meta?.singleDigitShortcuts || [];
         const isShortcut = e.key >= '0' && e.key <= '9' && singleDigitShortcuts.includes(e.key);

@@ -6,7 +6,8 @@
 import { TeletextPage } from '@/types/teletext';
 
 /**
- * Creates page 500 - AI Oracle Index
+ * Creates page 500 - AI Oracle Chat (Direct Input)
+ * New flow: User can ask questions directly on page 500
  */
 export function createAIOraclePage(): TeletextPage {
   const now = new Date();
@@ -16,44 +17,45 @@ export function createAIOraclePage(): TeletextPage {
   });
   
   const rows = [
-    `{cyan}500 {yellow}🤖 AI CHAT & ORACLE 🤖 {cyan}${timeStr}                                                                                                                {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+    `{cyan}500 {yellow}🤖 AI ORACLE CHAT 🤖 {cyan}${timeStr}                                                                                                                  {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
     '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+    '',
     '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-    '{yellow}║  {magenta}AI ORACLE{yellow}  {white}░▒▓█▓▒░  {cyan}Ask Me Anything  {white}░▒▓█▓▒░  {yellow}Powered by Advanced AI{yellow}                                                    ║',
+    '{yellow}║                                    {cyan}🎯 ASK ME ANYTHING 🎯{yellow}                                                             ║',
     '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+    '',
+    '{white}I can help you with:',
+    '{green}•{white} General knowledge    {green}•{white} News & current events    {green}•{white} Sports & games',
+    '{green}•{white} Technology & science {green}•{white} Weather & markets        {green}•{white} Entertainment',
+    '',
+    '{cyan}▓▓▓ ASK YOUR QUESTION ▓▓▓',
+    '',
+    '{white}Type your question below and press {green}ENTER{white}:',
+    '',
+    '{yellow}▶{white} _',
+    '',
+    '',
+    '',
+    '',
+    '{magenta}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
+    '{magenta}║ {yellow}💡 TIPS:{white}                                                                                                            {magenta}║',
+    '{magenta}║ {white}• Type your question and press ENTER to get an AI response                                                             {magenta}║',
+    '{magenta}║ {white}• AI responses appear on this page (no navigation needed)                                                              {magenta}║',
+    '{magenta}║ {white}• Responses typically take 3-5 seconds                                                                                 {magenta}║',
+    '{magenta}║ {white}• Press RED button to return to main index                                                                             {magenta}║',
+    '{magenta}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+    '',
     '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
-    '',
-    '{cyan}▓▓▓ WELCOME TO AI ORACLE ▓▓▓',
-    '{white}Ask me anything! I can help you with:',
-    '',
-    '{green}•{white} General knowledge and information',
-    '{green}•{white} News analysis and summaries',
-    '{green}•{white} Sports statistics and predictions',
-    '{green}•{white} Market insights and trends',
-    '{green}•{white} Weather forecasts and explanations',
-    '{green}•{white} Entertainment recommendations',
-    '{green}•{white} Technology advice and tips',
-    '',
-    '{cyan}▓▓▓ HOW TO USE ▓▓▓',
-    '{yellow}1.{white} Navigate to page {cyan}501{white} to start a conversation',
-    '{yellow}2.{white} Type your question or prompt',
-    '{yellow}3.{white} Press {green}ENTER{white} to submit',
-    '{yellow}4.{white} Wait for AI response (usually < 5 seconds)',
-    '{yellow}5.{white} Continue the conversation or ask follow-up questions',
-    '',
-    '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
-    '{cyan}NAVIGATION: {red}100{white}=MAIN INDEX {green}501{white}=START CHAT {yellow}999{white}=HELP',
+    '{cyan}NAVIGATION: {red}RED{white}=BACK TO INDEX • Type question and press {green}ENTER{white} to chat',
     ''
   ];
   
   return {
     id: '500',
-    title: 'AI Oracle',
+    title: 'AI Oracle Chat',
     rows,
     links: [
-      { label: 'INDEX', targetPage: '100', color: 'red' },
-      { label: 'CHAT', targetPage: '501', color: 'green' },
-      { label: 'HELP', targetPage: '999', color: 'yellow' }
+      { label: 'INDEX', targetPage: '100', color: 'red' }
     ],
     meta: {
       source: 'StaticAdapter',
@@ -61,7 +63,13 @@ export function createAIOraclePage(): TeletextPage {
       cacheStatus: 'fresh',
       fullScreenLayout: true,
       useLayoutManager: true,
-      renderedWithLayoutEngine: true
+      renderedWithLayoutEngine: true,
+      inputMode: 'text',
+      textInputEnabled: true,
+      textInputPrompt: 'Type your question and press ENTER:',
+      textInputPlaceholder: 'Ask me anything...',
+      aiChatPage: true,
+      stayOnPageAfterSubmit: true
     }
   };
 }
@@ -334,8 +342,8 @@ export function createDevToolsIndexPage(): TeletextPage {
 
 
 /**
- * Creates page 501 - AI Chat Interface (Interactive)
- * Now with proper text input support
+ * Creates page 501 - AI Quick Topics (Legacy page with shortcuts)
+ * Redirects to page 500 for main chat, but provides quick topic shortcuts
  */
 export function createAIChatPage(): TeletextPage {
   const now = new Date();
@@ -345,46 +353,44 @@ export function createAIChatPage(): TeletextPage {
   });
   
   const rows = [
-    `{cyan}501 {yellow}🤖 AI ORACLE CHAT 🤖 {cyan}${timeStr}                                                                                                                  {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+    `{cyan}501 {yellow}🤖 AI QUICK TOPICS 🤖 {cyan}${timeStr}                                                                                                                 {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
     '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
     '',
     '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-    '{yellow}║                                    {cyan}🎯 ASK ME ANYTHING 🎯{yellow}                                                             ║',
+    '{yellow}║                              {cyan}🎯 QUICK TOPIC SHORTCUTS 🎯{yellow}                                                            ║',
     '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
     '',
-    '{white}QUICK TOPICS - Press a number for instant answers:',
+    '{white}Press a number for instant AI answers on these topics:',
     '',
     '{green}1.{white} Explain AI in simple terms        {green}4.{white} How does the internet work?',
     '{green}2.{white} Latest technology trends           {green}5.{white} Tell me a joke',
     '{green}3.{white} Interesting historical fact        {green}6.{white} Write a poem about teletext',
     '',
-    '{cyan}▓▓▓ OR ASK YOUR OWN QUESTION ▓▓▓',
+    '{cyan}▓▓▓ WANT TO ASK YOUR OWN QUESTION? ▓▓▓',
     '',
-    '{white}Type your question below and press {green}ENTER{white}:',
+    '{white}Go to page {cyan}500{white} for the main AI chat interface',
+    '{white}where you can type any question you want!',
     '',
-    '{yellow}▶{white} _',
     '',
     '',
     '{magenta}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-    '{magenta}║ {yellow}💡 TIPS:{white}                                                                                                            {magenta}║',
-    '{magenta}║ {white}• Press 1-6 for quick pre-set questions                                                                                {magenta}║',
-    '{magenta}║ {white}• Or type your own question and press ENTER                                                                            {magenta}║',
-    '{magenta}║ {white}• AI responses typically take 3-5 seconds                                                                              {magenta}║',
+    '{magenta}║ {yellow}💡 TIP:{white} Page 500 now has direct chat - no need to navigate between pages!                                          {magenta}║',
     '{magenta}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
     '',
+    '',
+    '',
     '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
-    '{cyan}NAVIGATION: {red}100{white}=INDEX {green}500{white}=AI INDEX {yellow}600{white}=GAMES',
+    '{cyan}NAVIGATION: {red}100{white}=INDEX {green}500{white}=AI CHAT {yellow}1-6{white}=QUICK TOPICS',
     ''
   ];
   
   return {
     id: '501',
-    title: 'AI Oracle Chat',
+    title: 'AI Quick Topics',
     rows,
     links: [
       { label: 'INDEX', targetPage: '100', color: 'red' },
-      { label: 'AI INDEX', targetPage: '500', color: 'green' },
-      { label: 'GAMES', targetPage: '600', color: 'yellow' },
+      { label: 'AI CHAT', targetPage: '500', color: 'green' },
       { label: '1', targetPage: '511', color: undefined },
       { label: '2', targetPage: '512', color: undefined },
       { label: '3', targetPage: '513', color: undefined },
@@ -398,11 +404,8 @@ export function createAIChatPage(): TeletextPage {
       fullScreenLayout: true,
       useLayoutManager: true,
       renderedWithLayoutEngine: true,
-      inputMode: 'text',
-      textInputEnabled: true,
-      textInputPrompt: 'Type your question and press ENTER:',
-      textInputPlaceholder: 'Ask me anything...',
-      singleDigitShortcuts: ['1', '2', '3', '4', '5', '6']
+      inputMode: 'single',
+      inputOptions: ['1', '2', '3', '4', '5', '6']
     }
   };
 }

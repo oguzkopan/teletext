@@ -27,7 +27,17 @@ export class AIAdapter {
   async getPage(pageId: string, params?: Record<string, any>): Promise<TeletextPage> {
     const pageNumber = parseInt(pageId, 10);
 
-    // Custom question page (502) - handles user text input
+    // Page 500 with question - handles direct chat on page 500
+    if (pageNumber === 500) {
+      const question = params?.question || params?.q || '';
+      if (!question) {
+        // Return error or empty state - should not happen as page 500 is static
+        throw new Error('Page 500 should be served from page registry');
+      }
+      return await this.getAIChatResponsePage(question);
+    }
+
+    // Custom question page (502) - handles user text input (legacy)
     if (pageNumber === 502) {
       const question = params?.question || params?.q || '';
       if (!question) {
@@ -96,6 +106,64 @@ export class AIAdapter {
         source: 'AIAdapter',
         lastUpdated: new Date().toISOString(),
         aiGenerated: true
+      }
+    };
+  }
+
+  private async getAIChatResponsePage(question: string): Promise<TeletextPage> {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+    console.log(`[AIAdapter] Generating AI response for question on page 500: ${question}`);
+    const answer = await this.generateAIAnswer(question);
+    console.log(`[AIAdapter] AI response generated, length: ${answer.length} chars`);
+
+    // Wrap text to fit full-width layout (120 chars)
+    const wrappedQuestion = this.wrapText(question, 120);
+    const wrappedAnswer = this.wrapText(answer, 120);
+
+    const rows = [
+      `{cyan}500 {yellow}🤖 AI ORACLE CHAT 🤖 {cyan}${timeStr}                                                                                                                  {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      '',
+      '{cyan}▓▓▓ YOUR QUESTION ▓▓▓',
+      ...wrappedQuestion.slice(0, 3).map(line => `{yellow}${line}`),
+      '',
+      '{cyan}▓▓▓ AI RESPONSE ▓▓▓',
+      ...wrappedAnswer.slice(0, 12).map(line => `{white}${line}`),
+      '',
+      '',
+      '',
+      '{magenta}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
+      '{magenta}║ {yellow}💡 TIP:{white} Type another question and press ENTER to continue chatting                                                     {magenta}║',
+      '{magenta}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+      '',
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      '{cyan}NAVIGATION: {red}RED{white}=BACK TO INDEX • Type another question and press {green}ENTER{white} to continue',
+      ''
+    ];
+
+    return {
+      id: '500',
+      title: 'AI Oracle Chat',
+      rows: this.padRows(rows, 28),
+      links: [
+        { label: 'INDEX', targetPage: '100', color: 'red' }
+      ],
+      meta: {
+        source: 'AIAdapter',
+        lastUpdated: new Date().toISOString(),
+        aiGenerated: true,
+        customQuestion: question,
+        fullScreenLayout: true,
+        useLayoutManager: true,
+        renderedWithLayoutEngine: true,
+        inputMode: 'text',
+        textInputEnabled: true,
+        textInputPrompt: 'Type another question:',
+        textInputPlaceholder: 'Ask me anything...',
+        aiChatPage: true,
+        stayOnPageAfterSubmit: true
       }
     };
   }
@@ -222,26 +290,30 @@ export class AIAdapter {
     return lines.length > 0 ? lines : [''];
   }
 
-  private padRows(rows: string[]): string[] {
+  private padRows(rows: string[], targetRows: number = 24, targetWidth: number = 40): string[] {
     const paddedRows = rows.map(row => {
-      if (row.length > 40) {
-        return row.substring(0, 40);
+      // Don't truncate rows with color codes - they need extra space
+      if (row.includes('{')) {
+        return row;
       }
-      return row.padEnd(40, ' ');
+      if (row.length > targetWidth) {
+        return row.substring(0, targetWidth);
+      }
+      return row.padEnd(targetWidth, ' ');
     });
 
-    while (paddedRows.length < 24) {
-      paddedRows.push(''.padEnd(40, ' '));
+    while (paddedRows.length < targetRows) {
+      paddedRows.push(''.padEnd(targetWidth, ' '));
     }
 
-    return paddedRows.slice(0, 24);
+    return paddedRows.slice(0, targetRows);
   }
 
   private async generateAIAnswer(question: string): Promise<string> {
     try {
       console.log('[AIAdapter] Initializing Vertex AI...');
       const vertexAI = this.getVertexAI();
-      const model = vertexAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+      const model = vertexAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
 
       const prompt = `Answer this question in a concise, informative way suitable for a teletext display (max 400 characters):
 

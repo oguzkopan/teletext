@@ -173,11 +173,17 @@ const TeletextScreen = React.memo(function TeletextScreen({
         animationEngine.stopAnimation(loadingAnimationId);
       }
     };
-  }, [loading, animationEngine, displayPage.meta?.aiGenerated, typingAnimation]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, displayPage.meta?.aiGenerated]);
 
   // Handle AI typing animation for AI-generated content
   // Requirements: 24.1, 24.2
+  // DISABLED: Typing animation interferes with page display
+  // TODO: Re-enable with proper color code handling
   useEffect(() => {
+    // Disabled for now - just show content directly
+    return;
+    
     // Only apply typing animation to AI-generated content
     if (!displayPage.meta?.aiGenerated || loading) {
       return;
@@ -201,7 +207,8 @@ const TeletextScreen = React.memo(function TeletextScreen({
     return () => {
       typingAnimation.stop();
     };
-  }, [displayPage.id, displayPage.rows, displayPage.meta?.aiGenerated, loading, typingAnimation]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [displayPage.id, loading]);
   /**
    * Parses a row of text and applies color codes.
    * Color codes are represented as {COLOR} in the text.
@@ -291,10 +298,12 @@ const TeletextScreen = React.memo(function TeletextScreen({
    */
   const renderedRows = useMemo(() => {
     const continuation = displayPage.meta?.continuation;
-    const isAIGenerated = displayPage.meta?.aiGenerated && !loading;
+    // DISABLED: Typing animation - show content directly
+    const isAIGenerated = false; // displayPage.meta?.aiGenerated && !loading;
     
     return displayPage.rows.map((row, index) => {
       // For AI-generated content, replace content rows with typing animation
+      // DISABLED: Show content directly instead
       if (isAIGenerated && index >= 3 && index < 23) {
         // Skip header (first 3 rows) and footer (last row)
         const contentRowIndex = index - 3;

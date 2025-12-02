@@ -30,19 +30,31 @@ export class GamesAdapter {
     if (pageNumber === 600) {
       return this.getGamesIndexPage();
     } else if (pageNumber === 601) {
+      // Check if this is an answer submission (has answer param)
+      if (params?.answer) {
+        return await this.getQuizWithAnswer(params.answer);
+      }
       return await this.getQuizPage();
     } else if (pageNumber === 610) {
+      // Check if this is a choice submission (has choice param)
+      if (params?.choice) {
+        return await this.getBamboozleWithChoice(params.choice);
+      }
       return await this.getBamboozlePage();
     } else if (pageNumber === 620) {
       return await this.getRandomFactPage();
     } else if (pageNumber === 630) {
+      // Check if this is an answer submission (has answer param)
+      if (params?.answer) {
+        return await this.getWordGameWithAnswer(params.answer);
+      }
       return await this.getWordGamePage(params);
-    } else if (pageNumber >= 631 && pageNumber <= 634) {
-      return await this.getWordGameAnswerPage(pageId, params);
     } else if (pageNumber === 640) {
+      // Check if this is an answer submission (has answer param)
+      if (params?.answer) {
+        return await this.getMathChallengeWithAnswer(params.answer);
+      }
       return await this.getMathChallengePage(params);
-    } else if (pageNumber >= 641 && pageNumber <= 644) {
-      return await this.getMathChallengeAnswerPage(pageId, params);
     }
 
     return this.getPlaceholderPage(pageId);
@@ -139,10 +151,10 @@ export class GamesAdapter {
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'GAMES', targetPage: '600', color: 'green' },
         { label: 'FACTS', targetPage: '620', color: 'yellow' },
-        { label: '1', targetPage: '602', color: undefined },
-        { label: '2', targetPage: '603', color: undefined },
-        { label: '3', targetPage: '604', color: undefined },
-        { label: '4', targetPage: '605', color: undefined }
+        { label: '1', targetPage: '601?answer=1', color: undefined },
+        { label: '2', targetPage: '601?answer=2', color: undefined },
+        { label: '3', targetPage: '601?answer=3', color: undefined },
+        { label: '4', targetPage: '601?answer=4', color: undefined }
       ],
       meta: {
         source: 'GamesAdapter',
@@ -150,7 +162,8 @@ export class GamesAdapter {
         inputMode: 'single',
         inputOptions: ['1', '2', '3', '4'],
         quizQuestion: question,
-        aiGenerated: true
+        aiGenerated: true,
+        stayOnPageAfterSubmit: true
       }
     };
   }
@@ -200,10 +213,10 @@ export class GamesAdapter {
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'GAMES', targetPage: '600', color: 'green' },
         { label: 'FACTS', targetPage: '620', color: 'yellow' },
-        { label: '1', targetPage: '611', color: undefined },
-        { label: '2', targetPage: '612', color: undefined },
-        { label: '3', targetPage: '613', color: undefined },
-        { label: '4', targetPage: '614', color: undefined }
+        { label: '1', targetPage: '610?choice=1', color: undefined },
+        { label: '2', targetPage: '610?choice=2', color: undefined },
+        { label: '3', targetPage: '610?choice=3', color: undefined },
+        { label: '4', targetPage: '610?choice=4', color: undefined }
       ],
       meta: {
         source: 'GamesAdapter',
@@ -211,7 +224,8 @@ export class GamesAdapter {
         inputMode: 'single',
         inputOptions: ['1', '2', '3', '4'],
         bamboozleStory: story,
-        aiGenerated: true
+        aiGenerated: true,
+        stayOnPageAfterSubmit: true
       }
     };
   }
@@ -380,10 +394,10 @@ Return ONLY a valid JSON object:
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'GAMES', targetPage: '600', color: 'green' },
         { label: 'MATH', targetPage: '640', color: 'yellow' },
-        { label: '1', targetPage: '631', color: undefined },
-        { label: '2', targetPage: '632', color: undefined },
-        { label: '3', targetPage: '633', color: undefined },
-        { label: '4', targetPage: '634', color: undefined }
+        { label: '1', targetPage: '630?answer=1', color: undefined },
+        { label: '2', targetPage: '630?answer=2', color: undefined },
+        { label: '3', targetPage: '630?answer=3', color: undefined },
+        { label: '4', targetPage: '630?answer=4', color: undefined }
       ],
       meta: {
         source: 'GamesAdapter',
@@ -391,7 +405,8 @@ Return ONLY a valid JSON object:
         inputMode: 'single',
         inputOptions: ['1', '2', '3', '4'],
         wordGame: wordGame,
-        aiGenerated: true
+        aiGenerated: true,
+        stayOnPageAfterSubmit: true
       }
     };
   }
@@ -625,6 +640,315 @@ The correct answer must be the first option. Generate a NEW unique puzzle now.`;
     }
   }
 
+  private async getQuizWithAnswer(answerStr: string): Promise<TeletextPage> {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    
+    // Generate a new question for next round
+    const questions = await this.generateQuizQuestions(1);
+    const newQuestion = questions[0];
+    
+    const answerIndex = parseInt(answerStr, 10) - 1;
+    const isCorrect = answerIndex === 0; // Assuming correct answer is always first
+
+    // Limit question to 2 lines
+    const questionLines = this.wrapText(newQuestion.question, 40).slice(0, 2);
+
+    const rows = [
+      `601 Trivia Quiz ${timeStr}             P601`,
+      '════════════════════════════════════════',
+      '',
+      isCorrect ? '✓ CORRECT!' : '✗ INCORRECT',
+      isCorrect ? 'Excellent!' : 'Keep trying!',
+      '',
+      'NEXT QUESTION:',
+      ...questionLines,
+      '',
+      `1. ${this.truncateText(newQuestion.options[0], 36)}`,
+      `2. ${this.truncateText(newQuestion.options[1], 36)}`,
+      `3. ${this.truncateText(newQuestion.options[2], 36)}`,
+      `4. ${this.truncateText(newQuestion.options[3], 36)}`,
+      '',
+      'Press 1-4 to answer',
+      '',
+      '',
+      '',
+      '',
+      'INDEX   GAMES   RELOAD',
+      ''
+    ];
+
+    return {
+      id: '601',
+      title: 'Trivia Quiz',
+      rows: this.padRows(rows),
+      links: [
+        { label: 'INDEX', targetPage: '100', color: 'red' },
+        { label: 'GAMES', targetPage: '600', color: 'green' },
+        { label: 'RELOAD', targetPage: '601', color: 'yellow' },
+        { label: '1', targetPage: '601?answer=1', color: undefined },
+        { label: '2', targetPage: '601?answer=2', color: undefined },
+        { label: '3', targetPage: '601?answer=3', color: undefined },
+        { label: '4', targetPage: '601?answer=4', color: undefined }
+      ],
+      meta: {
+        source: 'GamesAdapter',
+        lastUpdated: new Date().toISOString(),
+        inputMode: 'single',
+        inputOptions: ['1', '2', '3', '4'],
+        quizQuestion: newQuestion,
+        aiGenerated: true,
+        stayOnPageAfterSubmit: true
+      }
+    };
+  }
+
+  private async getQuizAnswerPage(pageId: string, params?: Record<string, any>): Promise<TeletextPage> {
+    // Default fallback question if params not provided
+    const quizQuestion = params?.quizQuestion || {
+      question: 'What year was the first teletext service launched?',
+      options: ['1974', '1970', '1978', '1982'],
+      correctIndex: 0,
+      category: 'Technology'
+    };
+
+    const answerIndex = parseInt(pageId.slice(-1), 10) - 2; // 602 -> index 0, 603 -> index 1, etc.
+    const selectedAnswer = quizQuestion.options[answerIndex];
+    const isCorrect = answerIndex === quizQuestion.correctIndex;
+    const correctAnswer = quizQuestion.options[quizQuestion.correctIndex];
+
+    const rows = [
+      `QUIZ RESULT                  P${pageId}`,
+      '════════════════════════════════════',
+      '',
+      '',
+      isCorrect ? '✓ CORRECT!' : '✗ INCORRECT',
+      '',
+      '',
+      `You selected: ${this.truncateText(selectedAnswer, 30)}`,
+      '',
+      isCorrect ? 'That\'s right!' : `Correct answer: ${this.truncateText(correctAnswer, 20)}`,
+      '',
+      `Category: ${quizQuestion.category}`,
+      '',
+      '',
+      isCorrect ? 'Excellent work!' : 'Keep trying!',
+      '',
+      'Reload page 601 for a new question',
+      '',
+      '',
+      '',
+      'GAMES   RETRY   INDEX',
+      ''
+    ];
+
+    return {
+      id: pageId,
+      title: 'Quiz Result',
+      rows: this.padRows(rows),
+      links: [
+        { label: 'GAMES', targetPage: '600', color: 'red' },
+        { label: 'RETRY', targetPage: '601', color: 'green' },
+        { label: 'INDEX', targetPage: '100', color: 'yellow' }
+      ],
+      meta: {
+        source: 'GamesAdapter',
+        lastUpdated: new Date().toISOString()
+      }
+    };
+  }
+
+  private async getBamboozleWithChoice(choiceStr: string): Promise<TeletextPage> {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    
+    // Generate a new story for next round
+    const newStory = await this.generateBamboozleStory();
+    
+    const choiceIndex = parseInt(choiceStr, 10) - 1;
+    // Use a simple outcome since we don't have the original story
+    const outcomes = [
+      'You find treasure!',
+      'You discover secrets!',
+      'Team finds a city!',
+      'You return safely!'
+    ];
+    const outcome = outcomes[choiceIndex];
+
+    const scenarioLines = this.wrapText(newStory.scenario, 40).slice(0, 2);
+
+    const rows = [
+      `610 Bamboozle Story ${timeStr}         P610`,
+      '════════════════════════════════════════',
+      '',
+      `OUTCOME: ${outcome}`,
+      '',
+      'NEXT STORY:',
+      this.centerText(newStory.title.toUpperCase()),
+      '',
+      ...scenarioLines,
+      '',
+      'WHAT DO YOU DO?',
+      '',
+      `1. ${this.truncateText(newStory.choices[0], 36)}`,
+      `2. ${this.truncateText(newStory.choices[1], 36)}`,
+      `3. ${this.truncateText(newStory.choices[2], 36)}`,
+      `4. ${this.truncateText(newStory.choices[3], 36)}`,
+      '',
+      '',
+      '',
+      'INDEX   GAMES   RELOAD',
+      ''
+    ];
+
+    return {
+      id: '610',
+      title: 'Bamboozle Story Game',
+      rows: this.padRows(rows),
+      links: [
+        { label: 'INDEX', targetPage: '100', color: 'red' },
+        { label: 'GAMES', targetPage: '600', color: 'green' },
+        { label: 'RELOAD', targetPage: '610', color: 'yellow' },
+        { label: '1', targetPage: '610?choice=1', color: undefined },
+        { label: '2', targetPage: '610?choice=2', color: undefined },
+        { label: '3', targetPage: '610?choice=3', color: undefined },
+        { label: '4', targetPage: '610?choice=4', color: undefined }
+      ],
+      meta: {
+        source: 'GamesAdapter',
+        lastUpdated: new Date().toISOString(),
+        inputMode: 'single',
+        inputOptions: ['1', '2', '3', '4'],
+        bamboozleStory: newStory,
+        aiGenerated: true,
+        stayOnPageAfterSubmit: true
+      }
+    };
+  }
+
+  private async getBamboozleAnswerPage(pageId: string, params?: Record<string, any>): Promise<TeletextPage> {
+    // Default fallback story if params not provided
+    const bamboozleStory = params?.bamboozleStory || {
+      title: 'The Mysterious Cave',
+      scenario: 'You discover a hidden cave behind a waterfall.',
+      choices: [
+        'Enter the cave carefully',
+        'Study the symbols first',
+        'Call for backup',
+        'Mark location and leave'
+      ],
+      outcomes: [
+        'You find ancient treasure!',
+        'You decipher a secret message!',
+        'Your team discovers a lost city!',
+        'You return safely with data!'
+      ]
+    };
+
+    const choiceIndex = parseInt(pageId.slice(-1), 10) - 1; // 611 -> index 0, 612 -> index 1, etc.
+    const selectedChoice = bamboozleStory.choices[choiceIndex];
+    const outcome = bamboozleStory.outcomes[choiceIndex];
+
+    const rows = [
+      `STORY OUTCOME                P${pageId}`,
+      '════════════════════════════════════',
+      '',
+      this.centerText(bamboozleStory.title.toUpperCase()),
+      '',
+      'YOUR CHOICE:',
+      ...this.wrapText(selectedChoice, 40).slice(0, 2),
+      '',
+      'OUTCOME:',
+      ...this.wrapText(outcome, 40).slice(0, 3),
+      '',
+      '',
+      'Every choice leads to a different',
+      'adventure!',
+      '',
+      'Reload page 610 for a new story',
+      '',
+      '',
+      '',
+      'GAMES   RETRY   INDEX',
+      ''
+    ];
+
+    return {
+      id: pageId,
+      title: 'Story Outcome',
+      rows: this.padRows(rows),
+      links: [
+        { label: 'GAMES', targetPage: '600', color: 'red' },
+        { label: 'RETRY', targetPage: '610', color: 'green' },
+        { label: 'INDEX', targetPage: '100', color: 'yellow' }
+      ],
+      meta: {
+        source: 'GamesAdapter',
+        lastUpdated: new Date().toISOString()
+      }
+    };
+  }
+
+  private async getWordGameWithAnswer(answerStr: string): Promise<TeletextPage> {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    
+    // Generate a new word game for next round
+    const newWordGame = await this.generateWordGame();
+    
+    const answerIndex = parseInt(answerStr, 10) - 1;
+    const isCorrect = answerIndex === 0; // Correct answer is always at index 0
+
+    const rows = [
+      `630 Anagram Challenge ${timeStr}       P630`,
+      '════════════════════════════════════════',
+      '',
+      isCorrect ? '✓ CORRECT!' : '✗ INCORRECT',
+      isCorrect ? 'Well done!' : 'Try again!',
+      '',
+      'SCRAMBLED WORD:',
+      newWordGame.scrambled,
+      '',
+      `Hint: ${this.truncateText(newWordGame.hint, 34)}`,
+      '',
+      'SELECT YOUR ANSWER:',
+      '',
+      `1. ${this.truncateText(newWordGame.options[0], 36)}`,
+      `2. ${this.truncateText(newWordGame.options[1], 36)}`,
+      `3. ${this.truncateText(newWordGame.options[2], 36)}`,
+      `4. ${this.truncateText(newWordGame.options[3], 36)}`,
+      '',
+      'Press 1-4 to answer',
+      '',
+      'INDEX   GAMES   RELOAD',
+      ''
+    ];
+
+    return {
+      id: '630',
+      title: 'Anagram Challenge',
+      rows: this.padRows(rows),
+      links: [
+        { label: 'INDEX', targetPage: '100', color: 'red' },
+        { label: 'GAMES', targetPage: '600', color: 'green' },
+        { label: 'RELOAD', targetPage: '630', color: 'yellow' },
+        { label: '1', targetPage: '630?answer=1', color: undefined },
+        { label: '2', targetPage: '630?answer=2', color: undefined },
+        { label: '3', targetPage: '630?answer=3', color: undefined },
+        { label: '4', targetPage: '630?answer=4', color: undefined }
+      ],
+      meta: {
+        source: 'GamesAdapter',
+        lastUpdated: new Date().toISOString(),
+        inputMode: 'single',
+        inputOptions: ['1', '2', '3', '4'],
+        wordGame: newWordGame,
+        aiGenerated: true,
+        stayOnPageAfterSubmit: true
+      }
+    };
+  }
+
   private async getWordGameAnswerPage(pageId: string, params?: Record<string, any>): Promise<TeletextPage> {
     const wordGame = params?.wordGame || {
       word: 'TELETEXT',
@@ -693,8 +1017,7 @@ The correct answer must be the first option. Generate a NEW unique puzzle now.`;
       '════════════════════════════════════════',
       '',
       'PROBLEM:',
-      '',
-      this.centerText(mathChallenge.problem),
+      mathChallenge.problem,
       '',
       '',
       'SELECT YOUR ANSWER:',
@@ -722,10 +1045,10 @@ The correct answer must be the first option. Generate a NEW unique puzzle now.`;
         { label: 'INDEX', targetPage: '100', color: 'red' },
         { label: 'GAMES', targetPage: '600', color: 'green' },
         { label: 'WORD', targetPage: '630', color: 'yellow' },
-        { label: '1', targetPage: '641', color: undefined },
-        { label: '2', targetPage: '642', color: undefined },
-        { label: '3', targetPage: '643', color: undefined },
-        { label: '4', targetPage: '644', color: undefined }
+        { label: '1', targetPage: '640?answer=1', color: undefined },
+        { label: '2', targetPage: '640?answer=2', color: undefined },
+        { label: '3', targetPage: '640?answer=3', color: undefined },
+        { label: '4', targetPage: '640?answer=4', color: undefined }
       ],
       meta: {
         source: 'GamesAdapter',
@@ -733,7 +1056,8 @@ The correct answer must be the first option. Generate a NEW unique puzzle now.`;
         inputMode: 'single',
         inputOptions: ['1', '2', '3', '4'],
         mathChallenge: mathChallenge,
-        aiGenerated: true
+        aiGenerated: true,
+        stayOnPageAfterSubmit: true
       }
     };
   }
@@ -843,6 +1167,66 @@ The correct answer must be the first option. Generate a NEW unique problem now.`
         correctIndex: 0
       };
     }
+  }
+
+  private async getMathChallengeWithAnswer(answerStr: string): Promise<TeletextPage> {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    
+    // Generate a new math challenge for next round
+    const newChallenge = await this.generateMathChallenge();
+    
+    const answerIndex = parseInt(answerStr, 10) - 1;
+    const isCorrect = answerIndex === 0; // Correct answer is always at index 0
+
+    const rows = [
+      `640 Math Challenge ${timeStr}          P640`,
+      '════════════════════════════════════════',
+      '',
+      isCorrect ? '✓ CORRECT!' : '✗ INCORRECT',
+      isCorrect ? 'Excellent!' : 'Try again!',
+      '',
+      'PROBLEM:',
+      newChallenge.problem,
+      '',
+      '',
+      'SELECT YOUR ANSWER:',
+      '',
+      `1. ${this.truncateText(newChallenge.options[0], 36)}`,
+      `2. ${this.truncateText(newChallenge.options[1], 36)}`,
+      `3. ${this.truncateText(newChallenge.options[2], 36)}`,
+      `4. ${this.truncateText(newChallenge.options[3], 36)}`,
+      '',
+      'Press 1-4 to answer',
+      '',
+      '',
+      'INDEX   GAMES   RELOAD',
+      ''
+    ];
+
+    return {
+      id: '640',
+      title: 'Math Challenge',
+      rows: this.padRows(rows),
+      links: [
+        { label: 'INDEX', targetPage: '100', color: 'red' },
+        { label: 'GAMES', targetPage: '600', color: 'green' },
+        { label: 'RELOAD', targetPage: '640', color: 'yellow' },
+        { label: '1', targetPage: '640?answer=1', color: undefined },
+        { label: '2', targetPage: '640?answer=2', color: undefined },
+        { label: '3', targetPage: '640?answer=3', color: undefined },
+        { label: '4', targetPage: '640?answer=4', color: undefined }
+      ],
+      meta: {
+        source: 'GamesAdapter',
+        lastUpdated: new Date().toISOString(),
+        inputMode: 'single',
+        inputOptions: ['1', '2', '3', '4'],
+        mathChallenge: newChallenge,
+        aiGenerated: true,
+        stayOnPageAfterSubmit: true
+      }
+    };
   }
 
   private async getMathChallengeAnswerPage(pageId: string, params?: Record<string, any>): Promise<TeletextPage> {
@@ -1055,7 +1439,7 @@ The correct answer must be the first option. Generate a NEW unique problem now.`
     return text.slice(0, maxLength - 3) + '...';
   }
 
-  private centerText(text: string, width: number = 130): string {
+  private centerText(text: string, width: number = 40): string {
     if (text.length >= width) {
       return text.substring(0, width);
     }

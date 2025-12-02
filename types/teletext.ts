@@ -82,6 +82,8 @@ export interface PageMeta {
   topicId?: string;  // Topic ID for Q&A pages
   topicName?: string;  // Topic name for Q&A pages
   customQuestion?: string; // Custom question submitted by user
+  aiChatPage?: boolean; // Flag to indicate AI chat page with special behavior
+  stayOnPageAfterSubmit?: boolean; // Keep user on same page after text input submission
   loading?: boolean;  // Indicates page is showing loading state
   customHints?: string[];   // Custom navigation hints to display in footer
   animatedLogo?: boolean;   // Enable animated logo on page

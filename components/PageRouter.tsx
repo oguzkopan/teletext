@@ -393,16 +393,28 @@ export default function PageRouter({
       const question = inputBuffer.trim();
       console.log(`[PageRouter] Submitting AI question: "${question}"`);
       
-      // Navigate to page 502 with the question as a query parameter
-      // The AIAdapter will handle generating the response
+      // Check if this is the new AI chat page (500) that stays on same page
+      const stayOnPage = currentPage?.meta?.stayOnPageAfterSubmit === true;
+      const currentPageId = currentPage?.id || '500';
+      
+      // Encode question for URL
       const encodedQuestion = encodeURIComponent(question);
-      const pageIdWithQuery = `502?question=${encodedQuestion}`;
+      
+      // Determine target page
+      let targetPage: string;
+      if (stayOnPage && currentPageId === '500') {
+        // Stay on page 500, but reload with question parameter
+        targetPage = `500?question=${encodedQuestion}`;
+      } else {
+        // Legacy behavior: navigate to page 502
+        targetPage = `502?question=${encodedQuestion}`;
+      }
       
       // Clear input buffer
       setInputBuffer('');
       
       // Navigate to the AI answer page
-      await navigateToPage(pageIdWithQuery);
+      await navigateToPage(targetPage);
       
       return;
     }
