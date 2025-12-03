@@ -98,6 +98,7 @@ export interface PageMeta {
   useLayoutManager?: boolean; // Indicates page was already processed by adapter layout helper
   renderedWithLayoutEngine?: boolean; // Indicates page was rendered with the new layout engine
   errorPage?: boolean; // Indicates this is an error page (e.g., 404)
+  snakeGame?: boolean;         // Indicates this page should render the Halloween Snake Game
   wordGame?: any;              // Word game data for anagram challenges
   mathChallenge?: any;         // Math challenge data for number games
   quizQuestion?: any;          // Quiz question data for trivia games

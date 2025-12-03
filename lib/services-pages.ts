@@ -96,6 +96,7 @@ export function createGamesIndexPage(): TeletextPage {
     '{green}620{white} Random Facts & Trivia                {white}Learn something new every time',
     '{green}630{white} Word Games & Puzzles                 {white}Challenge your vocabulary',
     '{green}640{white} Number Challenges                    {white}Math puzzles and brain teasers',
+    '{green}650{white} 🐍 Halloween Snake Game              {white}Guide the ghost snake! (Offline game)',
     '',
     '{cyan}▓▓▓ TODAY\'S FEATURED QUIZ ▓▓▓',
     '{yellow}QUIZ OF THE DAY:{white} Technology & Innovation',

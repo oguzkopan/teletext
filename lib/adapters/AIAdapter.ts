@@ -157,7 +157,7 @@ export class AIAdapter {
       '{magenta}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
       '',
       '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
-      '{cyan}NAVIGATION: {red}RED{white}=BACK TO INDEX • Type another question and press {green}ENTER{white} to continue',
+      '{cyan}NAVIGATION: {yellow}BACK (←){white}=RETURN TO INDEX • Type another question and press {green}ENTER{white} to continue',
       ''
     ];
 
@@ -165,9 +165,7 @@ export class AIAdapter {
       id: '500',
       title: 'AI Oracle Chat',
       rows: this.padRows(rows, 28),
-      links: [
-        { label: 'INDEX', targetPage: '100', color: 'red' }
-      ],
+      links: [],  // No color button links - use back button to avoid conflicts with text input
       meta: {
         source: 'AIAdapter',
         lastUpdated: new Date().toISOString(),

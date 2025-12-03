@@ -101,7 +101,10 @@ export class GamesAdapter {
       ],
       meta: {
         source: 'GamesAdapter',
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
+        fullScreenLayout: true,
+        useLayoutManager: true,
+        renderedWithLayoutEngine: true
       }
     };
   }
@@ -116,30 +119,33 @@ export class GamesAdapter {
     const question = questions[0];
     console.log('[GamesAdapter] Quiz question generated:', question);
     
-    // Limit question to 3 lines max
-    const questionLines = this.wrapText(question.question, 40).slice(0, 3);
-    
     const rows = [
-      `601 Trivia Quiz ${timeStr}             P601`,
-      '════════════════════════════════════════',
+      `{cyan}601 {yellow}📝 QUIZ OF THE DAY 📝 {cyan}${timeStr}                                                                                                                {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
+      `{yellow}║  {cyan}${question.category.toUpperCase()}{yellow}  {white}░▒▓█▓▒░  {green}Test Your Knowledge  {white}░▒▓█▓▒░  {yellow}AI-Generated Question{yellow}                                            ║`,
+      '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
       '',
-      this.centerText(`${question.category.toUpperCase()}`),
+      '{cyan}▓▓▓ TODAY\'S QUESTION ▓▓▓',
       '',
-      ...questionLines,
+      `{yellow}${question.question}`,
       '',
-      'SELECT YOUR ANSWER:',
+      `{green}1.{white} ${this.truncateText(question.options[0], 110)}`,
+      `{green}2.{white} ${this.truncateText(question.options[1], 110)}`,
+      `{green}3.{white} ${this.truncateText(question.options[2], 110)}`,
+      `{green}4.{white} ${this.truncateText(question.options[3], 110)}`,
       '',
-      `1. ${this.truncateText(question.options[0], 36)}`,
-      `2. ${this.truncateText(question.options[1], 36)}`,
-      `3. ${this.truncateText(question.options[2], 36)}`,
-      `4. ${this.truncateText(question.options[3], 36)}`,
+      '{white}Press the number of your answer (1-4)',
       '',
-      'Press 1-4 to answer',
-      'Reload for new question',
-      '',
+      '{cyan}▓▓▓ QUIZ INFO ▓▓▓',
+      `{white}Category:       {green}${question.category}`,
+      '{white}Difficulty:     {green}Medium',
+      '{white}AI Generated:   {green}Yes',
       '',
       '',
-      'INDEX   GAMES   FACTS',
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      '{cyan}NAVIGATION: {red}100{white}=INDEX {green}600{white}=GAMES INDEX {yellow}999{white}=HELP',
       ''
     ];
 
@@ -159,6 +165,9 @@ export class GamesAdapter {
       meta: {
         source: 'GamesAdapter',
         lastUpdated: new Date().toISOString(),
+        fullScreenLayout: true,
+        useLayoutManager: true,
+        renderedWithLayoutEngine: true,
         inputMode: 'single',
         inputOptions: ['1', '2', '3', '4'],
         quizQuestion: question,
@@ -177,31 +186,34 @@ export class GamesAdapter {
     const story = await this.generateBamboozleStory();
     console.log('[GamesAdapter] Story generated:', story.title);
     
-    // Limit scenario to 2 lines max
-    const scenarioLines = this.wrapText(story.scenario, 40).slice(0, 2);
-    
     const rows = [
-      `610 Bamboozle Story ${timeStr}         P610`,
-      '════════════════════════════════════════',
+      `{cyan}610 {yellow}🎯 BAMBOOZLE QUIZ GAME 🎯 {cyan}${timeStr}                                                                                                            {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
+      '{yellow}║  {red}SPOT THE FAKE!{yellow}  {white}░▒▓█▓▒░  {cyan}One Answer is False  {white}░▒▓█▓▒░  {green}AI-Generated Story{yellow}                                              ║',
+      '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
       '',
-      this.centerText(story.title.toUpperCase()),
+      `{cyan}▓▓▓ ${story.title.toUpperCase()} ▓▓▓`,
       '',
-      ...scenarioLines,
+      `{white}${story.scenario}`,
       '',
-      'WHAT DO YOU DO?',
+      '{yellow}WHAT DO YOU DO?',
       '',
-      `1. ${this.truncateText(story.choices[0], 36)}`,
-      `2. ${this.truncateText(story.choices[1], 36)}`,
-      `3. ${this.truncateText(story.choices[2], 36)}`,
-      `4. ${this.truncateText(story.choices[3], 36)}`,
+      `{green}1.{white} ${this.truncateText(story.choices[0], 110)}`,
+      `{green}2.{white} ${this.truncateText(story.choices[1], 110)}`,
+      `{green}3.{white} ${this.truncateText(story.choices[2], 110)}`,
+      `{green}4.{white} ${this.truncateText(story.choices[3], 110)}`,
       '',
-      'Press 1-4 to choose',
-      'Reload for new story',
+      '{white}Press the number of your choice (1-4)',
+      '',
+      '{cyan}▓▓▓ GAME INFO ▓▓▓',
+      '{white}Story Type:     {green}Interactive Adventure',
+      '{white}AI Generated:   {green}Yes',
       '',
       '',
-      '',
-      '',
-      'INDEX   GAMES   FACTS',
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      '{cyan}NAVIGATION: {red}100{white}=INDEX {green}600{white}=GAMES INDEX {yellow}999{white}=HELP',
       ''
     ];
 
@@ -221,6 +233,9 @@ export class GamesAdapter {
       meta: {
         source: 'GamesAdapter',
         lastUpdated: new Date().toISOString(),
+        fullScreenLayout: true,
+        useLayoutManager: true,
+        renderedWithLayoutEngine: true,
         inputMode: 'single',
         inputOptions: ['1', '2', '3', '4'],
         bamboozleStory: story,
@@ -311,26 +326,32 @@ Return ONLY a valid JSON object:
     const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
     const fact = this.getCuratedRandomFact();
     
-    // Limit fact to 10 lines max
-    const factLines = this.wrapText(fact.text, 40).slice(0, 10);
-    
     const rows = [
-      `620 Random Fact ${timeStr}             P620`,
-      '════════════════════════════════════════',
+      `{cyan}620 {yellow}💡 RANDOM FACTS & TRIVIA 💡 {cyan}${timeStr}                                                                                                          {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
+      '{yellow}║  {cyan}DID YOU KNOW?{yellow}  {white}░▒▓█▓▒░  {green}Fascinating Facts  {white}░▒▓█▓▒░  {magenta}Learn Something New{yellow}                                              ║',
+      '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
       '',
-      `Category: ${fact.category}`,
+      '{cyan}▓▓▓ FACT OF THE MOMENT ▓▓▓',
       '',
-      ...factLines,
+      '{yellow}Amazing Discovery:',
+      `{white}${fact.text}`,
+      '',
+      '{cyan}▓▓▓ FACT INFO ▓▓▓',
+      `{white}Category:       {green}${fact.category}`,
+      '{white}Source:         {green}Curated Collection',
+      '',
+      '{white}Reload this page for a different random fact!',
       '',
       '',
       '',
-      'Reload for different fact',
       '',
       '',
       '',
-      '',
-      '',
-      'INDEX   GAMES   WORD   MATH',
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      '{cyan}NAVIGATION: {red}100{white}=INDEX {green}600{white}=GAMES INDEX {yellow}601{white}=QUIZ {blue}610{white}=BAMBOOZLE',
       ''
     ];
 
@@ -346,7 +367,10 @@ Return ONLY a valid JSON object:
       ],
       meta: {
         source: 'GamesAdapter',
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
+        fullScreenLayout: true,
+        useLayoutManager: true,
+        renderedWithLayoutEngine: true
       }
     };
   }
@@ -361,28 +385,34 @@ Return ONLY a valid JSON object:
     console.log('[GamesAdapter] Word game generated:', wordGame);
 
     const rows = [
-      `630 Anagram Challenge ${timeStr}       P630`,
-      '════════════════════════════════════════',
+      `{cyan}630 {yellow}🔤 ANAGRAM CHALLENGE 🔤 {cyan}${timeStr}                                                                                                                {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
+      '{yellow}║  {cyan}WORD PUZZLES{yellow}  {white}░▒▓█▓▒░  {green}Unscramble the Letters  {white}░▒▓█▓▒░  {magenta}AI-Generated Puzzle{yellow}                                          ║',
+      '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
       '',
-      'SCRAMBLED WORD:',
-      this.centerText(wordGame.scrambled),
+      '{cyan}▓▓▓ UNSCRAMBLE THE WORD ▓▓▓',
       '',
-      `Hint: ${this.truncateText(wordGame.hint, 34)}`,
+      `{white}Scrambled Word: {yellow}${wordGame.scrambled}`,
       '',
-      'SELECT YOUR ANSWER:',
+      `{white}Hint: {cyan}${this.truncateText(wordGame.hint, 100)}`,
       '',
-      `1. ${this.truncateText(wordGame.options[0], 36)}`,
-      `2. ${this.truncateText(wordGame.options[1], 36)}`,
-      `3. ${this.truncateText(wordGame.options[2], 36)}`,
-      `4. ${this.truncateText(wordGame.options[3], 36)}`,
+      '{white}What is the correct word?',
       '',
-      'Press 1-4 to answer',
-      'Reload for new puzzle',
-      'AI-generated content',
+      `{green}1.{white} ${this.truncateText(wordGame.options[0], 110)}`,
+      `{green}2.{white} ${this.truncateText(wordGame.options[1], 110)}`,
+      `{green}3.{white} ${this.truncateText(wordGame.options[2], 110)}`,
+      `{green}4.{white} ${this.truncateText(wordGame.options[3], 110)}`,
       '',
+      '{white}Press the number of your answer (1-4)',
       '',
+      '{cyan}▓▓▓ GAME INFO ▓▓▓',
+      '{white}Puzzle Type:    {green}Anagram',
+      '{white}AI Generated:   {green}Yes',
       '',
-      'INDEX   GAMES   MATH',
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      '{cyan}NAVIGATION: Press {yellow}1-4{white} for answer • {red}RED{white}=GAMES {green}GREEN{white}=INDEX {yellow}YELLOW{white}=QUIZ {blue}BLUE{white}=TRIVIA',
       ''
     ];
 
@@ -402,6 +432,9 @@ Return ONLY a valid JSON object:
       meta: {
         source: 'GamesAdapter',
         lastUpdated: new Date().toISOString(),
+        fullScreenLayout: true,
+        useLayoutManager: true,
+        renderedWithLayoutEngine: true,
         inputMode: 'single',
         inputOptions: ['1', '2', '3', '4'],
         wordGame: wordGame,
@@ -651,30 +684,34 @@ The correct answer must be the first option. Generate a NEW unique puzzle now.`;
     const answerIndex = parseInt(answerStr, 10) - 1;
     const isCorrect = answerIndex === 0; // Assuming correct answer is always first
 
-    // Limit question to 2 lines
-    const questionLines = this.wrapText(newQuestion.question, 40).slice(0, 2);
-
     const rows = [
-      `601 Trivia Quiz ${timeStr}             P601`,
-      '════════════════════════════════════════',
+      `{cyan}601 {yellow}📝 QUIZ OF THE DAY 📝 {cyan}${timeStr}                                                                                                                {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
+      `{yellow}║  {cyan}${newQuestion.category.toUpperCase()}{yellow}  {white}░▒▓█▓▒░  {green}Test Your Knowledge  {white}░▒▓█▓▒░  {yellow}AI-Generated Question{yellow}                                            ║`,
+      '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
       '',
-      isCorrect ? '✓ CORRECT!' : '✗ INCORRECT',
-      isCorrect ? 'Excellent!' : 'Keep trying!',
+      isCorrect ? '{green}✓ CORRECT! Excellent!' : '{red}✗ INCORRECT - Keep trying!',
       '',
-      'NEXT QUESTION:',
-      ...questionLines,
+      '{cyan}▓▓▓ NEXT QUESTION ▓▓▓',
       '',
-      `1. ${this.truncateText(newQuestion.options[0], 36)}`,
-      `2. ${this.truncateText(newQuestion.options[1], 36)}`,
-      `3. ${this.truncateText(newQuestion.options[2], 36)}`,
-      `4. ${this.truncateText(newQuestion.options[3], 36)}`,
+      `{yellow}${newQuestion.question}`,
       '',
-      'Press 1-4 to answer',
+      `{green}1.{white} ${this.truncateText(newQuestion.options[0], 110)}`,
+      `{green}2.{white} ${this.truncateText(newQuestion.options[1], 110)}`,
+      `{green}3.{white} ${this.truncateText(newQuestion.options[2], 110)}`,
+      `{green}4.{white} ${this.truncateText(newQuestion.options[3], 110)}`,
       '',
+      '{white}Press the number of your answer (1-4)',
       '',
+      '{cyan}▓▓▓ QUIZ INFO ▓▓▓',
+      `{white}Category:       {green}${newQuestion.category}`,
+      '{white}Difficulty:     {green}Medium',
+      '{white}AI Generated:   {green}Yes',
       '',
-      '',
-      'INDEX   GAMES   RELOAD',
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      '{cyan}NAVIGATION: {red}100{white}=INDEX {green}600{white}=GAMES INDEX {yellow}999{white}=HELP',
       ''
     ];
 
@@ -694,6 +731,9 @@ The correct answer must be the first option. Generate a NEW unique puzzle now.`;
       meta: {
         source: 'GamesAdapter',
         lastUpdated: new Date().toISOString(),
+        fullScreenLayout: true,
+        useLayoutManager: true,
+        renderedWithLayoutEngine: true,
         inputMode: 'single',
         inputOptions: ['1', '2', '3', '4'],
         quizQuestion: newQuestion,
@@ -775,29 +815,36 @@ The correct answer must be the first option. Generate a NEW unique puzzle now.`;
     ];
     const outcome = outcomes[choiceIndex];
 
-    const scenarioLines = this.wrapText(newStory.scenario, 40).slice(0, 2);
-
     const rows = [
-      `610 Bamboozle Story ${timeStr}         P610`,
-      '════════════════════════════════════════',
+      `{cyan}610 {yellow}🎯 BAMBOOZLE QUIZ GAME 🎯 {cyan}${timeStr}                                                                                                            {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
+      '{yellow}║  {red}SPOT THE FAKE!{yellow}  {white}░▒▓█▓▒░  {cyan}One Answer is False  {white}░▒▓█▓▒░  {green}AI-Generated Story{yellow}                                              ║',
+      '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
       '',
-      `OUTCOME: ${outcome}`,
+      `{green}✓ OUTCOME: {white}${outcome}`,
       '',
-      'NEXT STORY:',
-      this.centerText(newStory.title.toUpperCase()),
+      '{cyan}▓▓▓ NEXT STORY ▓▓▓',
+      `{yellow}${newStory.title.toUpperCase()}`,
       '',
-      ...scenarioLines,
+      `{white}${newStory.scenario}`,
       '',
-      'WHAT DO YOU DO?',
+      '{yellow}WHAT DO YOU DO?',
       '',
-      `1. ${this.truncateText(newStory.choices[0], 36)}`,
-      `2. ${this.truncateText(newStory.choices[1], 36)}`,
-      `3. ${this.truncateText(newStory.choices[2], 36)}`,
-      `4. ${this.truncateText(newStory.choices[3], 36)}`,
+      `{green}1.{white} ${this.truncateText(newStory.choices[0], 110)}`,
+      `{green}2.{white} ${this.truncateText(newStory.choices[1], 110)}`,
+      `{green}3.{white} ${this.truncateText(newStory.choices[2], 110)}`,
+      `{green}4.{white} ${this.truncateText(newStory.choices[3], 110)}`,
       '',
+      '{white}Press the number of your choice (1-4)',
       '',
+      '{cyan}▓▓▓ GAME INFO ▓▓▓',
+      '{white}Story Type:     {green}Interactive Adventure',
+      '{white}AI Generated:   {green}Yes',
       '',
-      'INDEX   GAMES   RELOAD',
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      '{cyan}NAVIGATION: {red}100{white}=INDEX {green}600{white}=GAMES INDEX {yellow}999{white}=HELP',
       ''
     ];
 
@@ -817,6 +864,9 @@ The correct answer must be the first option. Generate a NEW unique puzzle now.`;
       meta: {
         source: 'GamesAdapter',
         lastUpdated: new Date().toISOString(),
+        fullScreenLayout: true,
+        useLayoutManager: true,
+        renderedWithLayoutEngine: true,
         inputMode: 'single',
         inputOptions: ['1', '2', '3', '4'],
         bamboozleStory: newStory,
@@ -900,27 +950,36 @@ The correct answer must be the first option. Generate a NEW unique puzzle now.`;
     const isCorrect = answerIndex === 0; // Correct answer is always at index 0
 
     const rows = [
-      `630 Anagram Challenge ${timeStr}       P630`,
-      '════════════════════════════════════════',
+      `{cyan}630 {yellow}🔤 ANAGRAM CHALLENGE 🔤 {cyan}${timeStr}                                                                                                                {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
+      '{yellow}║  {cyan}WORD PUZZLES{yellow}  {white}░▒▓█▓▒░  {green}Unscramble the Letters  {white}░▒▓█▓▒░  {magenta}AI-Generated Puzzle{yellow}                                          ║',
+      '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
       '',
-      isCorrect ? '✓ CORRECT!' : '✗ INCORRECT',
-      isCorrect ? 'Well done!' : 'Try again!',
+      isCorrect ? '{green}✓ CORRECT! Well done!' : '{red}✗ INCORRECT - Try again!',
       '',
-      'SCRAMBLED WORD:',
-      newWordGame.scrambled,
+      '{cyan}▓▓▓ NEXT PUZZLE ▓▓▓',
       '',
-      `Hint: ${this.truncateText(newWordGame.hint, 34)}`,
+      `{white}Scrambled Word: {yellow}${newWordGame.scrambled}`,
       '',
-      'SELECT YOUR ANSWER:',
+      `{white}Hint: {cyan}${this.truncateText(newWordGame.hint, 100)}`,
       '',
-      `1. ${this.truncateText(newWordGame.options[0], 36)}`,
-      `2. ${this.truncateText(newWordGame.options[1], 36)}`,
-      `3. ${this.truncateText(newWordGame.options[2], 36)}`,
-      `4. ${this.truncateText(newWordGame.options[3], 36)}`,
+      '{white}What is the correct word?',
       '',
-      'Press 1-4 to answer',
+      `{green}1.{white} ${this.truncateText(newWordGame.options[0], 110)}`,
+      `{green}2.{white} ${this.truncateText(newWordGame.options[1], 110)}`,
+      `{green}3.{white} ${this.truncateText(newWordGame.options[2], 110)}`,
+      `{green}4.{white} ${this.truncateText(newWordGame.options[3], 110)}`,
       '',
-      'INDEX   GAMES   RELOAD',
+      '{white}Press the number of your answer (1-4)',
+      '',
+      '{cyan}▓▓▓ GAME INFO ▓▓▓',
+      '{white}Puzzle Type:    {green}Anagram',
+      '{white}AI Generated:   {green}Yes',
+      '',
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      '{cyan}NAVIGATION: Press {yellow}1-4{white} for answer • {red}RED{white}=GAMES {green}GREEN{white}=INDEX {yellow}YELLOW{white}=QUIZ {blue}BLUE{white}=TRIVIA',
       ''
     ];
 
@@ -940,6 +999,9 @@ The correct answer must be the first option. Generate a NEW unique puzzle now.`;
       meta: {
         source: 'GamesAdapter',
         lastUpdated: new Date().toISOString(),
+        fullScreenLayout: true,
+        useLayoutManager: true,
+        renderedWithLayoutEngine: true,
         inputMode: 'single',
         inputOptions: ['1', '2', '3', '4'],
         wordGame: newWordGame,
@@ -1013,27 +1075,34 @@ The correct answer must be the first option. Generate a NEW unique puzzle now.`;
     console.log('[GamesAdapter] Math challenge generated:', mathChallenge);
 
     const rows = [
-      `640 Math Challenge ${timeStr}          P640`,
-      '════════════════════════════════════════',
+      `{cyan}640 {yellow}🔢 MATH CHALLENGE 🔢 {cyan}${timeStr}                                                                                                                   {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
+      '{yellow}║  {green}NUMBER PUZZLES{yellow}  {white}░▒▓█▓▒░  {cyan}Quick Calculations  {white}░▒▓█▓▒░  {red}AI-Generated Challenge{yellow}                                          ║',
+      '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
       '',
-      'PROBLEM:',
-      mathChallenge.problem,
+      '{cyan}▓▓▓ QUICK CALCULATION ▓▓▓',
       '',
+      '{white}Solve this math problem:',
       '',
-      'SELECT YOUR ANSWER:',
+      `{yellow}        ${mathChallenge.problem}`,
       '',
-      `1. ${this.truncateText(mathChallenge.options[0], 36)}`,
-      `2. ${this.truncateText(mathChallenge.options[1], 36)}`,
-      `3. ${this.truncateText(mathChallenge.options[2], 36)}`,
-      `4. ${this.truncateText(mathChallenge.options[3], 36)}`,
+      '{white}What is the answer?',
       '',
-      'Press 1-4 to answer',
-      'Reload for new problem',
-      'AI-generated content',
+      `{green}1.{white} ${this.truncateText(mathChallenge.options[0], 110)}`,
+      `{green}2.{white} ${this.truncateText(mathChallenge.options[1], 110)}`,
+      `{green}3.{white} ${this.truncateText(mathChallenge.options[2], 110)}`,
+      `{green}4.{white} ${this.truncateText(mathChallenge.options[3], 110)}`,
       '',
+      '{white}Press the number of your answer (1-4)',
       '',
+      '{cyan}▓▓▓ CHALLENGE INFO ▓▓▓',
+      '{white}Difficulty:     {green}Medium',
+      '{white}AI Generated:   {green}Yes',
       '',
-      'INDEX   GAMES   WORD',
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      '{cyan}NAVIGATION: Press {yellow}1-4{white} for answer • {red}RED{white}=GAMES {green}GREEN{white}=INDEX {yellow}YELLOW{white}=QUIZ {blue}BLUE{white}=WORD',
       ''
     ];
 
@@ -1053,6 +1122,9 @@ The correct answer must be the first option. Generate a NEW unique puzzle now.`;
       meta: {
         source: 'GamesAdapter',
         lastUpdated: new Date().toISOString(),
+        fullScreenLayout: true,
+        useLayoutManager: true,
+        renderedWithLayoutEngine: true,
         inputMode: 'single',
         inputOptions: ['1', '2', '3', '4'],
         mathChallenge: mathChallenge,
@@ -1180,27 +1252,36 @@ The correct answer must be the first option. Generate a NEW unique problem now.`
     const isCorrect = answerIndex === 0; // Correct answer is always at index 0
 
     const rows = [
-      `640 Math Challenge ${timeStr}          P640`,
-      '════════════════════════════════════════',
+      `{cyan}640 {yellow}🔢 MATH CHALLENGE 🔢 {cyan}${timeStr}                                                                                                                   {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
+      '{yellow}║  {green}NUMBER PUZZLES{yellow}  {white}░▒▓█▓▒░  {cyan}Quick Calculations  {white}░▒▓█▓▒░  {red}AI-Generated Challenge{yellow}                                          ║',
+      '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
       '',
-      isCorrect ? '✓ CORRECT!' : '✗ INCORRECT',
-      isCorrect ? 'Excellent!' : 'Try again!',
+      isCorrect ? '{green}✓ CORRECT! Excellent!' : '{red}✗ INCORRECT - Try again!',
       '',
-      'PROBLEM:',
-      newChallenge.problem,
+      '{cyan}▓▓▓ NEXT PROBLEM ▓▓▓',
       '',
+      '{white}Solve this math problem:',
       '',
-      'SELECT YOUR ANSWER:',
+      `{yellow}        ${newChallenge.problem}`,
       '',
-      `1. ${this.truncateText(newChallenge.options[0], 36)}`,
-      `2. ${this.truncateText(newChallenge.options[1], 36)}`,
-      `3. ${this.truncateText(newChallenge.options[2], 36)}`,
-      `4. ${this.truncateText(newChallenge.options[3], 36)}`,
+      '{white}What is the answer?',
       '',
-      'Press 1-4 to answer',
+      `{green}1.{white} ${this.truncateText(newChallenge.options[0], 110)}`,
+      `{green}2.{white} ${this.truncateText(newChallenge.options[1], 110)}`,
+      `{green}3.{white} ${this.truncateText(newChallenge.options[2], 110)}`,
+      `{green}4.{white} ${this.truncateText(newChallenge.options[3], 110)}`,
       '',
+      '{white}Press the number of your answer (1-4)',
       '',
-      'INDEX   GAMES   RELOAD',
+      '{cyan}▓▓▓ CHALLENGE INFO ▓▓▓',
+      '{white}Difficulty:     {green}Medium',
+      '{white}AI Generated:   {green}Yes',
+      '',
+      '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+      '{cyan}NAVIGATION: Press {yellow}1-4{white} for answer • {red}RED{white}=GAMES {green}GREEN{white}=INDEX {yellow}YELLOW{white}=QUIZ {blue}BLUE{white}=WORD',
       ''
     ];
 
@@ -1220,6 +1301,9 @@ The correct answer must be the first option. Generate a NEW unique problem now.`
       meta: {
         source: 'GamesAdapter',
         lastUpdated: new Date().toISOString(),
+        fullScreenLayout: true,
+        useLayoutManager: true,
+        renderedWithLayoutEngine: true,
         inputMode: 'single',
         inputOptions: ['1', '2', '3', '4'],
         mathChallenge: newChallenge,
@@ -1475,17 +1559,8 @@ The correct answer must be the first option. Generate a NEW unique problem now.`
   }
 
   private padRows(rows: string[]): string[] {
-    const paddedRows = rows.map(row => {
-      if (row.length > 40) {
-        return row.substring(0, 40);
-      }
-      return row.padEnd(40, ' ');
-    });
-
-    while (paddedRows.length < 24) {
-      paddedRows.push(''.padEnd(40, ' '));
-    }
-
-    return paddedRows.slice(0, 24);
+    // For fullScreenLayout pages, don't truncate - let the layout engine handle it
+    // Just return the rows as-is, the layout engine will wrap and format them
+    return rows;
   }
 }

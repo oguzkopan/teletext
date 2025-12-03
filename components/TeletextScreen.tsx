@@ -7,6 +7,10 @@ import { useAITypingAnimation } from '@/hooks/useAITypingAnimation';
 import { getInteractiveElementStyles } from '@/lib/interactive-element-highlighting';
 import { useLoadingTextRotation } from '@/hooks/useLoadingTextRotation';
 import { useAnimationSettingsPage } from './AnimationSettingsPage';
+import dynamic from 'next/dynamic';
+
+// Dynamically import the snake game to avoid SSR issues
+const HalloweenSnakeGame = dynamic(() => import('./HalloweenSnakeGame'), { ssr: false });
 
 interface TeletextScreenProps {
   page: TeletextPage;
@@ -602,7 +606,11 @@ const TeletextScreen = React.memo(function TeletextScreen({
         justifyContent: 'flex-start',
         gap: '0.5vh'
       }}>
-        {!loading && renderedRows}
+        {!loading && displayPage.meta?.snakeGame ? (
+          <HalloweenSnakeGame />
+        ) : (
+          !loading && renderedRows
+        )}
       </div>
       
       <style jsx>{`

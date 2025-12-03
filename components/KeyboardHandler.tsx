@@ -25,6 +25,25 @@ export default function KeyboardHandler({ routerState }: KeyboardHandlerProps) {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Check if we're on the snake game page (650)
+      const isSnakeGamePage = routerState.currentPage?.id === '650' && 
+                             routerState.currentPage?.meta?.snakeGame;
+      
+      // On snake game page, only let navigation keys (color buttons, digits, backspace) pass through
+      // Let the game component handle arrow keys, WASD, space, enter, and S
+      if (isSnakeGamePage) {
+        const navigationKeys = ['r', 'R', 'g', 'G', 'y', 'Y', 'b', 'B', 'Backspace'];
+        const digitKeys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        
+        // Allow color buttons, digit keys, and backspace for page navigation
+        if (navigationKeys.includes(e.key) || digitKeys.includes(e.key)) {
+          // Let these pass through to navigation handler below
+        } else {
+          // Block all other keys - let game handle them
+          return;
+        }
+      }
+
       // Check if we're on page 700 (theme selection page)
       const isThemeSelectionPage = routerState.currentPage?.id === '700' && 
                                    routerState.currentPage?.meta?.themeSelectionPage;
@@ -187,16 +206,28 @@ export default function KeyboardHandler({ routerState }: KeyboardHandlerProps) {
           return;
         }
         
+        // Arrow Left - allow back navigation even in text input mode
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          routerState.handleNavigate('back');
+          return;
+        }
+        
         // Enter key - submit text input
         if (e.key === 'Enter') {
           e.preventDefault();
           routerState.handleEnter();
           return;
         }
-        // Backspace - remove last character
+        // Backspace - remove last character (only if there's text in buffer)
         else if (e.key === 'Backspace') {
           e.preventDefault();
-          routerState.handleBackspace?.();
+          // If buffer is empty, navigate back; otherwise remove last character
+          if (routerState.inputBuffer.length === 0) {
+            routerState.handleNavigate('back');
+          } else {
+            routerState.handleBackspace?.();
+          }
           return;
         }
         // Accept all printable characters (letters, numbers, symbols, spaces)

@@ -26,6 +26,7 @@ import {
 import { createCursedPage, createCursedPageVariant } from './cursed-page';
 import { createEnhancedCursedPage } from './cursed-page-enhanced';
 import { createRadioListingsPage } from './radio-pages';
+import { createSnakeGamePage, createSnakeGamePlayPage } from './snake-game-page';
 import {
   createCurrencyExchangePage,
   createLotteryResultsPage,
@@ -74,6 +75,8 @@ pageRegistry.set('501', createAIChatPage);
 
 // Games pages (6xx)
 pageRegistry.set('600', createGamesIndexPage);
+pageRegistry.set('650', createSnakeGamePage); // Halloween Snake Game
+pageRegistry.set('650-play', createSnakeGamePlayPage); // Snake Game Play Page
 // Pages 601, 610, 620, 630, 640 are now handled by Firebase Functions GamesAdapter
 // This allows them to use real-time AI generation instead of static mock data
 // The GamesAdapter provides:
