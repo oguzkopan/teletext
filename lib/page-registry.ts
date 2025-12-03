@@ -30,6 +30,7 @@ import {
   createCurrencyExchangePage,
   createLotteryResultsPage,
   createHoroscopesPage,
+  createHoroscopesPage2,
   createFlightInfoPage,
   createHotelBookingsPage,
   createRestaurantReviewsPage,
@@ -110,7 +111,8 @@ pageRegistry.set('423', () => createComingSoonPage('423', 'Tokyo Weather', 'Weat
 // Additional Services pages (4xx)
 pageRegistry.set('450', createCurrencyExchangePage); // Currency Exchange Rates
 pageRegistry.set('451', createLotteryResultsPage); // Lottery Results
-pageRegistry.set('452', createHoroscopesPage); // Horoscopes & Astrology
+pageRegistry.set('452', createHoroscopesPage); // Horoscopes & Astrology (Part 1)
+pageRegistry.set('453', createHoroscopesPage2); // Horoscopes & Astrology (Part 2)
 pageRegistry.set('460', createFlightInfoPage); // Flight Information
 pageRegistry.set('461', createHotelBookingsPage); // Hotel Bookings
 pageRegistry.set('462', createRestaurantReviewsPage); // Restaurant Reviews

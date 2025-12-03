@@ -49,6 +49,11 @@ export class InputContextManager {
       return page.meta.inputMode;
     }
 
+    // Priority 2: Check if this is an error page (disable all input)
+    if (page.meta?.errorPage) {
+      return 'disabled';
+    }
+
     // Priority 2: Determine from page type and content
     const pageNumber = parseInt(page.id.split('-')[0], 10);
 
@@ -160,6 +165,16 @@ export class InputContextManager {
           autoSubmit: false
         };
 
+      case 'disabled':
+        return {
+          mode: 'disabled',
+          maxLength: 0,
+          allowedCharacters: /(?!)/,  // Never matches anything
+          validationRules: ['Input disabled on this page'],
+          hint: 'Press back button to return',
+          autoSubmit: false
+        };
+
       default:
         return {
           mode: 'triple',
@@ -183,6 +198,15 @@ export class InputContextManager {
   ): InputValidationResult {
     const context = this.getInputContext(page);
     const mode = context.mode;
+
+    // Check for disabled mode first
+    if (mode === 'disabled') {
+      return {
+        valid: false,
+        error: 'Input is disabled on this page',
+        hint: 'Press back button to return'
+      };
+    }
 
     // Empty input check
     if (input.length === 0) {
@@ -215,6 +239,13 @@ export class InputContextManager {
 
       case 'text':
         return this.validateText(input);
+
+      case 'disabled':
+        return {
+          valid: false,
+          error: 'Input is disabled on this page',
+          hint: 'Press back button to return'
+        };
 
       default:
         return {

@@ -102,6 +102,11 @@ export class InputHandler {
 
     const inputMode = this.contextManager.detectInputMode(currentPage);
     
+    // Block all input if disabled
+    if (inputMode === 'disabled') {
+      return;
+    }
+    
     // Only accept text input in text mode
     if (inputMode !== 'text') {
       return;
@@ -142,6 +147,12 @@ export class InputHandler {
     this.updateInputMode();
 
     const inputMode = this.contextManager.detectInputMode(currentPage);
+    
+    // Block all input if disabled
+    if (inputMode === 'disabled') {
+      return;
+    }
+    
     const digitStr = digit.toString();
 
     // For text mode, add digit to buffer
@@ -235,6 +246,18 @@ export class InputHandler {
    * Requirement: 4.7, 7.4
    */
   public removeLastDigit(): void {
+    const currentPage = this.navigationRouter.getCurrentPage();
+    if (!currentPage) {
+      return;
+    }
+
+    const inputMode = this.contextManager.detectInputMode(currentPage);
+    
+    // Block all input if disabled
+    if (inputMode === 'disabled') {
+      return;
+    }
+    
     if (this.inputBuffer.length > 0) {
       this.inputBuffer = this.inputBuffer.slice(0, -1);
       this.notifyBufferChange(this.inputBuffer);
@@ -386,6 +409,12 @@ export class InputHandler {
     }
 
     const inputMode = this.contextManager.detectInputMode(currentPage);
+
+    // Block all input if disabled (error pages)
+    if (inputMode === 'disabled') {
+      event.preventDefault();
+      return;
+    }
 
     // Handle enter key (submit)
     if (key === 'Enter') {

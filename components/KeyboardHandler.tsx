@@ -40,6 +40,29 @@ export default function KeyboardHandler({ routerState }: KeyboardHandlerProps) {
       // Check if we're in text input mode (for AI Q&A pages)
       const isTextInputMode = routerState.currentPage?.meta?.inputMode === 'text';
 
+      // Check if input is disabled (for error pages)
+      const isInputDisabled = routerState.currentPage?.meta?.inputMode === 'disabled' ||
+                             routerState.currentPage?.meta?.errorPage;
+
+      // If input is disabled (error pages), only allow back button and Enter for retry
+      if (isInputDisabled) {
+        // Allow back button (arrow left or backspace)
+        if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
+          e.preventDefault();
+          routerState.handleNavigate('back');
+          return;
+        }
+        // Allow Enter key for retry action (if specified in error page)
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          routerState.handleEnter();
+          return;
+        }
+        // Block all other keys
+        e.preventDefault();
+        return;
+      }
+
       // On page 700, handle theme selection with number keys 1-4
       // Requirement: 37.1, 37.2
       if (isThemeSelectionPage && e.key >= '1' && e.key <= '4') {
@@ -125,27 +148,32 @@ export default function KeyboardHandler({ routerState }: KeyboardHandlerProps) {
       // Text input mode - accept all printable characters
       // Requirements: 1.1, 1.2, 4.1, 4.2, 4.5
       if (isTextInputMode) {
-        // IMPORTANT: Handle colored buttons FIRST (for navigation)
-        // Color buttons (R, G, Y, B) should work even in text input mode
-        if (e.key.toLowerCase() === 'r') {
-          e.preventDefault();
-          routerState.handleColorButton('red');
-          return;
-        }
-        else if (e.key.toLowerCase() === 'g') {
-          e.preventDefault();
-          routerState.handleColorButton('green');
-          return;
-        }
-        else if (e.key.toLowerCase() === 'y') {
-          e.preventDefault();
-          routerState.handleColorButton('yellow');
-          return;
-        }
-        else if (e.key.toLowerCase() === 'b') {
-          e.preventDefault();
-          routerState.handleColorButton('blue');
-          return;
+        // Check if page has color button links defined
+        const hasColorLinks = routerState.currentPage?.links && routerState.currentPage.links.length > 0;
+        
+        // Only handle color buttons if the page has color button links
+        // This allows typing R, G, Y, B freely on pages without color button navigation
+        if (hasColorLinks) {
+          if (e.key.toLowerCase() === 'r') {
+            e.preventDefault();
+            routerState.handleColorButton('red');
+            return;
+          }
+          else if (e.key.toLowerCase() === 'g') {
+            e.preventDefault();
+            routerState.handleColorButton('green');
+            return;
+          }
+          else if (e.key.toLowerCase() === 'y') {
+            e.preventDefault();
+            routerState.handleColorButton('yellow');
+            return;
+          }
+          else if (e.key.toLowerCase() === 'b') {
+            e.preventDefault();
+            routerState.handleColorButton('blue');
+            return;
+          }
         }
         
         // Check if this digit is a single-digit shortcut (e.g., 1-6 on page 501)

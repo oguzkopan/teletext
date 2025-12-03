@@ -116,7 +116,8 @@ export function createErrorPage(options: ErrorPageOptions): TeletextPage {
     meta: {
       source: 'error-handler',
       lastUpdated: new Date().toISOString(),
-      inputMode: 'triple'
+      inputMode: 'disabled',
+      errorPage: true
     }
   };
 }

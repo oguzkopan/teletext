@@ -132,7 +132,7 @@ export function createLotteryResultsPage(): TeletextPage {
 }
 
 /**
- * Creates page 452 - Horoscopes & Astrology
+ * Creates page 452 - Horoscopes & Astrology (Part 1)
  */
 export function createHoroscopesPage(): TeletextPage {
   const now = new Date();
@@ -140,46 +140,142 @@ export function createHoroscopesPage(): TeletextPage {
     hour: '2-digit', 
     minute: '2-digit'
   });
+  const dateStr = now.toLocaleDateString('en-GB', { 
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
   
   const rows = [
-    `{cyan}452 {yellow}⭐ HOROSCOPES & ASTROLOGY ⭐ {cyan}${timeStr}                                                                                                        {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+    `{cyan}452 {yellow}⭐ DAILY HOROSCOPES ⭐ {cyan}${timeStr}                                                                                                              {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+    '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+    '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
+    `{yellow}║  {cyan}${dateStr.padEnd(100)}{yellow}                                                                                                  ║`,
+    '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
     '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
     '',
-    '{cyan}▓▓▓ TODAY\'S HOROSCOPES ▓▓▓',
-    '{white}Wednesday, December 3, 2025',
+    '{yellow}♈ ARIES {cyan}(March 21 - April 19)',
+    '{white}Today brings exciting new opportunities in your career. A bold',
+    '{white}decision could lead to unexpected rewards. Trust your instincts',
+    '{white}and take that leap of faith. {green}Lucky Number: 7',
     '',
-    '{yellow}♈ ARIES {white}(Mar 21-Apr 19)',
-    '{white}Today brings new opportunities. Trust your instincts.',
+    '{yellow}♉ TAURUS {cyan}(April 20 - May 20)',
+    '{white}Financial matters require your attention today. Review your',
+    '{white}budget and consider long-term investments. A conversation with',
+    '{white}a trusted friend brings valuable insights. {green}Lucky Number: 3',
     '',
-    '{yellow}♉ TAURUS {white}(Apr 20-May 20)',
-    '{white}Financial matters require attention. Stay focused.',
+    '{yellow}♊ GEMINI {cyan}(May 21 - June 20)',
+    '{white}Communication is your superpower today. Express yourself clearly',
+    '{white}in important meetings. Your words have more impact than you',
+    '{white}realize. Social connections flourish. {green}Lucky Number: 5',
     '',
-    '{yellow}♊ GEMINI {white}(May 21-Jun 20)',
-    '{white}Communication is key today. Express yourself clearly.',
+    '{yellow}♋ CANCER {cyan}(June 21 - July 22)',
+    '{white}Home and family take center stage. Nurture your relationships',
+    '{white}and create a peaceful environment. Emotional healing is possible',
+    '{white}through honest conversations. {green}Lucky Number: 2',
     '',
-    '{yellow}♋ CANCER {white}(Jun 21-Jul 22)',
-    '{white}Home and family take priority. Nurture relationships.',
-    '',
-    '{yellow}♌ LEO {white}(Jul 23-Aug 22)',
-    '{white}Your creativity shines. Share your talents with others.',
-    '',
-    '{yellow}♍ VIRGO {white}(Aug 23-Sep 22)',
-    '{white}Organization pays off. Complete pending tasks.',
-    '',
-    '{magenta}Press {yellow}453{white} for more signs...',
+    '{magenta}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
+    '{magenta}║ {yellow}💫 MORE SIGNS:{white} Press {yellow}453{white} for Leo, Virgo, Libra, Scorpio, Sagittarius & Capricorn                                    {magenta}║',
+    '{magenta}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
     '',
     '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
-    '{cyan}NAVIGATION: {red}RED{white}=INDEX {green}GREEN{white}=MORE SIGNS {yellow}453{white}=NEXT PAGE',
+    '{cyan}NAVIGATION: {red}RED{white}=INDEX {green}GREEN{white}=NEXT PAGE {yellow}453{white}=MORE SIGNS {blue}BLUE{white}=SERVICES',
     ''
   ];
   
   return {
     id: '452',
-    title: 'Horoscopes',
+    title: 'Daily Horoscopes',
     rows,
     links: [
       { label: 'INDEX', targetPage: '100', color: 'red' },
-      { label: 'MORE', targetPage: '453', color: 'green' }
+      { label: 'NEXT', targetPage: '453', color: 'green' },
+      { label: '453', targetPage: '453' },
+      { label: 'SERVICES', targetPage: '100', color: 'blue' }
+    ],
+    meta: {
+      source: 'StaticAdapter',
+      lastUpdated: new Date().toISOString(),
+      fullScreenLayout: true,
+      useLayoutManager: true,
+      renderedWithLayoutEngine: true
+    }
+  };
+}
+
+/**
+ * Creates page 453 - Horoscopes & Astrology (Part 2)
+ */
+export function createHoroscopesPage2(): TeletextPage {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-GB', { 
+    hour: '2-digit', 
+    minute: '2-digit'
+  });
+  const dateStr = now.toLocaleDateString('en-GB', { 
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+  
+  const rows = [
+    `{cyan}453 {yellow}⭐ DAILY HOROSCOPES ⭐ {cyan}${timeStr}                                                                                                              {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
+    '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+    '{yellow}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
+    `{yellow}║  {cyan}${dateStr.padEnd(100)}{yellow}                                                                                                  ║`,
+    '{yellow}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+    '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+    '',
+    '{yellow}♌ LEO {cyan}(July 23 - August 22)',
+    '{white}Your creativity shines brilliantly today. Share your talents',
+    '{white}with the world and watch opportunities multiply. Romance is in',
+    '{white}the air for single Leos. {green}Lucky Number: 1',
+    '',
+    '{yellow}♍ VIRGO {cyan}(August 23 - September 22)',
+    '{white}Organization and attention to detail pay off handsomely. Complete',
+    '{white}pending tasks and you\'ll feel accomplished. Health matters improve',
+    '{white}with small lifestyle changes. {green}Lucky Number: 6',
+    '',
+    '{yellow}♎ LIBRA {cyan}(September 23 - October 22)',
+    '{white}Balance is your theme today. Harmonize work and personal life.',
+    '{white}A partnership opportunity presents itself. Your diplomatic skills',
+    '{white}resolve a long-standing conflict. {green}Lucky Number: 9',
+    '',
+    '{yellow}♏ SCORPIO {cyan}(October 23 - November 21)',
+    '{white}Intense emotions surface, bringing clarity to relationships.',
+    '{white}Trust your intuition in financial decisions. Transformation',
+    '{white}begins from within. Embrace change. {green}Lucky Number: 8',
+    '',
+    '{yellow}♐ SAGITTARIUS {cyan}(November 22 - December 21)',
+    '{white}Adventure calls! Expand your horizons through travel or learning.',
+    '{white}Your optimism is contagious. Share your enthusiasm with others.',
+    '{white}New friendships blossom. {green}Lucky Number: 4',
+    '',
+    '{yellow}♑ CAPRICORN {cyan}(December 22 - January 19)',
+    '{white}Hard work brings recognition and rewards. Career advancement is',
+    '{white}possible. Stay disciplined and focused on long-term goals.',
+    '{white}Success is within reach. {green}Lucky Number: 10',
+    '',
+    '{magenta}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
+    '{magenta}║ {yellow}💫 PREVIOUS SIGNS:{white} Press {yellow}452{white} for Aries, Taurus, Gemini & Cancer                                                    {magenta}║',
+    '{magenta}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+    '',
+    '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+    '{cyan}NAVIGATION: {red}RED{white}=INDEX {green}GREEN{white}=PREV PAGE {yellow}452{white}=FIRST SIGNS {blue}BLUE{white}=SERVICES',
+    ''
+  ];
+  
+  return {
+    id: '453',
+    title: 'Daily Horoscopes',
+    rows,
+    links: [
+      { label: 'INDEX', targetPage: '100', color: 'red' },
+      { label: 'PREV', targetPage: '452', color: 'green' },
+      { label: '452', targetPage: '452' },
+      { label: 'SERVICES', targetPage: '100', color: 'blue' }
     ],
     meta: {
       source: 'StaticAdapter',

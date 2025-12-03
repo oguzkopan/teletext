@@ -19,8 +19,9 @@ import { TeletextPage } from '@/types/teletext';
  * - double: 2 digits (e.g., sub-pages 10-99)
  * - triple: 3 digits (standard page navigation 100-899)
  * - text: full text input (e.g., AI questions, search queries)
+ * - disabled: no keyboard input allowed (e.g., error pages - only back button works)
  */
-export type InputMode = 'single' | 'double' | 'triple' | 'text';
+export type InputMode = 'single' | 'double' | 'triple' | 'text' | 'disabled';
 
 /**
  * Navigation state managed by the router

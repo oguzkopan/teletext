@@ -73,7 +73,7 @@ export interface PageMeta {
   favoritePages?: string[]; // For keyboard shortcuts config page
   themeSelectionPage?: boolean; // Flag to enable theme selection keyboard handling
   continuation?: PageContinuation; // Multi-page navigation metadata
-  inputMode?: 'single' | 'double' | 'triple' | 'text'; // Expected input type: single digit, 2 digits, 3 digits, or full text
+  inputMode?: 'single' | 'double' | 'triple' | 'text' | 'disabled'; // Expected input type: single digit, 2 digits, 3 digits, full text, or disabled (error pages)
   inputOptions?: string[];  // Valid single-digit options (e.g., ['1', '2', '3', '4', '5'])
   singleDigitShortcuts?: string[]; // Single digit shortcuts that work alongside text input
   textInputEnabled?: boolean; // Enable text input mode for Q&A pages
