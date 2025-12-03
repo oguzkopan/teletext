@@ -109,12 +109,26 @@ env:
       - RUNTIME
   
   # Google Cloud Configuration (for Vertex AI - pages 500-599)
+  # These are required for Vertex AI to work in production
   - variable: GOOGLE_CLOUD_PROJECT
+    value: teletext-eacd0
+    availability:
+      - BUILD
+      - RUNTIME
+  
+  - variable: GOOGLE_CLOUD_LOCATION
+    value: us-central1
+    availability:
+      - BUILD
+      - RUNTIME
+  
+  # Alternative variable names for compatibility
+  - variable: VERTEX_PROJECT_ID
     value: teletext-eacd0
     availability:
       - RUNTIME
   
-  - variable: GOOGLE_CLOUD_LOCATION
+  - variable: VERTEX_LOCATION
     value: us-central1
     availability:
       - RUNTIME

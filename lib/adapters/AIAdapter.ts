@@ -11,11 +11,29 @@ export class AIAdapter {
 
   constructor() {
     this.projectId = process.env.GOOGLE_CLOUD_PROJECT || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '';
-    this.location = process.env.VERTEX_LOCATION || 'us-central1';
+    this.location = process.env.GOOGLE_CLOUD_LOCATION || process.env.VERTEX_LOCATION || 'us-central1';
+    
+    // Log configuration for debugging
+    console.log('[AIAdapter] Initialized with:', {
+      projectId: this.projectId,
+      location: this.location,
+      hasGoogleCloudProject: !!process.env.GOOGLE_CLOUD_PROJECT,
+      hasVertexLocation: !!process.env.VERTEX_LOCATION,
+      hasGoogleCloudLocation: !!process.env.GOOGLE_CLOUD_LOCATION
+    });
   }
 
   private getVertexAI(): VertexAI {
     if (!this.vertexAI) {
+      if (!this.projectId) {
+        throw new Error('GOOGLE_CLOUD_PROJECT environment variable is not set');
+      }
+      
+      console.log('[AIAdapter] Creating VertexAI instance:', {
+        project: this.projectId,
+        location: this.location
+      });
+      
       this.vertexAI = new VertexAI({
         project: this.projectId,
         location: this.location
@@ -312,6 +330,13 @@ export class AIAdapter {
   private async generateAIAnswer(question: string): Promise<string> {
     try {
       console.log('[AIAdapter] Initializing Vertex AI...');
+      console.log('[AIAdapter] Environment check:', {
+        nodeEnv: process.env.NODE_ENV,
+        hasGoogleCloudProject: !!process.env.GOOGLE_CLOUD_PROJECT,
+        projectId: this.projectId,
+        location: this.location
+      });
+      
       const vertexAI = this.getVertexAI();
       const model = vertexAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
 
@@ -328,7 +353,7 @@ Requirements:
 
 Provide only the answer, no preamble.`;
 
-      console.log('[AIAdapter] Calling Vertex AI...');
+      console.log('[AIAdapter] Calling Vertex AI with model: gemini-2.0-flash-exp');
       const result = await model.generateContent(prompt);
       const response = result.response;
       const candidates = response.candidates;
@@ -338,12 +363,40 @@ Provide only the answer, no preamble.`;
       }
 
       const text = candidates[0].content.parts[0].text || '';
-      console.log('[AIAdapter] AI response received');
+      console.log('[AIAdapter] AI response received successfully');
       
       // Truncate if too long
       return text.length > 400 ? text.substring(0, 397) + '...' : text;
     } catch (error) {
       console.error('[AIAdapter] AI generation failed:', error);
+      
+      // Log detailed error information
+      if (error instanceof Error) {
+        console.error('[AIAdapter] Error details:', {
+          message: error.message,
+          name: error.name,
+          stack: error.stack
+        });
+      }
+      
+      // Check for specific error types
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      
+      if (errorMessage.includes('403') || errorMessage.includes('permission')) {
+        console.error('[AIAdapter] Permission denied - Vertex AI API may not be enabled or service account lacks permissions');
+        return 'AI service configuration error. Please contact administrator.';
+      }
+      
+      if (errorMessage.includes('404') || errorMessage.includes('not found')) {
+        console.error('[AIAdapter] Resource not found - Check project ID and model availability');
+        return 'AI model not available. Please try again later.';
+      }
+      
+      if (errorMessage.includes('GOOGLE_CLOUD_PROJECT')) {
+        console.error('[AIAdapter] Missing GOOGLE_CLOUD_PROJECT environment variable');
+        return 'AI service not configured. Please contact administrator.';
+      }
+      
       // Fallback answer
       return 'AI service temporarily unavailable. Please try again later.';
     }
