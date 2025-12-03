@@ -23,6 +23,19 @@ import {
   createGenericComingSoonPage,
   create404ErrorPage
 } from './additional-pages';
+import { createCursedPage, createCursedPageVariant } from './cursed-page';
+import { createEnhancedCursedPage } from './cursed-page-enhanced';
+import { createRadioListingsPage } from './radio-pages';
+import {
+  createCurrencyExchangePage,
+  createLotteryResultsPage,
+  createHoroscopesPage,
+  createFlightInfoPage,
+  createHotelBookingsPage,
+  createRestaurantReviewsPage,
+  createTVGuidePage,
+  createCinemaShowtimesPage
+} from './additional-services-pages';
 
 /**
  * Page factory function type
@@ -51,6 +64,9 @@ pageRegistry.set('101', createSystemStatusPage);
 // All markets pages are now handled by MarketsAdapter for live data from Alpha Vantage and CoinGecko
 // Pages 400-419 and their sub-pages (401-1, 402-2, etc.) are dynamically generated
 
+// Special page: 404 - Halloween-themed error page
+pageRegistry.set('404', () => create404ErrorPage('404'));
+
 // AI pages (5xx)
 pageRegistry.set('500', createAIOraclePage);
 pageRegistry.set('501', createAIChatPage);
@@ -65,6 +81,11 @@ pageRegistry.set('600', createGamesIndexPage);
 // - 620: Random facts (AI-generated or from API)
 // - 630: Word games with AI-generated anagrams
 // - 640: Math challenges with AI-generated problems
+
+// Cursed page (666) - Special Kiroween hackathon feature
+pageRegistry.set('666', createEnhancedCursedPage);
+pageRegistry.set('666-1', createCursedPageVariant);
+pageRegistry.set('666-2', createCursedPage); // Original version
 
 // Settings pages (7xx)
 pageRegistry.set('700', createThemeSelectionPage);
@@ -85,6 +106,17 @@ pageRegistry.set('420', () => createComingSoonPage('420', 'Weather Forecast & Co
 pageRegistry.set('421', () => createComingSoonPage('421', 'London Weather', 'Weather forecast for London'));
 pageRegistry.set('422', () => createComingSoonPage('422', 'New York Weather', 'Weather forecast for New York'));
 pageRegistry.set('423', () => createComingSoonPage('423', 'Tokyo Weather', 'Weather forecast for Tokyo'));
+
+// Additional Services pages (4xx)
+pageRegistry.set('450', createCurrencyExchangePage); // Currency Exchange Rates
+pageRegistry.set('451', createLotteryResultsPage); // Lottery Results
+pageRegistry.set('452', createHoroscopesPage); // Horoscopes & Astrology
+pageRegistry.set('460', createFlightInfoPage); // Flight Information
+pageRegistry.set('461', createHotelBookingsPage); // Hotel Bookings
+pageRegistry.set('462', createRestaurantReviewsPage); // Restaurant Reviews
+pageRegistry.set('470', createTVGuidePage); // TV Guide & Schedules
+pageRegistry.set('471', () => createRadioListingsPage()); // Radio Listings with integrated player
+pageRegistry.set('472', createCinemaShowtimesPage); // Cinema Showtimes
 
 // Settings sub-pages (7xx)
 pageRegistry.set('710', () => createComingSoonPage('710', 'Keyboard Shortcuts', 'View and customize keyboard shortcuts'));

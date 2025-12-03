@@ -417,6 +417,8 @@ const TeletextScreen = React.memo(function TeletextScreen({
     <div 
       ref={screenRef}
       className="teletext-screen"
+      data-page-id={displayPage.id}
+      data-cursed={displayPage.meta?.cursedPage ? 'true' : undefined}
       style={{
         backgroundColor: theme.colors.background,
         color: theme.colors.text,

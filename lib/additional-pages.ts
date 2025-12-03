@@ -199,8 +199,9 @@ export function createThemeCustomizationPage(): TeletextPage {
 }
 
 /**
- * Creates a beautiful 404 error page with ASCII art
+ * Creates a beautiful Halloween-themed 404 error page with ASCII art
  * Requirements: 5.3 - Beautiful 404 error page with decorative elements
+ * Enhanced for Kiroween hackathon with spooky teletext aesthetics
  */
 export function create404ErrorPage(pageNumber: string): TeletextPage {
   const now = new Date();
@@ -210,37 +211,50 @@ export function create404ErrorPage(pageNumber: string): TeletextPage {
   });
   
   const rows = [
-    `{cyan}??? {yellow}Page Not Found {cyan}${timeStr}                                                                                                                        {red}🔴{green}🟢{yellow}🟡{blue}🔵`,
-    '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+    `{magenta}404 {yellow}/!\\ Page Not Found /!\\ {magenta}${timeStr}                                                                                                                        `,
+    '{magenta}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
     '',
-    '{red}        ╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗',
-    '{red}        ║                                                                                                                   ║',
-    '{red}        ║     {yellow}██╗  ██╗ ██████╗ ██╗  ██╗                                                                                  {red}║',
-    '{red}        ║     {yellow}██║  ██║██╔═████╗██║  ██║                                                                                  {red}║',
-    '{red}        ║     {yellow}███████║██║██╔██║███████║                                                                                  {red}║',
-    '{red}        ║     {yellow}╚════██║████╔╝██║╚════██║                                                                                  {red}║',
-    '{red}        ║     {yellow}     ██║╚██████╔╝     ██║                                                                                  {red}║',
-    '{red}        ║     {yellow}     ╚═╝ ╚═════╝      ╚═╝                                                                                  {red}║',
-    '{red}        ║                                                                                                                   ║',
-    '{red}        ╚═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝',
+    '{yellow}                                    .--.      .--.      .--.      .--.      .--.      .--.',
+    '{yellow}                                   (    )    (    )    (    )    (    )    (    )    (    )',
+    '{yellow}                                    \'--\'      \'--\'      \'--\'      \'--\'      \'--\'      \'--\'',
     '',
-    `{white}Oops! Page {yellow}${pageNumber}{white} doesn't exist in our teletext system.`,
+    '{red}                                          ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄',
+    '{red}                                        ▄█{white}░░░░░░░░░░░░░░░░░░░░░░░{red}█▄',
+    '{red}                                      ▄█{white}░░{red}▄▄{white}░░░░░░░░░░░░░░░{red}▄▄{white}░░{red}█▄',
+    '{red}                                     █{white}░░{red}█{white}░░{red}█{white}░░░░░░░░░░░░░{red}█{white}░░{red}█{white}░░{red}█',
+    '{red}                                     █{white}░░░{red}▀▀{white}░░░░░░░░░░░░░░░{red}▀▀{white}░░░{red}█',
+    '{red}                                     █{white}░░░░░░░░░░░{red}▄▄▄{white}░░░░░░░░░░░{red}█',
+    '{red}                                     █{white}░░░░░░░░░{red}▄█{white}░░░{red}█▄{white}░░░░░░░░░{red}█',
+    '{red}                                     █{white}░░░░░░░░{red}█{white}░░░░░░░{red}█{white}░░░░░░░░{red}█',
+    '{red}                                     █{white}░░░░░░░░{red}█{white}░{red}▄▄▄▄▄{white}░{red}█{white}░░░░░░░░{red}█',
+    '{red}                                      █{white}░░░░░░░░{red}▀▀▀▀▀▀▀{white}░░░░░░░░{red}█',
+    '{red}                                       █{white}░░░░░░░░░░░░░░░░░░░░░{red}█',
+    '{red}                                        ▀█{white}░░░░░░░░░░░░░░░░░░░{red}█▀',
+    '{red}                                          ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀',
+    '',
+    '{yellow}                                    ╔═══════════════════════════════════════╗',
+    '{yellow}                                    ║  {red}BOO! THIS PAGE IS MISSING!{yellow}        ║',
+    '{yellow}                                    ║  {white}The spirits took it away...{yellow}       ║',
+    '{yellow}                                    ╚═══════════════════════════════════════╝',
+    '',
+    `{white}Oops! Page {yellow}${pageNumber}{white} has vanished into the darkness...`,
     '',
     '{cyan}▓▓▓ WHAT HAPPENED? ▓▓▓',
     '{white}The page you requested could not be found. This could be because:',
-    '{green}•{white} The page number is invalid (valid range: 100-999)',
-    '{green}•{white} The page hasn\'t been implemented yet',
-    '{green}•{white} You may have mistyped the page number',
+    '{magenta}*{white} The page number is invalid (valid range: 100-999)',
+    '{magenta}*{white} The page hasn\'t been implemented yet',
+    '{magenta}*{white} You may have mistyped the page number',
+    '{magenta}*{white} The ghosts are playing tricks on you...',
     '',
-    '{cyan}▓▓▓ WHERE TO GO? ▓▓▓',
-    '{white}Try these popular pages:',
+    '{cyan}▓▓▓ FIND YOUR WAY BACK ▓▓▓',
+    '{white}Don\'t be scared! Try these safe pages:',
     '{yellow}100{white} - Main Index          {yellow}200{white} - News Headlines',
     '{yellow}300{white} - Sports Results      {yellow}400{white} - Markets & Finance',
     '{yellow}500{white} - AI Oracle           {yellow}600{white} - Games & Quizzes',
-    '{yellow}700{white} - Settings & Themes   {yellow}999{white} - Help & Information',
+    '{yellow}666{white} - Cursed Page         {yellow}999{white} - Help & Information',
     '',
-    '{blue}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
-    '{cyan}NAVIGATION: {red}100{white}=MAIN INDEX {green}200{white}=NEWS {yellow}300{white}=SPORTS {blue}999{white}=HELP',
+    '{magenta}═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════',
+    '{magenta}NAVIGATION: {yellow}100{white}=MAIN INDEX {cyan}200{white}=NEWS {green}300{white}=SPORTS {red}666{white}=CURSED {blue}999{white}=HELP',
     ''
   ];
   

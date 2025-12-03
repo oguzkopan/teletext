@@ -5,7 +5,7 @@
 
 const http = require('http');
 
-const BASE_URL = 'http://localhost:3001';
+const BASE_URL = 'http://localhost:3000';
 
 function makeRequest(path) {
   return new Promise((resolve, reject) => {

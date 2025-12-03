@@ -1,0 +1,271 @@
+/**
+ * Cursed Page 666 Animations
+ * 
+ * Special CSS animations for the haunting teletext experience.
+ * Includes glitch effects, pulsing, flickering, and other spooky animations.
+ */
+
+/* Glitch effect for cursed text */
+@keyframes glitch {
+  0% {
+    transform: translate(0);
+    opacity: 1;
+  }
+  20% {
+    transform: translate(-2px, 2px);
+    opacity: 0.8;
+  }
+  40% {
+    transform: translate(-2px, -2px);
+    opacity: 0.9;
+  }
+  60% {
+    transform: translate(2px, 2px);
+    opacity: 0.8;
+  }
+  80% {
+    transform: translate(2px, -2px);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(0);
+    opacity: 1;
+  }
+}
+
+/* Pulsing red warning effect */
+@keyframes pulse-red {
+  0%, 100% {
+    color: #ff0000;
+    text-shadow: 0 0 5px #ff0000;
+  }
+  50% {
+    color: #ff6666;
+    text-shadow: 0 0 20px #ff0000, 0 0 30px #ff0000;
+  }
+}
+
+/* Flickering effect like old CRT */
+@keyframes flicker {
+  0%, 100% {
+    opacity: 1;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  20% {
+    opacity: 1;
+  }
+  30% {
+    opacity: 0.9;
+  }
+  40% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  60% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.85;
+  }
+  80% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 0.9;
+  }
+}
+
+/* Shake effect for warnings */
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-2px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(2px);
+  }
+}
+
+/* Fade in/out ghost effect */
+@keyframes ghost-fade {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Static noise effect */
+@keyframes static-noise {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 100% 100%;
+  }
+}
+
+/* Corrupted text effect */
+@keyframes corrupt {
+  0% {
+    transform: skew(0deg);
+    filter: blur(0px);
+  }
+  25% {
+    transform: skew(2deg);
+    filter: blur(1px);
+  }
+  50% {
+    transform: skew(-2deg);
+    filter: blur(0px);
+  }
+  75% {
+    transform: skew(1deg);
+    filter: blur(1px);
+  }
+  100% {
+    transform: skew(0deg);
+    filter: blur(0px);
+  }
+}
+
+/* Slow pulse for skull */
+@keyframes skull-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.02);
+    filter: brightness(1.2);
+  }
+}
+
+/* Color shift effect */
+@keyframes color-shift {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  50% {
+    filter: hue-rotate(30deg);
+  }
+  100% {
+    filter: hue-rotate(0deg);
+  }
+}
+
+/* Apply animations to cursed page elements */
+[data-page-id="666"] {
+  animation: flicker 3s infinite;
+}
+
+[data-page-id="666"] [data-cursed="true"] {
+  animation: glitch 2s infinite;
+}
+
+[data-page-id="666"] [data-warning="true"] {
+  animation: pulse-red 2s infinite, shake 0.5s infinite;
+}
+
+[data-page-id="666"] [data-skull="true"] {
+  animation: skull-pulse 3s infinite ease-in-out;
+}
+
+[data-page-id="666"] [data-ghost="true"] {
+  animation: ghost-fade 4s infinite ease-in-out;
+}
+
+[data-page-id="666"] [data-corrupt="true"] {
+  animation: corrupt 1.5s infinite;
+}
+
+[data-page-id="666"] [data-static="true"] {
+  animation: static-noise 0.5s infinite linear;
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 0, 0, 0.1) 2px,
+      rgba(255, 0, 0, 0.1) 4px
+    );
+}
+
+/* Cursed page background effect */
+[data-page-id="666"]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 0, 0, 0.03) 2px,
+      rgba(255, 0, 0, 0.03) 4px
+    );
+  pointer-events: none;
+  animation: static-noise 0.2s infinite linear;
+  z-index: 1;
+}
+
+/* Glowing text effect for warnings */
+[data-page-id="666"] .warning-text {
+  text-shadow: 
+    0 0 5px #ff0000,
+    0 0 10px #ff0000,
+    0 0 15px #ff0000,
+    0 0 20px #ff0000;
+  animation: pulse-red 1.5s infinite;
+}
+
+/* Haunted cursor effect */
+[data-page-id="666"] .cursor {
+  animation: flicker 0.5s infinite, color-shift 3s infinite;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  [data-page-id="666"],
+  [data-page-id="666"] * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode adjustments */
+@media (prefers-contrast: high) {
+  [data-page-id="666"] {
+    filter: contrast(1.5);
+  }
+  
+  [data-page-id="666"] .warning-text {
+    text-shadow: none;
+    font-weight: bold;
+  }
+}
+
+/* Dark mode enhancements */
+@media (prefers-color-scheme: dark) {
+  [data-page-id="666"]::before {
+    background: 
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(255, 0, 0, 0.05) 2px,
+        rgba(255, 0, 0, 0.05) 4px
+      );
+  }
+}

@@ -8,6 +8,8 @@ import BootSequence from '@/components/BootSequence';
 import PerformanceDebug from '@/components/PerformanceDebug';
 import KeyboardHandler from '@/components/KeyboardHandler';
 import HalloweenDecorations from '@/components/HalloweenDecorations';
+import CursedPageAnimations from '@/components/CursedPageAnimations';
+import { RadioPlayer } from '@/components/RadioPlayer';
 import { ThemeProvider, useTheme, themes } from '@/lib/theme-context';
 import { TeletextPage } from '@/types/teletext';
 import { validateEnvironmentVariablesWithWarnings } from '@/lib/env-validation';
@@ -71,6 +73,9 @@ function HomeContent() {
     <main className="w-screen h-screen overflow-hidden bg-black m-0 p-0 relative" style={{ width: '100vw', height: '100vh', maxWidth: '100vw', maxHeight: '100vh' }}>
       {/* Halloween decorations for Kiroween Hackathon */}
       <HalloweenDecorations />
+      
+      {/* Cursed page animations for page 666 */}
+      {currentPage?.id === '666' && <CursedPageAnimations />}
       
       <PageRouter 
         initialPage={createIndexPage(showWelcome)}
@@ -150,6 +155,16 @@ function HomeContent() {
               >
                 ✓ {confirmationMessage}
               </div>
+            )}
+
+            {/* Radio Player - Show when on page 471 */}
+            {currentPage?.id === '471' && currentPage?.meta?.radioPlayer?.enabled && (
+              <RadioPlayer 
+                station={currentPage.meta.radioPlayer.currentStation}
+                onStationChange={(stationId) => {
+                  routerState.navigateToPage('471');
+                }}
+              />
             )}
           </>
         )}

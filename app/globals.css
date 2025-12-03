@@ -5,6 +5,10 @@
 /* Import Halloween theme for Kiroween Hackathon */
 @import './halloween.css';
 
+/* Import Cursed Page 666 animations */
+@import './cursed-page.css';
+@import './cursed-page-enhanced.css';
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-rgb: 255, 255, 255;

@@ -33,6 +33,10 @@ export default function KeyboardHandler({ routerState }: KeyboardHandlerProps) {
       const isSettingsPage = routerState.currentPage?.id === '701' && 
                              routerState.currentPage?.meta?.settingsPage;
 
+      // Check if we're on page 471 (radio listings page)
+      const isRadioPage = routerState.currentPage?.id === '471' && 
+                         routerState.currentPage?.meta?.radioPlayer?.enabled;
+
       // Check if we're in text input mode (for AI Q&A pages)
       const isTextInputMode = routerState.currentPage?.meta?.inputMode === 'text';
 
@@ -50,6 +54,14 @@ export default function KeyboardHandler({ routerState }: KeyboardHandlerProps) {
         if (themeKey) {
           setTheme(themeKey);
         }
+        return;
+      }
+
+      // On page 471, handle radio station selection with number keys 1-9
+      if (isRadioPage && e.key >= '1' && e.key <= '9') {
+        e.preventDefault();
+        // Station selection is handled by the digit press handler
+        routerState.handleDigitPress(parseInt(e.key));
         return;
       }
 

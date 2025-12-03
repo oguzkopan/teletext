@@ -17,7 +17,7 @@ A nostalgic web application that faithfully recreates the 40×24 character grid 
 - **CRT Visual Effects**: Scanlines, screen curvature, noise, and glitch effects for authentic retro feel
 - **Multiple Themes**: Classic Ceefax, ORF, High Contrast, and Haunting Mode
 - **Offline Support**: Service worker caching for previously viewed pages
-- **Easter Eggs**: Hidden horror-themed pages (404, 666) with AI-generated content
+- **Easter Eggs**: Hidden horror-themed pages (404, 666) with animated ASCII art and special effects
 - **Performance Optimized**: Page preloading, request cancellation, and lazy-loaded adapters
 
 ### UX Redesign Features (New!)
@@ -103,8 +103,10 @@ See [UX_REDESIGN_OVERVIEW.md](./UX_REDESIGN_OVERVIEW.md) for complete details.
 - **802**: API Documentation - Endpoint reference
 - **803**: Example Requests/Responses
 
-### Easter Eggs
-- **666**: Horror Page - AI-generated spooky content with disturbing visuals
+### Easter Eggs 🎃
+- **666**: 👻 **Cursed Page** - Animated horror experience with ASCII skull art, glitch effects, and spooky teletext aesthetics (Kiroween Special!)
+- **666-1**: Alternative cursed variant with different ASCII art
+- **404**: Error Page - Animated glitch effects with horror ASCII art
 
 ## 🎮 Navigation Guide
 
@@ -1181,6 +1183,37 @@ Follow conventional commits format:
 - Provide constructive feedback
 - Focus on the code, not the person
 - Help others learn and grow
+
+## 🎃 Kiroween Hackathon Feature: Cursed Page 666 👻
+
+**Category**: Costume Contest - Haunting User Interface
+
+The **Cursed Page 666** is a special feature created for the Kiroween Hackathon, showcasing animated teletext horror aesthetics with authentic retro motifs.
+
+### Features
+- 💀 **Animated ASCII Skull Art**: Hand-crafted teletext-style skull with pulsing effects
+- 👻 **Glitch Effects**: Authentic CRT-style corruption and signal interference
+- ⚠️ **Pulsing Warnings**: Red warning text with animated glow effects
+- 📺 **Flickering Display**: Simulates old teletext signal degradation
+- 🎨 **Multiple Variants**: Different ASCII art designs (page 666 and 666-1)
+- ♿ **Fully Accessible**: Respects `prefers-reduced-motion` and high contrast modes
+- ⚡ **Performance Optimized**: Pure CSS animations, GPU-accelerated
+
+### How to Experience
+1. Navigate to page **100** (main index)
+2. Type **666** to enter the cursed realm
+3. Observe the spooky animations and effects
+4. Press **100** to escape back to safety
+
+### Technical Details
+- **Files**: `lib/cursed-page.ts`, `app/cursed-page.css`
+- **Animations**: 7 distinct CSS keyframe animations
+- **Size**: <10KB total code
+- **Performance**: 60fps, no JavaScript overhead
+
+See [CURSED_PAGE_666.md](./CURSED_PAGE_666.md) for complete documentation and [KIROWEEN_CURSED_PAGE_SUBMISSION.md](./KIROWEEN_CURSED_PAGE_SUBMISSION.md) for hackathon submission details.
+
+---
 
 ## 🎮 Kiro Usage
 

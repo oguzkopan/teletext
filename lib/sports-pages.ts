@@ -59,19 +59,16 @@ export function createSportsIndexPage(): TeletextPage {
       { label: 'INDEX', targetPage: '100', color: 'red' },
       { label: 'FOOTBALL', targetPage: '301', color: 'green' },
       { label: 'CRICKET', targetPage: '302', color: 'yellow' },
-      { label: 'LIVE', targetPage: '304', color: 'blue' },
-      { label: '1', targetPage: '300-1' },
-      { label: '2', targetPage: '300-2' },
-      { label: '3', targetPage: '300-3' }
+      { label: 'LIVE', targetPage: '304', color: 'blue' }
     ],
     meta: {
       source: 'StaticAdapter',
       lastUpdated: new Date().toISOString(),
       fullScreenLayout: true,
       useLayoutManager: true,
-      renderedWithLayoutEngine: true,
-      inputMode: 'single',
-      inputOptions: ['1', '2', '3'] // Valid single-digit options
+      renderedWithLayoutEngine: true
+      // No inputMode specified = defaults to 'triple' for 3-digit navigation
+      // This allows typing 301, 302, 303, etc. to navigate to those pages
     }
   };
 }

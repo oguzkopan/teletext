@@ -43,7 +43,7 @@ export interface TeletextPage {
 export interface PageLink {
   label: string;           // Display text
   targetPage: string;      // Target page number
-  color?: 'red' | 'green' | 'yellow' | 'blue';
+  color?: 'red' | 'green' | 'yellow' | 'blue' | 'magenta' | 'cyan';
   position?: number;       // Row number for inline links
 }
 
@@ -127,6 +127,21 @@ export interface PageMeta {
     total: number;
     label?: string;
     percentage?: number;
+  };
+  cursedPage?: boolean;    // Enable cursed page 666 special effects and animations
+  enableAnimations?: boolean; // Enable special animations for this page
+  specialEffects?: {       // Special effects configuration for cursed pages
+    glitch?: boolean;
+    pulse?: boolean;
+    flicker?: boolean;
+    shake?: boolean;
+    staticNoise?: boolean;
+  };
+  comingSoon?: boolean;    // Indicates this is a "coming soon" placeholder page
+  radioPlayer?: {          // Radio player configuration for page 471
+    enabled: boolean;
+    currentStation: any;
+    stations: any[];
   };
 }
 

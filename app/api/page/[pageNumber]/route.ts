@@ -6,6 +6,7 @@ import { MarketsAdapter } from '@/lib/adapters/MarketsAdapter';
 import { WeatherAdapter } from '@/lib/adapters/WeatherAdapter';
 import { GamesAdapter } from '@/lib/adapters/GamesAdapter';
 import { AIAdapter } from '@/lib/adapters/AIAdapter';
+import { createRadioListingsPage } from '@/lib/radio-pages';
 
 /**
  * API Route: GET /api/page/[pageNumber]
@@ -86,10 +87,20 @@ export async function GET(
         page = await sportsAdapter.getPage(pageNumber);
         break;
       
-      case 4: // Markets & Weather (400-499)
+      case 4: // Markets, Weather & Services (400-499)
         if (pageNum >= 420 && pageNum <= 449) {
           const weatherAdapter = new WeatherAdapter();
           page = await weatherAdapter.getPage(pageNumber);
+        } else if (pageNum === 471) {
+          // Radio Listings page with optional station selection
+          page = createRadioListingsPage({ stationId: queryParams.station });
+        } else if (pageNum >= 450 && pageNum <= 479) {
+          // Other service pages - check if static page exists
+          if (hasPage(pageNumber)) {
+            page = getPageByNumber(pageNumber);
+          } else {
+            page = get404Page(pageNumber);
+          }
         } else {
           const marketsAdapter = new MarketsAdapter();
           page = await marketsAdapter.getPage(pageNumber);
@@ -113,7 +124,7 @@ export async function GET(
           // Static pages like 500, 501 from page registry
           page = getPageByNumber(pageNumber);
         } else {
-          page = getComingSoonPage(pageNumber);
+          page = get404Page(pageNumber);
         }
         break;
       
@@ -124,12 +135,12 @@ export async function GET(
         break;
       
       default:
-        // Return coming soon page for unimplemented sections
-        page = getComingSoonPage(pageNumber);
+        // Return Halloween 404 page for unimplemented sections
+        page = get404Page(pageNumber);
     }
 
     if (!page) {
-      page = getComingSoonPage(pageNumber);
+      page = get404Page(pageNumber);
     }
 
     return NextResponse.json(
